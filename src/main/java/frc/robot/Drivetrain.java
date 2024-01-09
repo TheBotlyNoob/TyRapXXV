@@ -139,7 +139,7 @@ public class Drivetrain {
      * @return chasis angle in Rotation2d
      */
     public Rotation2d getGyroYawRotation2d() {
-        return new Rotation2d(Units.degreesToRadians(m_gyro.getYaw().getValue()));
+        return new Rotation2d(Units.degreesToRadians(m_gyro.getYaw().getValueAsDouble()));
     }
 
     /**
@@ -174,6 +174,28 @@ public class Drivetrain {
 
     public Pose2d getRoboPose2d() {
         return m_odometry.getPoseMeters();
+    }
+
+    /**
+     * Get the yaw of gyro in Rotation2d form
+     * 
+     * @return chasis angle in Rotation2d
+     */
+
+    public Pose2d calcRoboPose2dWithVision(double length, double angle1, double angle2) {
+        double L = length; //dist between the two april tags
+        double a1 = angle1; //angle (from the camera) of the close april tag (a1) and the far april tag (a2)
+        double a2 = angle2;
+        double gyroOffset = 0;
+        double roboAngle = m_gyro.getYaw().getValueAsDouble() + gyroOffset; //angle of the robot (0 degrees = facing the drivers)
+
+        double X = (L * Math.sin(Math.toRadians(90 + roboAngle + a2)) * Math.sin(Math.toRadians(90 - roboAngle - a1)))
+                        /Math.sin(Math.toRadians(Math.abs(a2 - a1)));
+
+        double Y = (L * Math.sin(Math.toRadians(90 + roboAngle + a2)) * Math.cos(Math.toRadians(90 - roboAngle - a1)))
+                        /Math.sin(Math.toRadians(Math.abs(a2 - a1)));
+
+        return new Pose2d(X, Y, getGyroYawRotation2d());
     }
 
     /** Updates the field relative position of the robot. */
