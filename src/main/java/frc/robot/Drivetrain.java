@@ -176,6 +176,36 @@ public class Drivetrain {
         return m_odometry.getPoseMeters();
     }
 
+    ChassisSpeeds presumedChassisSpeeds;
+    // Assuming this method is part of a drivetrain subsystem that provides the necessary methods
+        // https://github.com/HighlanderRobotics/Rapid-React/blob/main/src/main/java/frc/robot/subsystems/DrivetrainSubsystem.java
+        public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+                return new SequentialCommandGroup(
+                        new InstantCommand(() -> {
+                        // Reset odometry for the first path you run during auto
+                        if(isFirstPath){
+                                this.resetOdo(traj.getInitialHolonomicPose());
+                        }
+                        }),
+                        new PPSwerveControllerCommand(
+                                traj, 
+                                () -> m_odometry.getPoseMeters(), // Pose supplier
+                                this.m_kinematics, // SwerveDriveKinematics
+                                new PIDController(0.5, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                                new PIDController(0.5, 0, 0), // Y controller (usually the same values as X controller)
+                                new PIDController(0.5, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will only use feedforwards.
+                                (SwerveModuleState[] states) -> { // Consumes the module states to set the modules moving in the directions we want
+                                        presumedChassisSpeeds = m_kinematics.toChassisSpeeds(states);
+                                        SmartDashboard.putNumber(getName() + "X velo", presumedChassisSpeeds.vxMetersPerSecond); //added this to see where the robot thinks it's going
+                                        SmartDashboard.putNumber(getName() + "Y velo", presumedChassisSpeeds.vyMetersPerSecond);
+                                        setModuleStates(states);
+                                }, // Module states consumer
+                                true, // Should the path be automatically mirrored depending on alliance color. Optional, defaults to true
+                                this // Requires this drive subsystem
+                        )
+                );
+        }
+
     /**
      * THIS IS IN DEGREES
      * Triangulates position of robot knowing the distance between two april tags seen by the camera.
