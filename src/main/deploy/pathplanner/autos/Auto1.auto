@@ -1,0 +1,73 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 2.2908891971679908,
+      "y": 7.025263281293794
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto step 1"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.75
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto step 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto step 3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.75
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto step 4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Auto step 5"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.75
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopDrive"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}

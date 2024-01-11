@@ -8,6 +8,7 @@ import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Modules;
 
 public class SwerveModule {
@@ -118,6 +120,7 @@ public class SwerveModule {
         m_driveMotor.setSmartCurrentLimit(40);
         m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
         m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
+        m_driveMotor.setIdleMode(IdleMode.kBrake);
 
         /*
          * Set up the turning motor. We had to invert the turning motor so it agreed
@@ -237,8 +240,20 @@ public class SwerveModule {
 
         final double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
 
-        m_driveMotor.setVoltage(driveOutput + driveFeedforward);
+        if(desiredState.speedMetersPerSecond < 0.1){
+            m_driveMotor.setVoltage(0);
+        }
+        else {
+            m_driveMotor.setVoltage(driveOutput + driveFeedforward);
+        }
+
+        SmartDashboard.putNumber("voltage to wheels", driveOutput+driveFeedforward);
 
         this.goToPosition(state.angle.getRadians());
+
+        SmartDashboard.putNumber(m_swerveModuleName + " Target Turning Position",
+        state.angle.getRadians());
+        SmartDashboard.putNumber(m_swerveModuleName + " Actual Turning Position",
+        getActualTurningPosition());
     }
 }

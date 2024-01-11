@@ -1,0 +1,37 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 2.0,
+      "y": 7.0
+    },
+    "rotation": 0
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "karl1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "karl2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "karl"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": false
+}
