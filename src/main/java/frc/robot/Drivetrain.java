@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -101,7 +101,7 @@ public class Drivetrain {
 
     public Drivetrain() {
         // Zero at beginning of match. Zero = whatever direction the robot (more specifically the gyro) is facing
-        m_gyro.reset();
+        m_gyro.zeroGyroBiasNow();
         this.resetGyro();
     }
 
@@ -139,7 +139,7 @@ public class Drivetrain {
      * @return chasis angle in Rotation2d
      */
     public Rotation2d getGyroYawRotation2d() {
-        return new Rotation2d(Units.degreesToRadians(m_gyro.getYaw().getValue()));
+        return new Rotation2d(Units.degreesToRadians(m_gyro.getYaw()));
     }
 
     /**
