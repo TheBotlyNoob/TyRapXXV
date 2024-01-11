@@ -177,11 +177,13 @@ public class Drivetrain {
     }
 
     /**
-     * Get the yaw of gyro in Rotation2d form
-     * 
-     * @return chasis angle in Rotation2d
+     * THIS IS IN DEGREES
+     * Triangulates position of robot knowing the distance between two april tags seen by the camera.
+     * @param length
+     * @param angle1
+     * @param angle2
+     * @return
      */
-
     public Pose2d calcRoboPose2dWithVision(double length, double angle1, double angle2) {
         double L = length; //dist between the two april tags
         double a1 = angle1; //angle (from the camera) of the close april tag (a1) and the far april tag (a2)
