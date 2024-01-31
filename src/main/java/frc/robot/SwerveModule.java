@@ -18,7 +18,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Modules;
 
 public class SwerveModule {
@@ -202,10 +201,6 @@ public class SwerveModule {
         return ans;
     }
 
-    public void resetDriveError() {
-        m_drivePIDController.reset();
-    }
-
     // Controls a simple motor's position using a SimpleMotorFeedforward
     // and a ProfiledPIDController
     public void goToPosition(double goalPosition) {
@@ -245,33 +240,5 @@ public class SwerveModule {
         m_driveMotor.setVoltage(driveOutput + driveFeedforward);
 
         this.goToPosition(state.angle.getRadians());
-    }
-
-    /**
-     * Put info on smart dashboard
-     */
-    public void print() {
-        // SmartDashboard.putNumber(m_swerveModuleName + " Actual Turning Position",
-        // getActualTurningPosition());
-        // SmartDashboard.putNumber(m_swerveModuleName + " Actual Turning Position",
-        // getActualTurningPosition());
-        // SmartDashboard.putNumber(m_swerveModuleName + " Target Turning Position",
-        // state.angle.getRadians());
-        // SmartDashboard.putNumber(m_swerveModuleName + " Drive Output", driveOutput);
-        // SmartDashboard.putNumber(m_swerveModuleName + " Turning Output", turnOutput);
-        // SmartDashboard.putNumber(m_swerveModuleName + " Drive Actual Velocity",
-        // currentMPS);
-        // SmartDashboard.putNumber(m_swerveModuleName + " Drive Target Velocity",
-        // state.speedMetersPerSecond);
-        // SmartDashboard.putNumber(this.m_swerveModuleName + " T Target Velocity",
-        // targetVelocity);
-        // SmartDashboard.putNumber(this.m_swerveModuleName + " T Actual Velocity",
-        // actualVelocity);
-        // SmartDashboard.putNumber(this.m_swerveModuleName + " T Output Voltage",
-        // pidVal + FFVal);
-        // SmartDashboard.putNumber(this.m_swerveModuleName + " T Target Position",
-        // goalPosition);
-        // SmartDashboard.putNumber(this.m_swerveModuleName + " T Turning Position",
-        // this.getActualTurningPosition());
     }
 }

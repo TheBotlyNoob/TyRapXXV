@@ -15,7 +15,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ID;
 import frc.robot.Constants.Offsets;
 import frc.robot.Constants.DriveTrain;
@@ -97,7 +96,7 @@ public class Drivetrain {
             });
 
     private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
-    private Pose2d robotFieldPosition = getRoboPose2d();
+    private Pose2d m_robotFieldPosition = getRoboPose2d();
 
     public Drivetrain() {
         // Zero at beginning of match. Zero = whatever direction the robot (more specifically the gyro) is facing
@@ -111,7 +110,7 @@ public class Drivetrain {
 
     public void resetOdo() {
         resetGyro();
-        m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(), robotFieldPosition);
+        m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(), m_robotFieldPosition);
     }
 
     public SwerveModulePosition[] getModulePositions() {
@@ -121,16 +120,6 @@ public class Drivetrain {
                 m_backLeft.getPosition(),
                 m_backRight.getPosition()
         };
-    }
-
-    /**
-     * Sends swerve info to smart dashboard
-     */
-    public void print() {
-        m_frontLeft.print();
-        m_frontRight.print();
-        m_backLeft.print();
-        m_backRight.print();
     }
 
     /**
@@ -166,38 +155,11 @@ public class Drivetrain {
         m_backLeft.setDesiredState(swerveModuleStates[2]);
         m_backRight.setDesiredState(swerveModuleStates[3]);
 
-        SmartDashboard.putNumber("desired X Speed", xSpeed);
-        SmartDashboard.putNumber("desired Y Speed", ySpeed);
-        SmartDashboard.putNumber("desired Rot Speed", rotSpeed);
         updateOdometry();
     }
 
     public Pose2d getRoboPose2d() {
         return m_odometry.getPoseMeters();
-    }
-
-    /**
-     * THIS IS IN DEGREES
-     * Triangulates position of robot knowing the distance between two april tags seen by the camera.
-     * @param length
-     * @param angle1
-     * @param angle2
-     * @return
-     */
-    public Pose2d calcRoboPose2dWithVision(double length, double angle1, double angle2) {
-        double L = length; //dist between the two april tags
-        double a1 = angle1; //angle (from the camera) of the close april tag (a1) and the far april tag (a2)
-        double a2 = angle2;
-        double gyroOffset = 0;
-        double roboAngle = m_gyro.getYaw() + gyroOffset; //angle of the robot (0 degrees = facing the drivers)
-
-        double X = (L * Math.sin(Math.toRadians(90 + roboAngle + a2)) * Math.sin(Math.toRadians(90 - roboAngle - a1)))
-                        /Math.sin(Math.toRadians(Math.abs(a2 - a1)));
-
-        double Y = (L * Math.sin(Math.toRadians(90 + roboAngle + a2)) * Math.cos(Math.toRadians(90 - roboAngle - a1)))
-                        /Math.sin(Math.toRadians(Math.abs(a2 - a1)));
-
-        return new Pose2d(X, Y, getGyroYawRotation2d());
     }
 
     /** Updates the field relative position of the robot. */
@@ -215,18 +177,6 @@ public class Drivetrain {
         // Converting module speeds to chassis speeds
         m_chassisSpeeds = m_kinematics.toChassisSpeeds(
                 frontLeftState, frontRightState, backLeftState, backRightState);
-        robotFieldPosition = getRoboPose2d();
-
-        // Getting X Y R vector speeds
-        double forward = m_chassisSpeeds.vxMetersPerSecond;
-        double sideways = m_chassisSpeeds.vyMetersPerSecond;
-        double angular = m_chassisSpeeds.omegaRadiansPerSecond;
-
-        SmartDashboard.putNumber("real X speed", forward);
-        SmartDashboard.putNumber("real Y speed", sideways);
-        SmartDashboard.putNumber("real Rot speed", Math.toDegrees(angular));
-        SmartDashboard.putNumber("real X Pos", robotFieldPosition.getX());
-        SmartDashboard.putNumber("real Y Pos", robotFieldPosition.getY());
-        SmartDashboard.putNumber("real Rot", robotFieldPosition.getRotation().getDegrees());
+        m_robotFieldPosition = getRoboPose2d();
     }
 }
