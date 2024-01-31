@@ -5,30 +5,28 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
-import frc.robot.Constants.Controller;
 import frc.robot.Constants.Deadbands;
 import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Constants.Controller;
 
-public class lockTarget extends Command {
+public class DriveCommand extends Command {
     Drivetrain dt;
     private final XboxController m_controller = new XboxController(Controller.kDriveController);
     private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(Controller.kRateLimitXSpeed);
     private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(Controller.kRateLimitYSpeed);
     private final SlewRateLimiter m_rotLimiter = new SlewRateLimiter(Controller.kRateLimitRot);
 
-    public lockTarget(Drivetrain dt) {
+    public DriveCommand(Drivetrain dt) {
         this.dt = dt;
         addRequirements(dt);
     }
 
-    @Override
-    public void initialize() {
-        System.out.println("Locking piece.");
+    public void schedule() {
     }
 
-    double xSpeed;
-    double ySpeed;
-    double rotSpeed;
+    private double xSpeed;
+    private double ySpeed;
+    private double rotSpeed;
 
     private void readControllers() {
         // Get the x speed. We are inverting this because Xbox controllers return
@@ -56,11 +54,11 @@ public class lockTarget extends Command {
     @Override
     public void execute() {
         readControllers();
-        dt.lockPiece(xSpeed, ySpeed, rotSpeed, !m_controller.getAButton(), m_controller.getLeftTriggerAxis() > 0.25);
+        dt.drive(xSpeed, ySpeed, rotSpeed);
     }
 
     @Override
     public boolean isFinished() {
-        return m_controller.getLeftBumperReleased();
+        return false;
     }
 }
