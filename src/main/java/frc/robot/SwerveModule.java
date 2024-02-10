@@ -70,9 +70,6 @@ public class SwerveModule {
     private double m_turningLastSpeed = 0;
     private double m_turningLastTime = Timer.getFPGATimestamp();
 
-    // Example code came with these feed forward pieces which we haven't yet added
-    // as they are meant for tuning and are not required
-    // We leave them here in case you'd like to reference them
     private final SimpleMotorFeedforward m_driveFeedforward;
     private final SimpleMotorFeedforward m_turnFeedforward;
 
