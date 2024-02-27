@@ -26,15 +26,17 @@ import frc.robot.Commands.ResetOdoCommand;
  */
 public class RobotContainer {
     private final CommandXboxController m_driveController = new CommandXboxController(Controller.kDriveController);
-    private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
-    public final Drivetrain m_swerve = new Drivetrain(m_gyro);
+    private final Pigeon2 m_gyro;
+    public final Drivetrain m_swerve;
     Command driveCommand;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        m_gyro = new Pigeon2(ID.kGyro);
         m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(-90));
+        m_swerve = new Drivetrain(m_gyro);
         // Xbox controllers return negative values when we push forward.
         driveCommand = new DriveCommand(m_swerve);
         m_swerve.setDefaultCommand(driveCommand);
