@@ -4,7 +4,8 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix6.configs.MountPoseConfigs;
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -33,6 +34,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+        m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(-90));
         // Xbox controllers return negative values when we push forward.
         driveCommand = new DriveCommand(m_swerve);
         m_swerve.setDefaultCommand(driveCommand);

@@ -4,7 +4,7 @@
 
 package frc.robot.Subsystems;
 
-import com.ctre.phoenix.sensors.Pigeon2;
+import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -96,11 +96,15 @@ public class Drivetrain extends SubsystemBase {
 
     /**
      * Tracks the robots position.
-     * When you construct this object, you specify a starting position. All updates to the robot's position are relative to this
-     * starting location. There is a function call that you can force-update the robot's position on the field if you can read
+     * When you construct this object, you specify a starting position. All updates
+     * to the robot's position are relative to this
+     * starting location. There is a function call that you can force-update the
+     * robot's position on the field if you can read
      * it from another sensor.
-     * Typically, we use a camera such as a Limelight camera to reset the robot's position on the field based on April Tags. The
-     * Limelight library is pretty powerful and provides this information through MegaTag. Another project builds off of this Drive Train
+     * Typically, we use a camera such as a Limelight camera to reset the robot's
+     * position on the field based on April Tags. The
+     * Limelight library is pretty powerful and provides this information through
+     * MegaTag. Another project builds off of this Drive Train
      * to include the Limelight.
      */
     private final SwerveDriveOdometry m_odometry;
@@ -109,20 +113,21 @@ public class Drivetrain extends SubsystemBase {
     private Pose2d m_robotFieldPosition;
 
     public Drivetrain(Pigeon2 m_gyro) {
-        // Zero at beginning of match. Zero = whatever direction the robot (more specifically the gyro) is facing
+        // Zero at beginning of match. Zero = whatever direction the robot (more
+        // specifically the gyro) is facing
         this.m_gyro = m_gyro;
         this.resetGyro();
 
         m_odometry = new SwerveDriveOdometry(
-            m_kinematics,
-            getGyroYawRotation2d(),
-            new SwerveModulePosition[] {
-                m_frontLeft.getPosition(),
-                m_frontRight.getPosition(),
-                m_backLeft.getPosition(),
-                m_backRight.getPosition()
-            });
-        
+                m_kinematics,
+                getGyroYawRotation2d(),
+                new SwerveModulePosition[] {
+                        m_frontLeft.getPosition(),
+                        m_frontRight.getPosition(),
+                        m_backLeft.getPosition(),
+                        m_backRight.getPosition()
+                });
+
         m_robotFieldPosition = getRoboPose2d();
     }
 
@@ -135,8 +140,10 @@ public class Drivetrain extends SubsystemBase {
 
     /**
      * Resets robot position on the field.
-     * Without an additional sensor, this function just resets the robot's position to an arbitrary location.
-     * You can use this arbitrary location during development without needing another sensor such as a Limelight, but you will need
+     * Without an additional sensor, this function just resets the robot's position
+     * to an arbitrary location.
+     * You can use this arbitrary location during development without needing
+     * another sensor such as a Limelight, but you will need
      * that additional sensor during actual competition to use Odometry pratically.
      */
     public void resetOdo() {
@@ -145,6 +152,7 @@ public class Drivetrain extends SubsystemBase {
 
     /**
      * Resets Odometry using a specific Pose2d
+     * 
      * @param pose The robot's position on the field
      */
     public void resetOdo(Pose2d pose) {
@@ -163,7 +171,9 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Module positions in the form of SwerveModulePositions (Module orientation and the distance the wheel has travelled across the ground)
+     * Module positions in the form of SwerveModulePositions (Module orientation and
+     * the distance the wheel has travelled across the ground)
+     * 
      * @return SwerveModulePosition[] The swerve module positions
      */
     public SwerveModulePosition[] getModulePositions() {
@@ -176,22 +186,24 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Get the yaw of gyro in Rotation2d form. The angle is relative to whatever direction the gyro thinks is forward.
+     * Get the yaw of gyro in Rotation2d form. The angle is relative to whatever
+     * direction the gyro thinks is forward.
      * You can use resetGyro to reset what direction is forward.
      * 
      * @return Chasis angle in Rotation2d.
      */
     public Rotation2d getGyroYawRotation2d() {
-        return Rotation2d.fromDegrees(m_gyro.getYaw());
+        return Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
     }
 
     /**
      * Method to drive the robot using joystick info.
      *
-     * @param xSpeed Speed of the robot in the x direction (forward).
-     * @param ySpeed Speed of the robot in the y direction (sideways).
-     * @param rotSpeed Angular rate of the robot.
-     * @param m_fieldRelative Whether the provided x and y speeds are relative to the field.
+     * @param xSpeed          Speed of the robot in the x direction (forward).
+     * @param ySpeed          Speed of the robot in the y direction (sideways).
+     * @param rotSpeed        Angular rate of the robot.
+     * @param m_fieldRelative Whether the provided x and y speeds are relative to
+     *                        the field.
      */
     public void drive(double xSpeed, double ySpeed, double rotSpeed) {
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
@@ -216,11 +228,11 @@ public class Drivetrain extends SubsystemBase {
 
     public void stopDriving() {
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
-        ChassisSpeeds.fromFieldRelativeSpeeds(
-                0,
-                0,
-                0,
-                getGyroYawRotation2d()));
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                        0,
+                        0,
+                        0,
+                        getGyroYawRotation2d()));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxPossibleSpeed);
 
@@ -236,7 +248,7 @@ public class Drivetrain extends SubsystemBase {
         m_odometry.update(
                 getGyroYawRotation2d(),
                 getModulePositions());
-        
+
         // getting velocity vectors from each module
         SwerveModuleState frontLeftState = m_frontLeft.getState();
         SwerveModuleState frontRightState = m_frontRight.getState();
