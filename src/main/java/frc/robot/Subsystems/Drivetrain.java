@@ -105,7 +105,6 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveDriveOdometry m_odometry;
 
     private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
-    private boolean lockTargetInAuto = false;
 
     private ExecutorService executorService = Executors.newFixedThreadPool(4);
 
