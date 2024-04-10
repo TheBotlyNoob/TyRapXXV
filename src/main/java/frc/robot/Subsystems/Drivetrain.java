@@ -4,7 +4,13 @@
 
 package frc.robot.Subsystems;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
+
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -13,10 +19,13 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ID;
 import frc.robot.Constants.Offsets;
@@ -25,8 +34,8 @@ import frc.robot.Constants.DriveTrain;
 
 /** Represents a swerve drive style drivetrain. */
 public class Drivetrain extends SubsystemBase {
-    public static final double kMaxPossibleSpeed = 5; // meters per second
-    public static final double kMaxAngularSpeed = 3 * Math.PI; // per second
+    public static final double kMaxPossibleSpeed = 1.5; // meters per second
+    public static final double kMaxAngularSpeed = 1.5 * Math.PI; // per second
 
     private final Translation2d m_frontLeftLocation = new Translation2d(
             DriveTrain.kDistanceMiddleToFrontMotor * DriveTrain.kXForward,
@@ -80,9 +89,9 @@ public class Drivetrain extends SubsystemBase {
 
     private final Pigeon2 m_gyro;
 
-    private boolean m_fieldRelative = true;
+    private boolean fieldRelative = true;
     private final ShuffleboardTab m_driveTab = Shuffleboard.getTab("drive subsystem");
-    private final SimpleWidget m_fieldRelativeWidget = m_driveTab.add("drive field relative", m_fieldRelative);
+    private final SimpleWidget m_fieldRelativeWidget = m_driveTab.add("drive field relative", fieldRelative);
 
     /**
      * The order that you initialize these is important! Later uses of functions
@@ -93,28 +102,17 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
-    /**
-     * Tracks the robots position.
-     * When you construct this object, you specify a starting position. All updates
-     * to the robot's position are relative to this
-     * starting location. There is a function call that you can force-update the
-     * robot's position on the field if you can read
-     * it from another sensor.
-     * Typically, we use a camera such as a Limelight camera to reset the robot's
-     * position on the field based on April Tags. The
-     * Limelight library is pretty powerful and provides this information through
-     * MegaTag. Another project builds off of this Drive Train
-     * to include the Limelight.
-     */
     private final SwerveDriveOdometry m_odometry;
 
     private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
-    private Pose2d m_robotFieldPosition;
+    private boolean lockTargetInAuto = false;
 
-    public Drivetrain(Pigeon2 m_gyro) {
+    private ExecutorService executorService = Executors.newFixedThreadPool(4);
+
+    public Drivetrain(Pigeon2 gyro) {
         // Zero at beginning of match. Zero = whatever direction the robot (more
         // specifically the gyro) is facing
-        this.m_gyro = m_gyro;
+        this.m_gyro = gyro;
         this.resetGyro();
 
         m_odometry = new SwerveDriveOdometry(
@@ -126,8 +124,10 @@ public class Drivetrain extends SubsystemBase {
                         m_backLeft.getPosition(),
                         m_backRight.getPosition()
                 });
+    }
 
-        m_robotFieldPosition = getRoboPose2d();
+    public Pigeon2 getGyro() {
+        return m_gyro;
     }
 
     /**
@@ -138,34 +138,49 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Resets robot position on the field.
-     * Without an additional sensor, this function just resets the robot's position
-     * to an arbitrary location.
-     * You can use this arbitrary location during development without needing
-     * another sensor such as a Limelight, but you will need
-     * that additional sensor during actual competition to use Odometry pratically.
+     * Resets robot position on the field
      */
     public void resetOdo() {
-        this.resetOdo(new Pose2d(new Translation2d(3, 7), new Rotation2d()));
+        if (DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue1)
+                || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue2)
+                || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue3)) {
+            m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
+                    new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
+                            new Rotation2d()));
+        } else {
+            m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
+                    new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
+                            new Rotation2d(Math.PI)));
+        }
     }
 
     /**
      * Resets Odometry using a specific Pose2d
      * 
-     * @param pose The robot's position on the field
+     * @param pose
      */
     public void resetOdo(Pose2d pose) {
-        m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(), pose);
+        if (pose != null) {
+            m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(), pose);
+        }
     }
 
     public ChassisSpeeds getChassisSpeeds() {
         return m_chassisSpeeds;
     }
 
-    public Command toggleFieldRelativeCommand() {
+    public boolean getFieldRelative() {
+        return fieldRelative;
+    }
+
+    public void setFieldRelative(boolean isFieldRelative) {
+        fieldRelative = isFieldRelative;
+        m_fieldRelativeWidget.getEntry().setBoolean(fieldRelative);
+    }
+
+    public Command setFieldRelativeCommand(boolean isFieldRelative) {
         return runOnce(() -> {
-            m_fieldRelative = !m_fieldRelative;
-            m_fieldRelativeWidget.getEntry().setBoolean(m_fieldRelative);
+            this.setFieldRelative(isFieldRelative);
         });
     }
 
@@ -173,7 +188,7 @@ public class Drivetrain extends SubsystemBase {
      * Module positions in the form of SwerveModulePositions (Module orientation and
      * the distance the wheel has travelled across the ground)
      * 
-     * @return SwerveModulePosition[] The swerve module positions
+     * @return SwerveModulePosition[]
      */
     public SwerveModulePosition[] getModulePositions() {
         return new SwerveModulePosition[] {
@@ -185,28 +200,39 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Get the yaw of gyro in Rotation2d form. The angle is relative to whatever
-     * direction the gyro thinks is forward.
-     * You can use resetGyro to reset what direction is forward.
+     * Get the yaw of gyro in Rotation2d form
      * 
-     * @return Chasis angle in Rotation2d.
+     * @return chasis angle in Rotation2d
      */
     public Rotation2d getGyroYawRotation2d() {
-        return Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
+        return Rotation2d.fromDegrees(m_gyro.getYaw().getValue());
+    }
+
+    private double driveMultiplier = 1;
+
+    public void setDriveMult(double mult) {
+        driveMultiplier = mult;
+    }
+
+    public Command setDriveMultCommand(double mult) {
+        return Commands.runOnce(() -> setDriveMult(mult));
     }
 
     /**
      * Method to drive the robot using joystick info.
      *
-     * @param xSpeed          Speed of the robot in the x direction (forward).
-     * @param ySpeed          Speed of the robot in the y direction (sideways).
-     * @param rotSpeed        Angular rate of the robot.
-     * @param m_fieldRelative Whether the provided x and y speeds are relative to
-     *                        the field.
+     * @param xSpeed        Speed of the robot in the x direction (forward).
+     * @param ySpeed        Speed of the robot in the y direction (sideways).
+     * @param rotSpeed      Angular rate of the robot.
+     * @param fieldRelative Whether the provided x and y speeds are relative to the
+     *                      field.
      */
     public void drive(double xSpeed, double ySpeed, double rotSpeed) {
+        xSpeed = xSpeed * driveMultiplier;
+        ySpeed = ySpeed * driveMultiplier;
+        rotSpeed = rotSpeed * driveMultiplier;
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
-                m_fieldRelative
+                fieldRelative
                         ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
                                 getGyroYawRotation2d())
                         : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed));
@@ -214,12 +240,37 @@ public class Drivetrain extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxPossibleSpeed);
 
         // passing back the math from kinematics to the swerves themselves.
-        m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        m_frontRight.setDesiredState(swerveModuleStates[1]);
-        m_backLeft.setDesiredState(swerveModuleStates[2]);
-        m_backRight.setDesiredState(swerveModuleStates[3]);
+        CountDownLatch latch = new CountDownLatch(4);
+        executorService.execute(() -> {
+            m_frontLeft.setDesiredState(swerveModuleStates[0]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_frontRight.setDesiredState(swerveModuleStates[1]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_backLeft.setDesiredState(swerveModuleStates[2]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_backRight.setDesiredState(swerveModuleStates[3]);
+            latch.countDown();
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            // Pass
+        }
 
-        updateOdometry();
+        // m_frontLeft.setDesiredState(swerveModuleStates[0]);
+        // m_frontRight.setDesiredState(swerveModuleStates[1]);
+        // m_backLeft.setDesiredState(swerveModuleStates[2]);
+        // m_backRight.setDesiredState(swerveModuleStates[3]);
+
+        SmartDashboard.putNumber("desired X speed", xSpeed);
+        SmartDashboard.putNumber("desired Y speed", ySpeed);
+        // this.layout.setDesiredRotSpeed(Math.toDegrees(rotSpeed));
     }
 
     public Pose2d getRoboPose2d() {
@@ -258,6 +309,10 @@ public class Drivetrain extends SubsystemBase {
         // Converting module speeds to chassis speeds
         m_chassisSpeeds = m_kinematics.toChassisSpeeds(
                 frontLeftState, frontRightState, backLeftState, backRightState);
-        m_robotFieldPosition = getRoboPose2d();
+    }
+
+    @Override
+    public void periodic() {
+        updateOdometry();
     }
 }

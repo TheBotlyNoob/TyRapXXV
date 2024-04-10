@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Controller;
 import frc.robot.Constants.ID;
 import frc.robot.Subsystems.Drivetrain;
-import frc.robot.Commands.DriveCommand;
+import frc.robot.Commands.Drive;
 import frc.robot.Commands.ResetOdoCommand;
 
 /**
@@ -25,23 +25,22 @@ import frc.robot.Commands.ResetOdoCommand;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-    private final CommandXboxController m_driveController = new CommandXboxController(Controller.kDriveController);
-    private final Pigeon2 m_gyro;
-    public final Drivetrain m_swerve;
-    Command driveCommand;
+    private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
+    private final Drivetrain m_swerve;
+
+    Command m_driveCommand;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        m_gyro = new Pigeon2(ID.kGyro);
-        m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(-90));
-        m_swerve = new Drivetrain(m_gyro);
-        // Xbox controllers return negative values when we push forward.
-        driveCommand = new DriveCommand(m_swerve);
-        m_swerve.setDefaultCommand(driveCommand);
+        this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(-90));
+        this.m_swerve = new Drivetrain(m_gyro);
 
-        // Configure the trigger bindings
+        // Xbox controllers return negative values when we push forward.
+        this.m_driveCommand = new Drive(m_swerve);
+        this.m_swerve.setDefaultCommand(this.m_driveCommand);
+
         configureBindings();
     }
 
@@ -60,13 +59,16 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
+        Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
+        Controller.kDriveController.rightBumper()
+                .onTrue(this.m_swerve.setFieldRelativeCommand(false))
+                .onFalse(this.m_swerve.setFieldRelativeCommand(true));
 
-        // drive bindings
-        m_driveController.rightBumper().onTrue((new ResetOdoCommand(m_swerve)));
-        m_driveController.rightTrigger(0.25).toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
+        Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
+                .onFalse(m_swerve.setDriveMultCommand(1));
     }
 
-    public Command getTeleOpCommand() {
-        return driveCommand;
+    public Drivetrain getDrivetrain() {
+        return this.m_swerve;
     }
 }

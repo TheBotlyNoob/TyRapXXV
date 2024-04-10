@@ -7,12 +7,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
-public class Robot extends TimedRobot { 
-    private RobotContainer m_containter;
+public class Robot extends TimedRobot {
+    private RobotContainer m_container;
 
     @Override
     public void robotInit() {
-        m_containter = new RobotContainer();
+        m_container = new RobotContainer();
     }
 
     @Override
@@ -21,11 +21,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        m_container.getDrivetrain().setFieldRelative(true);
     }
 
     @Override
     public void autonomousPeriodic() {
-    } 
+    }
 
     @Override
     public void teleopPeriodic() {
@@ -40,5 +41,4 @@ public class Robot extends TimedRobot {
     public void disabledPeriodic() {
     }
 
-    
 }
