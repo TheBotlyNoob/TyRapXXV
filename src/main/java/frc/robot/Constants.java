@@ -80,11 +80,14 @@ public class Constants {
     public static class Offsets {
         // Ensure that the encoder offsets are between -Pi & Pi
         /**
-         * Encoder offsets
+         * Encoder offsets. These can be obtained by straightening
+         * all wheels in the forward position and reading the encoder values 
+         * from the dashboard by uncommenting the lines in Robot.java
+         * disabledPeriodic.
          */
-        public static final double kFrontLeftOffset = 0.86;
-        public static final double kFrontRightOffset = -1.53;
-        public static final double kBackLeftOffset = -1.61;
-        public static final double kBackRightOffset = -0.43;
+        public static final double kFrontLeftOffset = 2.79;
+        public static final double kFrontRightOffset = 2.106;
+        public static final double kBackLeftOffset = 1.10;
+        public static final double kBackRightOffset = -0.08;
     }
 }

@@ -136,6 +136,22 @@ public class Drivetrain extends SubsystemBase {
         m_gyro.setYaw(0);
     }
 
+    public SwerveModule getBackLeftSwerveModule() {
+        return m_backLeft;
+    }
+
+    public SwerveModule getBackRightSwerveModule() {
+        return m_backRight;
+    }
+
+    public SwerveModule getFrontLeftSwerveModule() {
+        return m_frontLeft;
+    }
+
+    public SwerveModule getFrontRightSwerveModule() {
+        return m_frontRight;
+    }
+
     /**
      * Resets robot position on the field
      */

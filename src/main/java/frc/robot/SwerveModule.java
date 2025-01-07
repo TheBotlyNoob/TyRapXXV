@@ -197,9 +197,18 @@ public class SwerveModule {
      * @return real orientation of wheel.
      */
     public double getActualTurningPosition() {
-        double ans = (m_turningEncoder.getAbsolutePosition().getValue() * 2 * Math.PI) - m_encoderOffset;
+        double ans = getRawTurningPositionRadians() - m_encoderOffset;
         double ansMod = MathUtil.angleModulus(ans); // keep between -PI to PI
         return ansMod;
+    }
+
+    /**
+     * Returns orientation of wheel as measured by the encoder without applying any offsets.
+     * 
+     * @return raw encoder angle in radians.
+     */
+    public double getRawTurningPositionRadians() {
+        return m_turningEncoder.getAbsolutePosition().getValue() * 2 * Math.PI;
     }
 
     public void resetDriveError() {
