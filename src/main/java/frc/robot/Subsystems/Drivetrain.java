@@ -220,7 +220,7 @@ public class Drivetrain extends SubsystemBase {
      * @return chasis angle in Rotation2d
      */
     public Rotation2d getGyroYawRotation2d() {
-        return Rotation2d.fromDegrees(m_gyro.getYaw().getValue());
+        return Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
     }
 
     private double driveMultiplier = 1;
@@ -246,11 +246,16 @@ public class Drivetrain extends SubsystemBase {
         xSpeed = xSpeed * driveMultiplier;
         ySpeed = ySpeed * driveMultiplier;
         rotSpeed = rotSpeed * driveMultiplier;
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
-                fieldRelative
-                        ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
-                                getGyroYawRotation2d())
-                        : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed));
+
+        ChassisSpeeds chassisSpeeds = fieldRelative
+            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
+                getGyroYawRotation2d())
+            : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
+        driveChassisSpeeds(chassisSpeeds);
+    }
+
+    public void driveChassisSpeeds(ChassisSpeeds chassisSpeeds) {
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(chassisSpeeds);
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxPossibleSpeed);
 
@@ -277,15 +282,6 @@ public class Drivetrain extends SubsystemBase {
         } catch (InterruptedException e) {
             // Pass
         }
-
-        // m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        // m_frontRight.setDesiredState(swerveModuleStates[1]);
-        // m_backLeft.setDesiredState(swerveModuleStates[2]);
-        // m_backRight.setDesiredState(swerveModuleStates[3]);
-
-        SmartDashboard.putNumber("desired X speed", xSpeed);
-        SmartDashboard.putNumber("desired Y speed", ySpeed);
-        // this.layout.setDesiredRotSpeed(Math.toDegrees(rotSpeed));
     }
 
     public Pose2d getRoboPose2d() {

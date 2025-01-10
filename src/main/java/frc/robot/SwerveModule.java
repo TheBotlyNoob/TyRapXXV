@@ -6,11 +6,13 @@ package frc.robot;
 
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -24,7 +26,6 @@ import edu.wpi.first.wpilibj.Timer;
 import frc.robot.Constants.Modules;
 
 public class SwerveModule {
-    private static final int kEncoderResolution = 4096;
 
     private static final double kModuleMaxAngularVelocity = 8 * Math.PI;
     private static final double kModuleMaxAngularAcceleration = 20 * Math.PI; // radians per second squared this was
@@ -34,13 +35,13 @@ public class SwerveModule {
      * The drive motor is responsible for the actual power across the ground e.g. to
      * make it move forward/backward
      */
-    private final CANSparkMax m_driveMotor;
+    private final SparkMax m_driveMotor;
 
     /**
      * The turning/steering motor is responsible for the orientation of the wheel
      * e.g. to make it turn
      */
-    private final CANSparkMax m_turningMotor;
+    private final SparkMax m_turningMotor;
 
     /**
      * Each turning motor has an encoder. Each motor was mounted by people at
@@ -71,7 +72,6 @@ public class SwerveModule {
 
     private double m_turningLastSpeed = 0;
     private double m_turningLastTime = Timer.getFPGATimestamp();
-    private double m_turningLastPosition = 0.0;
 
     private final SimpleMotorFeedforward m_driveFeedforward;
     private final SimpleMotorFeedforward m_turnFeedforward;
@@ -115,22 +115,26 @@ public class SwerveModule {
         /*
          * Set up the drive motor
          */
-        m_driveMotor = new CANSparkMax(driveMotorChannel, MotorType.kBrushless);
+        m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
         m_driveMotor.getEncoder().setPosition(0);
-        m_driveMotor.setSmartCurrentLimit(40);
-        m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
-        m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
-        m_driveMotor.setIdleMode(IdleMode.kBrake);
-        m_driveMotor.setInverted(false);
+        SparkMaxConfig driveConfig = new SparkMaxConfig();
+        driveConfig.smartCurrentLimit(40); //m_driveMotor.setSmartCurrentLimit(40);
+        driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter); //m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
+        driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); //m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
+        driveConfig.idleMode(IdleMode.kBrake); //m_driveMotor.setIdleMode(IdleMode.kBrake);
+        driveConfig.inverted(false); //m_driveMotor.setInverted(false);
+        m_driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         /*
          * Set up the turning motor. We had to invert the turning motor so it agreed
          * with the turning encoder which direction was positive
          */
-        m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
-        m_turningMotor.setInverted(true);
-        m_turningMotor.setSmartCurrentLimit(40);
-        m_turningMotor.setIdleMode(IdleMode.kBrake);
+        m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
+        SparkMaxConfig turningConfig = new SparkMaxConfig();
+        turningConfig.inverted(true); //m_turningMotor.setInverted(true);
+        turningConfig.smartCurrentLimit(40); //m_turningMotor.setSmartCurrentLimit(40);
+        turningConfig.idleMode(IdleMode.kBrake); //m_turningMotor.setIdleMode(IdleMode.kBrake);
+        m_turningMotor.configure(turningConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         /*
          * Set up and configure the turning encoder. Additional config is required to
@@ -140,7 +144,7 @@ public class SwerveModule {
 
         // Want absolute readings [0.5, 0.5)
         MagnetSensorConfigs turningEncoderMagnetSensorConfigs = new MagnetSensorConfigs()
-                .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
+                .withAbsoluteSensorDiscontinuityPoint(0.5) // .withAbsoluteSensorRange(AbsoluteSensorRangeValue.Signed_PlusMinusHalf)
                 .withSensorDirection(SensorDirectionValue.CounterClockwise_Positive);
         m_turningEncoder.getConfigurator().apply(turningEncoderMagnetSensorConfigs);
         m_turningEncoder.clearStickyFaults();
@@ -208,7 +212,7 @@ public class SwerveModule {
      * @return raw encoder angle in radians.
      */
     public double getRawTurningPositionRadians() {
-        return m_turningEncoder.getAbsolutePosition().getValue() * 2 * Math.PI;
+        return m_turningEncoder.getAbsolutePosition().getValueAsDouble() * 2 * Math.PI;
     }
 
     public void resetDriveError() {
@@ -222,7 +226,7 @@ public class SwerveModule {
         double targetAcceleration = (targetVelocity - this.m_turningLastSpeed)
                 / (Timer.getFPGATimestamp() - this.m_turningLastTime);
 
-        double actualVelocity = 2 * Math.PI * m_turningEncoder.getVelocity().getValue();
+        double actualVelocity = 2 * Math.PI * m_turningEncoder.getVelocity().getValueAsDouble();
 
         double pidVal = m_turningPIDController.calculate(this.getActualTurningPosition(), goalPosition);
         double FFVal = m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity,
@@ -231,7 +235,6 @@ public class SwerveModule {
         m_turningMotor.setVoltage(pidVal + FFVal);
         this.m_turningLastSpeed = actualVelocity;
         this.m_turningLastTime = Timer.getFPGATimestamp();
-        this.m_turningLastPosition = this.getActualTurningPosition();
     }
 
     /**
