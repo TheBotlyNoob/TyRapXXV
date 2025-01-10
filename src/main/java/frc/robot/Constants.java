@@ -10,14 +10,14 @@ public class Constants {
         public static final int kFrontLeftTurn = 5;
         public static final int kFrontLeftDrive = 6;
 
-        public static final int kFrontRightTurn = 7;
-        public static final int kFrontRightDrive = 8;
+        public static final int kFrontRightTurn = 8;
+        public static final int kFrontRightDrive = 52;
 
-        public static final int kBackRightTurn = 1;
+        public static final int kBackRightTurn = 3;
         public static final int kBackRightDrive = 2;
 
-        public static final int kBackLeftTurn = 3;
-        public static final int kBackLeftDrive = 4;
+        public static final int kBackLeftTurn = 4;
+        public static final int kBackLeftDrive = 7;
 
         // Swerve CanCoder IDs
         public static final int kFrontLeftCANCoder = 11;
@@ -47,7 +47,7 @@ public class Constants {
         public static final int kYRight = -1;
 
         // ITS TUNED. NO TOUCH!
-        public static final double[] turnPID = { 4.5, 0.0, 0.0 };
+        public static final double[] turnPID = { 0.5, 0.2, 0.0 };
         public static final double[] drivePID = { 3, 0.00, 0.00 };
         public static final double[] turnFeedForward = { 0.0, 0.3 };
         public static final double[] driveFeedForward = { 0.0, 2.675 };
@@ -61,8 +61,8 @@ public class Constants {
     }
 
     public static class Controller {
-        public static final int kDriveControllerID = 0;
-        public static final int kManipControllerID = 1;
+        public static final int kDriveControllerID = 1;
+        public static final int kManipControllerID = 0;
 
         /**
          * Rate limiters make joystick inputs more gentle; 1/3 sec from 0 to 1.
@@ -80,11 +80,14 @@ public class Constants {
     public static class Offsets {
         // Ensure that the encoder offsets are between -Pi & Pi
         /**
-         * Encoder offsets
+         * Encoder offsets. These can be obtained by straightening
+         * all wheels in the forward position and reading the encoder values 
+         * from the dashboard by uncommenting the lines in Robot.java
+         * disabledPeriodic.
          */
-        public static final double kFrontLeftOffset = 0.86;
-        public static final double kFrontRightOffset = -1.53;
-        public static final double kBackLeftOffset = -1.61;
-        public static final double kBackRightOffset = -0.43;
+        public static final double kFrontLeftOffset = 2.79;
+        public static final double kFrontRightOffset = 2.106;
+        public static final double kBackLeftOffset = 1.10;
+        public static final double kBackRightOffset = -0.08;
     }
 }

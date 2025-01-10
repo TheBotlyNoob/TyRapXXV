@@ -4,13 +4,13 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
-import com.revrobotics.CANSparkMax;
+import com.ctre.phoenix6.signals.AbsoluteSensorRangeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.CANSparkBase.IdleMode;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkMax;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -128,7 +128,7 @@ public class SwerveModule {
          * with the turning encoder which direction was positive
          */
         m_turningMotor = new CANSparkMax(turningMotorChannel, MotorType.kBrushless);
-        m_turningMotor.setInverted(false);
+        m_turningMotor.setInverted(true);
         m_turningMotor.setSmartCurrentLimit(40);
         m_turningMotor.setIdleMode(IdleMode.kBrake);
 
@@ -197,9 +197,18 @@ public class SwerveModule {
      * @return real orientation of wheel.
      */
     public double getActualTurningPosition() {
-        double ans = (m_turningEncoder.getAbsolutePosition().getValue() * 2 * Math.PI) - m_encoderOffset;
+        double ans = getRawTurningPositionRadians() - m_encoderOffset;
         double ansMod = MathUtil.angleModulus(ans); // keep between -PI to PI
         return ansMod;
+    }
+
+    /**
+     * Returns orientation of wheel as measured by the encoder without applying any offsets.
+     * 
+     * @return raw encoder angle in radians.
+     */
+    public double getRawTurningPositionRadians() {
+        return m_turningEncoder.getAbsolutePosition().getValue() * 2 * Math.PI;
     }
 
     public void resetDriveError() {
