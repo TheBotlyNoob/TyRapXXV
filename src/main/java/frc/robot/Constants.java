@@ -30,7 +30,7 @@ public class Constants {
     }
 
     public static class Deadbands {
-        public static final double kLeftJoystickDeadband = 0.04;
+        public static final double kLeftJoystickDeadband = 0.06;
         public static final double kRightJoyStickDeadband = 0.04;
     }
 
@@ -47,7 +47,7 @@ public class Constants {
         public static final int kYRight = -1;
 
         // ITS TUNED. NO TOUCH!
-        public static final double[] turnPID = { 0.5, 0.2, 0.0 };
+        public static final double[] turnPID = { 4.5, 0.0, 0.0 };
         public static final double[] drivePID = { 3, 0.00, 0.00 };
         public static final double[] turnFeedForward = { 0.0, 0.3 };
         public static final double[] driveFeedForward = { 0.0, 2.675 };

@@ -39,6 +39,8 @@ public class RobotContainer {
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
     private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
+    private GenericEntry m_gyroAngle = m_competitionTab.add("Gyro Angle", 0).getEntry();
+    private SwerveModuleSB[] mSwerveModuleTelem;
     
     Command m_driveCommand;
 
@@ -48,6 +50,12 @@ public class RobotContainer {
     public RobotContainer() {
         this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(-90));
         this.m_swerve = new Drivetrain(m_gyro);
+        
+        SwerveModuleSB[] swerveModuleTelem = { new SwerveModuleSB("FR", m_swerve.getFrontRightSwerveModule(), m_competitionTab),
+                              new SwerveModuleSB("FL", m_swerve.getFrontLeftSwerveModule(), m_competitionTab),
+                              new SwerveModuleSB("BR", m_swerve.getBackRightSwerveModule(), m_competitionTab),
+                              new SwerveModuleSB("BL", m_swerve.getBackLeftSwerveModule(), m_competitionTab)};
+        mSwerveModuleTelem = swerveModuleTelem;
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -119,5 +127,9 @@ public class RobotContainer {
     public void reportTelemetry() {
         m_xVelEntry.setDouble(m_swerve.getChassisSpeeds().vxMetersPerSecond);
         m_yVelEntry.setDouble(m_swerve.getChassisSpeeds().vyMetersPerSecond);
+        m_gyroAngle.setDouble(m_swerve.getGyroYawRotation2d().getDegrees());
+        for (SwerveModuleSB sb : mSwerveModuleTelem) {
+            sb.update();
+        }
     }
 }

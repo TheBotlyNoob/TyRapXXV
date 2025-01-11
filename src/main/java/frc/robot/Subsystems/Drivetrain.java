@@ -23,10 +23,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -97,6 +99,7 @@ public class Drivetrain extends SubsystemBase {
     private boolean fieldRelative = true;
     private final ShuffleboardTab m_driveTab = Shuffleboard.getTab("drive subsystem");
     private final SimpleWidget m_fieldRelativeWidget = m_driveTab.add("drive field relative", fieldRelative);
+    private final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0).getEntry();
 
     /**
      * The order that you initialize these is important! Later uses of functions
@@ -298,9 +301,11 @@ public class Drivetrain extends SubsystemBase {
 
         SmartDashboard.putNumber("desired X speed", xSpeed);
         SmartDashboard.putNumber("desired Y speed", ySpeed);
+        SmartDashboard.putNumber("dsired rot speed" , rotSpeed);
     }
 
     public void driveChassisSpeeds(ChassisSpeeds chassisSpeeds) {
+        m_driveCommandedRotationSpeed.setDouble(Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(chassisSpeeds);
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxPossibleSpeed);
