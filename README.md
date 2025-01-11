@@ -4,6 +4,12 @@ This project contains the base swerve drive train implementation plus pathplanne
 represents a superset of the base swerve branch. The implementation can be extracted and included
 in a new project that needs a swerve drive train.
 
+To run the autonomous path, open the Shuffleboard UI and load the Competition tab. The tab should
+display a selection both with "DO NOTHING!" and "Vision Test" options (you may need to restart shuffleboard for the
+widget to display properly). Select the "Vision Test" option. On the Driver Station, select "Autonomous" mode
+in the left-hand panel, then select "Enable". The robot should drive in a roughly square pattern (open
+the "Vision Test" auto in pathplanner to view), then stop.
+
 ## Branches
 * main
     * This is the drive train of the TyRapXXIV final Orlando software code updated with addresses and constants
