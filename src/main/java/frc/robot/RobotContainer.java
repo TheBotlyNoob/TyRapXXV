@@ -6,7 +6,13 @@ package frc.robot;
 
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.Controller;
@@ -27,7 +33,10 @@ import frc.robot.Commands.ResetOdoCommand;
 public class RobotContainer {
     private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
     private final Drivetrain m_swerve;
+    private final SendableChooser<String> autoChooser;
 
+    private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
+    
     Command m_driveCommand;
 
     /**
@@ -41,6 +50,11 @@ public class RobotContainer {
         this.m_driveCommand = new Drive(m_swerve);
         this.m_swerve.setDefaultCommand(this.m_driveCommand);
 
+        autoChooser = new SendableChooser<>(); // Default auto will be `Commands.none()'
+
+        configurePathPlanner();
+        autoChooser.setDefaultOption("DO NOTHING!", "NO AUTO");
+        m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
         configureBindings();
     }
 
@@ -70,5 +84,30 @@ public class RobotContainer {
 
     public Drivetrain getDrivetrain() {
         return this.m_swerve;
+    }
+
+    private void configurePathPlanner() {
+        autoChooser.addOption("Vision Test",   "Vision Test");
+    }
+
+    public Command getAutonomousCommand() {
+        if (autoChooser.getSelected().equals("NO AUTO")) {
+            return Commands.none();
+        }
+        System.out.println("getAutoCommand building auto for " + autoChooser.getSelected());
+        return AutoBuilder.buildAuto(autoChooser.getSelected());
+    }
+
+    public void setTeleDefaultCommand() {
+        if (this.m_swerve.getDefaultCommand() == null) {
+            this.m_swerve.setDefaultCommand(this.m_driveCommand);
+        }
+    }
+
+    public void setAutoDefaultCommand() {
+    }
+
+    public void clearDefaultCommand() {
+        this.m_swerve.removeDefaultCommand();
     }
 }

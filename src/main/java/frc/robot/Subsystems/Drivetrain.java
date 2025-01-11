@@ -9,6 +9,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -123,6 +127,41 @@ public class Drivetrain extends SubsystemBase {
                         m_backLeft.getPosition(),
                         m_backRight.getPosition()
                 });
+
+        // Load the RobotConfig from the PathPlanner GUI settings
+        RobotConfig ppConfig;
+        try {
+            ppConfig = RobotConfig.fromGUISettings();
+
+            // Configure AutoBuilder last
+            AutoBuilder.configure(
+                this::getRoboPose2d, // Robot pose supplier
+                this::resetOdo, // Method to reset odometry (will be called if your auto has a starting pose)
+                this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                this::driveChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this should likely live in your
+                                                // Constants class
+                        new PIDConstants(4, 0.1, 0.0), // Translation PID constants p used to be 7
+                        new PIDConstants(3.6, 0.05, 0.15) // Rotation PID constants
+                ),
+                ppConfig,
+                () -> {
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                    var alliance = DriverStation.getAlliance();
+                    if (alliance.isPresent()) {
+                        return alliance.get() == DriverStation.Alliance.Red;
+                    }
+                    return false;
+                },
+                this // Reference to this subsystem to set requirements
+            );
+        } catch (Exception e) {
+            // Handle exception as needed
+            e.printStackTrace();
+        }
     }
 
     public Pigeon2 getGyro() {
@@ -252,6 +291,9 @@ public class Drivetrain extends SubsystemBase {
                 getGyroYawRotation2d())
             : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
         driveChassisSpeeds(chassisSpeeds);
+
+        SmartDashboard.putNumber("desired X speed", xSpeed);
+        SmartDashboard.putNumber("desired Y speed", ySpeed);
     }
 
     public void driveChassisSpeeds(ChassisSpeeds chassisSpeeds) {

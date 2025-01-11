@@ -1,6 +1,8 @@
-# 2025_Swerve
+# 2025_Swerve_pathplanner
 
-This project contains code related to the drive train. We use a swerve drive. This project houses a basic implementation of a drive train which you can pull out and include in a new project that needs a swerve drive train.
+This project contains the base swerve drive train implementation plus pathplanner support. This
+represents a superset of the base swerve branch. The implementation can be extracted and included
+in a new project that needs a swerve drive train.
 
 ## Branches
 * main
@@ -12,5 +14,7 @@ This project contains code related to the drive train. We use a swerve drive. Th
     * Jake is using a test-bed to develop teaching tools for other students.
 * 2025_swerve
     * This is the base swerve implemenation for WPILib 2025
+* 2025_swerve_pathplanner
+    # This is the base swerve implementation plus path planning support
 
 ## [Important Info: CANCoders and Tuning](src/main/java/frc/robot/README.md)

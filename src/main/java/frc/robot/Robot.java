@@ -18,11 +18,17 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
+        m_container.getDrivetrain().setFieldRelative(true);
+
+        m_container.clearDefaultCommand();
+        m_container.setAutoDefaultCommand();
+        m_container.getAutonomousCommand().schedule();
     }
 
     @Override
     public void teleopInit() {
         m_container.getDrivetrain().setFieldRelative(true);
+        m_container.setTeleDefaultCommand();
     }
 
     @Override
