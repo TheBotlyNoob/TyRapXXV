@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -36,6 +37,8 @@ public class RobotContainer {
     private final SendableChooser<String> autoChooser;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
+    private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
+    private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
     
     Command m_driveCommand;
 
@@ -55,6 +58,7 @@ public class RobotContainer {
         configurePathPlanner();
         autoChooser.setDefaultOption("DO NOTHING!", "NO AUTO");
         m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
+        m_competitionTab.add("Drivetrain", this.m_swerve);
         configureBindings();
     }
 
@@ -88,6 +92,7 @@ public class RobotContainer {
 
     private void configurePathPlanner() {
         autoChooser.addOption("Vision Test",   "Vision Test");
+        autoChooser.addOption("SwerveTestAuto25", "SwerveTestAuto25");
     }
 
     public Command getAutonomousCommand() {
@@ -109,5 +114,10 @@ public class RobotContainer {
 
     public void clearDefaultCommand() {
         this.m_swerve.removeDefaultCommand();
+    }
+
+    public void reportTelemetry() {
+        m_xVelEntry.setDouble(m_swerve.getChassisSpeeds().vxMetersPerSecond);
+        m_yVelEntry.setDouble(m_swerve.getChassisSpeeds().vyMetersPerSecond);
     }
 }

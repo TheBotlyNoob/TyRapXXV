@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ID;
 import frc.robot.Constants.Offsets;
+import frc.robot.Constants;
 import frc.robot.SwerveModule;
 import frc.robot.Constants.DriveTrain;
 
@@ -139,10 +140,13 @@ public class Drivetrain extends SubsystemBase {
                 this::resetOdo, // Method to reset odometry (will be called if your auto has a starting pose)
                 this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                 this::driveChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this should likely live in your
-                                                // Constants class
-                        new PIDConstants(4, 0.1, 0.0), // Translation PID constants p used to be 7
-                        new PIDConstants(3.6, 0.05, 0.15) // Rotation PID constants
+                new PPHolonomicDriveController( // HolonomicPathFollowerConfig
+                        new PIDConstants(Constants.DriveTrain.drivePID[0], // Translation PID constants
+                            Constants.DriveTrain.drivePID[1],
+                            Constants.DriveTrain.drivePID[2]), 
+                        new PIDConstants(Constants.DriveTrain.turnPID[0], // Rotation PID constants
+                            Constants.DriveTrain.turnPID[1],
+                            Constants.DriveTrain.turnPID[2]) 
                 ),
                 ppConfig,
                 () -> {
