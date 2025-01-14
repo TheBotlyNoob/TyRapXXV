@@ -88,6 +88,7 @@ public class RobotContainer {
 
     private void configurePathPlanner() {
         autoChooser.addOption("Vision Test",   "Vision Test");
+        autoChooser.addOption("Drive Straight",   "Drive Straight");
     }
 
     public Command getAutonomousCommand() {
