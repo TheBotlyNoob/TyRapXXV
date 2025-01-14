@@ -8,6 +8,7 @@ import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -36,6 +37,10 @@ public class RobotContainer {
     private final SendableChooser<String> autoChooser;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
+    private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
+    private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
+    private GenericEntry m_gyroAngle = m_competitionTab.add("Gyro Angle", 0).getEntry();
+    private SwerveModuleSB[] mSwerveModuleTelem;
     
     Command m_driveCommand;
 
@@ -45,6 +50,12 @@ public class RobotContainer {
     public RobotContainer() {
         this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(-90));
         this.m_swerve = new Drivetrain(m_gyro);
+        
+        SwerveModuleSB[] swerveModuleTelem = { new SwerveModuleSB("FR", m_swerve.getFrontRightSwerveModule(), m_competitionTab),
+                              new SwerveModuleSB("FL", m_swerve.getFrontLeftSwerveModule(), m_competitionTab),
+                              new SwerveModuleSB("BR", m_swerve.getBackRightSwerveModule(), m_competitionTab),
+                              new SwerveModuleSB("BL", m_swerve.getBackLeftSwerveModule(), m_competitionTab)};
+        mSwerveModuleTelem = swerveModuleTelem;
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -55,6 +66,7 @@ public class RobotContainer {
         configurePathPlanner();
         autoChooser.setDefaultOption("DO NOTHING!", "NO AUTO");
         m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
+        m_competitionTab.add("Drivetrain", this.m_swerve);
         configureBindings();
     }
 
@@ -88,7 +100,11 @@ public class RobotContainer {
 
     private void configurePathPlanner() {
         autoChooser.addOption("Vision Test",   "Vision Test");
+<<<<<<< HEAD
         autoChooser.addOption("Drive Straight",   "Drive Straight");
+=======
+        autoChooser.addOption("SwerveTestAuto25", "SwerveTestAuto25");
+>>>>>>> 9c64f7254906b240815061eb1edbeb728ae2f515
     }
 
     public Command getAutonomousCommand() {
@@ -110,5 +126,14 @@ public class RobotContainer {
 
     public void clearDefaultCommand() {
         this.m_swerve.removeDefaultCommand();
+    }
+
+    public void reportTelemetry() {
+        m_xVelEntry.setDouble(m_swerve.getChassisSpeeds().vxMetersPerSecond);
+        m_yVelEntry.setDouble(m_swerve.getChassisSpeeds().vyMetersPerSecond);
+        m_gyroAngle.setDouble(m_swerve.getGyroYawRotation2d().getDegrees());
+        for (SwerveModuleSB sb : mSwerveModuleTelem) {
+            sb.update();
+        }
     }
 }

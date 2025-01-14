@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -14,6 +16,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         m_container = new RobotContainer();
+        FollowPathCommand.warmupCommand().schedule();
     }
 
     @Override
@@ -42,6 +45,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
+        m_container.reportTelemetry();
     }
 
     @Override

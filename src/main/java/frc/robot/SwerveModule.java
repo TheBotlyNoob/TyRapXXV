@@ -76,6 +76,8 @@ public class SwerveModule {
     private final SimpleMotorFeedforward m_driveFeedforward;
     private final SimpleMotorFeedforward m_turnFeedforward;
 
+    private SwerveModuleState m_desiredState = new SwerveModuleState();
+
     /**
      * Constructs a SwerveModule with a drive motor, turning motor, drive encoder
      * and turning encoder.
@@ -206,6 +208,11 @@ public class SwerveModule {
         return ansMod;
     }
 
+    public SwerveModuleState getDesiredState() {
+        return m_desiredState;
+    }
+
+
     /**
      * Returns orientation of wheel as measured by the encoder without applying any offsets.
      * 
@@ -247,6 +254,8 @@ public class SwerveModule {
         // PI/2 radians
         SwerveModuleState state = SwerveModuleState.optimize(desiredState,
                 new Rotation2d(getActualTurningPosition()));
+        //SwerveModuleState state = desiredState;
+        //state.optimize(new Rotation2d(getActualTurningPosition()));
 
         double currentMPS = m_driveMotor.getEncoder().getVelocity(); // fixed with conversion
 
@@ -263,5 +272,6 @@ public class SwerveModule {
         }
 
         this.goToPosition(state.angle.getRadians());
+        m_desiredState = state;
     }
 }
