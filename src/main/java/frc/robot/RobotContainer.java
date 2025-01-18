@@ -110,6 +110,9 @@ public class RobotContainer {
 
     private void configurePathPlanner() {
         autoChooser.addOption("Vision Test",   "Vision Test");
+<<<<<<< HEAD
+        autoChooser.addOption("Drive Straight",   "Drive Straight");
+=======
         autoChooser.addOption("SwerveTestAuto25", "SwerveTestAuto25");
         autoChooser.addOption("StraightForward", "StraightForward");
     }
