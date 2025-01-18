@@ -33,7 +33,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.TyRap24Constants.*;
+//import frc.robot.TyRap24Constants.*;
+import frc.robot.SparkJrConstants.*;
 import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */

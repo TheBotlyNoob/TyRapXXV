@@ -23,7 +23,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.TyRap24Constants.*;
+//import frc.robot.TyRap24Constants.*;
+import frc.robot.SparkJrConstants.*;
 
 public class SwerveModule {
 
