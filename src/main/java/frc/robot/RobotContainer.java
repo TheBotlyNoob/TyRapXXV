@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import frc.robot.TyRap24Constants.*;
 import frc.robot.SparkJrConstants.*;
 import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.Limelight;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
@@ -39,6 +40,7 @@ import frc.robot.Commands.StopDrive;
 public class RobotContainer {
     private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
     private final Drivetrain m_swerve;
+    private final Limelight m_Limelight;
     private final SendableChooser<String> autoChooser;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
@@ -63,6 +65,9 @@ public class RobotContainer {
                               new SwerveModuleSB("BR", m_swerve.getBackRightSwerveModule(), m_competitionTab),
                               new SwerveModuleSB("BL", m_swerve.getBackLeftSwerveModule(), m_competitionTab)};
         mSwerveModuleTelem = swerveModuleTelem;
+
+        this.m_Limelight = new Limelight();
+        this.m_Limelight.setLimelightPipeline(2);
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
