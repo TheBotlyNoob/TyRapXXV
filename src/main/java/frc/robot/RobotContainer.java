@@ -7,8 +7,12 @@ package frc.robot;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -16,11 +20,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.Controller;
-import frc.robot.Constants.ID;
+import frc.robot.TyRap24Constants.*;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.ResetOdoCommand;
+import frc.robot.Commands.StopDrive;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -40,6 +44,8 @@ public class RobotContainer {
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
     private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
     private GenericEntry m_gyroAngle = m_competitionTab.add("Gyro Angle", 0).getEntry();
+    private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
+        .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
     private SwerveModuleSB[] mSwerveModuleTelem;
     
     Command m_driveCommand;
@@ -67,6 +73,9 @@ public class RobotContainer {
         autoChooser.setDefaultOption("DO NOTHING!", "NO AUTO");
         m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
         m_competitionTab.add("Drivetrain", this.m_swerve);
+
+        NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
+
         configureBindings();
     }
 
@@ -101,6 +110,7 @@ public class RobotContainer {
     private void configurePathPlanner() {
         autoChooser.addOption("Vision Test",   "Vision Test");
         autoChooser.addOption("SwerveTestAuto25", "SwerveTestAuto25");
+        autoChooser.addOption("StraightForward", "StraightForward");
     }
 
     public Command getAutonomousCommand() {
@@ -118,6 +128,9 @@ public class RobotContainer {
     }
 
     public void setAutoDefaultCommand() {
+        if (this.m_swerve.getDefaultCommand() == null) {
+            this.m_swerve.setDefaultCommand(this.m_driveCommand);
+        }
     }
 
     public void clearDefaultCommand() {
@@ -131,5 +144,11 @@ public class RobotContainer {
         for (SwerveModuleSB sb : mSwerveModuleTelem) {
             sb.update();
         }
+        SwerveModuleState[] states = {
+            m_swerve.getBackLeftSwerveModule().getState(),
+            m_swerve.getBackRightSwerveModule().getState(),
+            m_swerve.getFrontLeftSwerveModule().getState(),
+            m_swerve.getFrontRightSwerveModule().getState()};
+        publisher.set(states);
     }
 }

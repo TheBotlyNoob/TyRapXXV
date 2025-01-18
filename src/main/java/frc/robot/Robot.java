@@ -31,6 +31,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         m_container.getDrivetrain().setFieldRelative(true);
+        m_container.clearDefaultCommand();
         m_container.setTeleDefaultCommand();
     }
 

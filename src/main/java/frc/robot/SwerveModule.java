@@ -23,7 +23,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants.Modules;
+import frc.robot.TyRap24Constants.*;
 
 public class SwerveModule {
 
@@ -133,7 +133,7 @@ public class SwerveModule {
          */
         m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
         SparkMaxConfig turningConfig = new SparkMaxConfig();
-        turningConfig.inverted(true); //m_turningMotor.setInverted(true);
+        turningConfig.inverted(DriveTrainConstants.kInvertTurn); //m_turningMotor.setInverted(true);
         turningConfig.smartCurrentLimit(40); //m_turningMotor.setSmartCurrentLimit(40);
         turningConfig.idleMode(IdleMode.kBrake); //m_turningMotor.setIdleMode(IdleMode.kBrake);
         m_turningMotor.configure(turningConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

@@ -3,7 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-public class Constants {
+public class SparkJrConstants {
     public static class ID {
         // Swerve motor controller IDs
         public static final int kFrontLeftTurn = 5;
@@ -52,7 +52,7 @@ public class Constants {
         public static final double[] driveFeedForward = { 0.0, 2.675 };
 
         public static final boolean kInvertTurn = true;
-        public static final double kMaxPossibleSpeed = 5.0; // meters per second
+        public static final double kMaxPossibleSpeed = 1.5; // meters per second
     };
 
     public static final class Modules {
