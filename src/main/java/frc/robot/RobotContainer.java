@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.SparkJrConstants.*;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.Limelight;
+import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
@@ -48,9 +49,9 @@ public class RobotContainer {
     private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
     private GenericEntry m_gyroAngle = m_competitionTab.add("Gyro Angle", 0).getEntry();
     private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
-        .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
+            .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
     private SwerveModuleSB[] mSwerveModuleTelem;
-    
+
     Command m_driveCommand;
 
     /**
@@ -59,11 +60,12 @@ public class RobotContainer {
     public RobotContainer() {
         this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(-90));
         this.m_swerve = new Drivetrain(m_gyro);
-        
-        SwerveModuleSB[] swerveModuleTelem = { new SwerveModuleSB("FR", m_swerve.getFrontRightSwerveModule(), m_competitionTab),
-                              new SwerveModuleSB("FL", m_swerve.getFrontLeftSwerveModule(), m_competitionTab),
-                              new SwerveModuleSB("BR", m_swerve.getBackRightSwerveModule(), m_competitionTab),
-                              new SwerveModuleSB("BL", m_swerve.getBackLeftSwerveModule(), m_competitionTab)};
+
+        SwerveModuleSB[] swerveModuleTelem = {
+                new SwerveModuleSB("FR", m_swerve.getFrontRightSwerveModule(), m_competitionTab),
+                new SwerveModuleSB("FL", m_swerve.getFrontLeftSwerveModule(), m_competitionTab),
+                new SwerveModuleSB("BR", m_swerve.getBackRightSwerveModule(), m_competitionTab),
+                new SwerveModuleSB("BL", m_swerve.getBackLeftSwerveModule(), m_competitionTab) };
         mSwerveModuleTelem = swerveModuleTelem;
 
         this.m_Limelight = new Limelight();
@@ -107,6 +109,7 @@ public class RobotContainer {
 
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
+        Controller.kDriveController.a().onTrue(new CenterOnTag(m_swerve, m_Limelight));
     }
 
     public Drivetrain getDrivetrain() {
@@ -114,8 +117,8 @@ public class RobotContainer {
     }
 
     private void configurePathPlanner() {
-        autoChooser.addOption("Vision Test",   "Vision Test");
-        autoChooser.addOption("Drive Straight",   "Drive Straight");
+        autoChooser.addOption("Vision Test", "Vision Test");
+        autoChooser.addOption("Drive Straight", "Drive Straight");
         autoChooser.addOption("SwerveTestAuto25", "SwerveTestAuto25");
         autoChooser.addOption("StraightForward", "StraightForward");
     }
@@ -152,10 +155,10 @@ public class RobotContainer {
             sb.update();
         }
         SwerveModuleState[] states = {
-            m_swerve.getBackLeftSwerveModule().getState(),
-            m_swerve.getBackRightSwerveModule().getState(),
-            m_swerve.getFrontLeftSwerveModule().getState(),
-            m_swerve.getFrontRightSwerveModule().getState()};
+                m_swerve.getBackLeftSwerveModule().getState(),
+                m_swerve.getBackRightSwerveModule().getState(),
+                m_swerve.getFrontLeftSwerveModule().getState(),
+                m_swerve.getFrontRightSwerveModule().getState() };
         publisher.set(states);
     }
 }

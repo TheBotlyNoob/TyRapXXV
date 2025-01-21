@@ -2,11 +2,20 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.Subsystems;
+
+import java.lang.reflect.Array;
+
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.LimelightResults;
+import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
+
 //import frc.robot.utilities.Util;
 //import static frc.robot.utilities.Util.round2;
 /**
@@ -15,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
  */
 public class Limelight extends SubsystemBase {
 
-  
   private static String pickupLimeLightName = "limelight-c";
   //private static String pickupLimeLightHttp = "http://10.3.86.13";
   private final NetworkTable limeTable = NetworkTableInstance.getDefault().getTable(pickupLimeLightName);
@@ -32,48 +40,84 @@ public class Limelight extends SubsystemBase {
   public double previousTx = tx;
   public double deltaTx = 0;
   private int count = 0;
+  double yawAngleDegrees;
+  double xDistanceMeters;
+  double yDistanceMeters;
+  double zDistanceMeters;
+
+  Pose3d pose3D;
 
 
   public Limelight() {
-    //Util.logf("-------- Start Limelight %s\n", Robot.alliance);
+    // Util.logf("-------- Start Limelight %s\n", Robot.alliance);
     System.out.println("-------- Start Limelight\n");
   }
+
   @Override
   public void periodic() {
-    //tx = round2(txEntry.getDouble(0));
-    //ty = round2(tyEntry.getDouble(0));
-    //tv = tvEntry.getDouble(0) == 1;
-    //ta = round2(taEntry.getDouble(0));
+    // tx = round2(txEntry.getDouble(0));
+    // ty = round2(tyEntry.getDouble(0));
+    // tv = tvEntry.getDouble(0) == 1;
+    // ta = round2(taEntry.getDouble(0));
     tx = txEntry.getDouble(0);
     ty = tyEntry.getDouble(0);
     tv = tvEntry.getDouble(0) == 1;
     ta = taEntry.getDouble(0);
     deltaTx = Math.abs(tx - previousTx);
     previousTx = tx;
+    SmartDashboard.putString("plType", LimelightHelpers.getCurrentPipelineType(pickupLimeLightName));
+    double[] cameraTargetPose = LimelightHelpers.getTargetPose_CameraSpace(pickupLimeLightName);
+    xDistanceMeters = cameraTargetPose[0];
+    yDistanceMeters = cameraTargetPose[1];
+    zDistanceMeters = cameraTargetPose[2];
+    yawAngleDegrees = cameraTargetPose[4];
+
+
     if (count % 15 == 0) {
       SmartDashboard.putNumber("TX", tx);
       SmartDashboard.putNumber("TY", ty);
       SmartDashboard.putNumber("TA", ta);
+      SmartDashboard.putNumber("xDis", xDistanceMeters);
+      SmartDashboard.putNumber("yDis", yDistanceMeters);
+      SmartDashboard.putNumber("zDis", zDistanceMeters);
+      SmartDashboard.putNumber("yaw", yawAngleDegrees);
       SmartDashboard.putNumber("TV", tv ? 1 : 0);
       SmartDashboard.putBoolean("TVB", tv);
       SmartDashboard.putNumber("LLPl", getLimelightPipeline());
     }
     count++;
-    if (count == 150000)
-    {
+    if (count == 150000) {
       count = 0;
     }
   }
 
   public void setLimelightPipeline(int pipeline) {
-     //int prevPipeline = getLimelightPipeline();
-    //Util.logf("-----------  Set Limelight pipeline robot alliance:%s new:%d prev:%d\n", Robot.alliance,  pipeline,
-    //    prevPipeline);
+    // int prevPipeline = getLimelightPipeline();
+    // Util.logf("----------- Set Limelight pipeline robot alliance:%s new:%d
+    // prev:%d\n", Robot.alliance, pipeline,
+    // prevPipeline);
     System.out.println("Setting Limelight pipeline to " + pipeline);
     limeTable.getEntry("pipeline").setNumber(pipeline);
   }
+
   public int getLimelightPipeline() {
     return (int) tplEntry.getDouble(-1);
+  }
+
+  public double getYawAngleDegrees() {
+    return yawAngleDegrees;
+  }
+
+  public double getxDistanceMeters() {
+    return xDistanceMeters;
+  }
+
+  public double getyDistanceMeters() {
+    return yDistanceMeters;
+  }
+
+  public double getzDistanceMeters() {
+    return zDistanceMeters;
   }
 
 }
