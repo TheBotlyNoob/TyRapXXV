@@ -14,6 +14,7 @@ public class CenterOnTag extends Command {
     Limelight ll;
     
     public CenterOnTag(Drivetrain dt, Limelight ll) {
+
         this.dt = dt;
         this.ll = ll;
         addRequirements(dt);
@@ -24,17 +25,25 @@ public class CenterOnTag extends Command {
     private double rotSpeed = 0;
 
 
+    @Override
+    public void initialize() {
+        dt.setFieldRelative(false);
+    }
+
 
     @Override
     public void execute() {
+        double rotAngleDegrees = ll.getYawAngleDegrees();
         double xDis = ll.getxDistanceMeters();
-        ySpeed = -1*Math.min(1.5, xDis * 2);
+        rotSpeed = Math.min(10, rotAngleDegrees);
+        ySpeed = -1 * Math.min(1.5, xDis * 2);
         dt.drive(xSpeed, ySpeed, rotSpeed);
     }
 
     @Override
     public boolean isFinished() {
-        if(Math.abs(ll.getxDistanceMeters())<0.05){
+        if (Math.abs(ll.getxDistanceMeters()) < 0.05) {
+            dt.setFieldRelative(true);
             return true;
         }
         return false;
