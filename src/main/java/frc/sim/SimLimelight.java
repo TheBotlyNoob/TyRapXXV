@@ -36,11 +36,11 @@ public class SimLimelight extends Limelight {
             targetPosCameraFrame.getY()*-1, // Camera Z axis is out from camera 
             targetPosCameraFrame.getZ(), // Camera X axis is positive right from camera
             targetPosCameraFrame.getX(),  // Camera Z axis is positive up 
-            targetPosCameraFrame.getRotation().getY()*-1,
-            targetPosCameraFrame.getRotation().getZ(),
-            targetPosCameraFrame.getRotation().getX()};
+            Math.toDegrees(targetPosCameraFrame.getRotation().getY()*-1),
+            Math.toDegrees(targetPosCameraFrame.getRotation().getZ()),
+            Math.toDegrees(targetPosCameraFrame.getRotation().getX())};
         //System.out.println("targetPosCameraFrame: " + targetPosCameraFrame.toString());
-        System.out.println("camera x=" + retVal[0] + " y=" + retVal[1] + " z=" + retVal[2] + " yaw=" + retVal[5]);
+        System.out.println("camera x=" + retVal[0] + " y=" + retVal[1] + " z=" + retVal[2] + " yaw=" + retVal[4]);
         return retVal;
     }
 }

@@ -13,7 +13,7 @@ public class SimTarget {
 
     public SimTarget(float xPos, float yPos, float yawAngleDegrees) {
         this.pose = new Pose3d(xPos, yPos, 0.0,
-            new Rotation3d(0.0, 0.0, yawAngleDegrees));  
+            new Rotation3d(0.0, 0.0, Math.toRadians(yawAngleDegrees)));  
     }
 
     public Pose3d getPose3d() {

@@ -42,7 +42,7 @@ public class SimDrivetrain extends Drivetrain {
 
         this.currentPose = new Pose3d(currentPose.getX() + currentXSpeedMps*loopTime,
             currentPose.getY() + currentYSPeedMps*loopTime, 0.0,
-            new Rotation3d(0.0, 0.0, currentPose.getRotation().getZ() + currentRotSpeedDps*loopTime));  
+            new Rotation3d(0.0, 0.0, currentPose.getRotation().getZ() + Math.toRadians(currentRotSpeedDps*loopTime)));  
     }
 
     public Pose3d getSimPose() {
