@@ -44,6 +44,8 @@ public class CenterOnTag extends Command {
     public boolean isFinished() {
         if (Math.abs(ll.getxDistanceMeters()) < 0.05) {
             dt.setFieldRelative(true);
+            dt.drive(0,0,0);
+            System.out.println("COT command complete");
             return true;
         }
         return false;

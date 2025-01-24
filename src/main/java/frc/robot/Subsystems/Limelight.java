@@ -53,6 +53,11 @@ public class Limelight extends SubsystemBase {
     System.out.println("-------- Start Limelight\n");
   }
 
+  // This method is encapsulated so it can be overriden for simulation
+  protected double[] getTargetPoseCameraSpace() {
+    return LimelightHelpers.getTargetPose_CameraSpace(pickupLimeLightName);
+  }
+
   @Override
   public void periodic() {
     // tx = round2(txEntry.getDouble(0));
@@ -66,11 +71,13 @@ public class Limelight extends SubsystemBase {
     deltaTx = Math.abs(tx - previousTx);
     previousTx = tx;
     SmartDashboard.putString("plType", LimelightHelpers.getCurrentPipelineType(pickupLimeLightName));
-    double[] cameraTargetPose = LimelightHelpers.getTargetPose_CameraSpace(pickupLimeLightName);
-    xDistanceMeters = cameraTargetPose[0];
-    yDistanceMeters = cameraTargetPose[1];
-    zDistanceMeters = cameraTargetPose[2];
-    yawAngleDegrees = cameraTargetPose[4];
+    double[] cameraTargetPose = getTargetPoseCameraSpace();
+    if (cameraTargetPose.length > 0) {
+      xDistanceMeters = cameraTargetPose[0];
+      yDistanceMeters = cameraTargetPose[1];
+      zDistanceMeters = cameraTargetPose[2];
+      yawAngleDegrees = cameraTargetPose[4];
+    }
 
 
     if (count % 15 == 0) {
