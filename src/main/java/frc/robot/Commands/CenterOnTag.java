@@ -20,8 +20,11 @@ public class CenterOnTag extends Command {
     // Note: yDis and yProportion relate to xSpeed
     private static GenericEntry rotProportion = Shuffleboard.getTab("Limelight").add("rotProportion", 2).getEntry();
     private static GenericEntry xProportion = Shuffleboard.getTab("Limelight").add("xProportion", 2).getEntry();
+    private static GenericEntry yProportion = Shuffleboard.getTab("Limelight").add("yProportion", 2).getEntry();
     private static GenericEntry ySpeedEntry = Shuffleboard.getTab("Limelight").add("ySpeedEntry", 0.5).getEntry();
+    private static GenericEntry xSpeedEntry = Shuffleboard.getTab("Limelight").add("xSpeedEntry", 0.5).getEntry();
     private static GenericEntry xDisEntry = Shuffleboard.getTab("Limelight").add("xDisEntry", 0.5).getEntry();
+    private static GenericEntry yDisEntry = Shuffleboard.getTab("Limelight").add("yDisEntry", 0.5).getEntry();
     private static GenericEntry rotSpeedEntry = Shuffleboard.getTab("Limelight").add("rotSpeedEntry", 0.5).getEntry();
     private static GenericEntry yawAngleEntry = Shuffleboard.getTab("Limelight").add("yawAngleEntry", 0.5).getEntry();
     private static GenericEntry minXVelEntry = Shuffleboard.getTab("Limelight")
@@ -49,10 +52,13 @@ public class CenterOnTag extends Command {
     private double rotSpeed = 0;
     private double minXVel = 0;
     private double maxXVel = 0;
+    private double minYVel = 0;
+    private double maxYVel = 0;
     private double minAngVel = 0;
     private double maxAngVel = 0;
     private double currentRotProportion = 0.0;
     private double currentXProportion = 0.0;
+    private double currentYProportion = 0.0;
     private boolean llLost = false;
 
     @Override
@@ -60,10 +66,13 @@ public class CenterOnTag extends Command {
         dt.setFieldRelative(false);
         minXVel = minXVelEntry.getDouble(LimelightConstants.minXVelocity);
         maxXVel = maxXVelEntry.getDouble(LimelightConstants.maxXVelocity);
+        minXVel = minYVelEntry.getDouble(LimelightConstants.minYVelocity);
+        maxXVel = maxYVelEntry.getDouble(LimelightConstants.maxYVelocity);
         minAngVel = minAngVelEntry.getDouble(LimelightConstants.minAngVelocityDPS);
         maxAngVel = maxAngVelEntry.getDouble(LimelightConstants.maxAngVelocityDPS);
         currentRotProportion = rotProportion.getDouble(2);
         currentXProportion = xProportion.getDouble(1.0);
+        currentYProportion = yProportion.getDouble(1.0);
         llLost = false;
         System.out.println("minVel=" + minXVel + " minAngVel=" + minAngVel + "  maxAngVel=" + maxAngVel);
     }
@@ -73,12 +82,19 @@ public class CenterOnTag extends Command {
         if (ll.getTimeSinceValid() == 0) {
             double rotAngleDegrees = -1 * ll.getFilteredYawDegrees();
             double xDis = -1 * ll.getxDistanceMeters();
-            double desiredVel = Math.abs(xDis * currentXProportion);
+            double yDis = -1 * ll.getyDistanceMeters();
+            double desiredXVel = Math.abs(xDis * currentXProportion);
+            double desiredYVel = Math.abs(yDis * currentYProportion);
             double desiredAngVel = Math.abs(rotAngleDegrees * currentRotProportion);
             if (Math.abs(ll.getxDistanceMeters()) < LimelightConstants.xDisThreshold) {
                 ySpeed = 0;
             } else {
-                ySpeed = Math.copySign(MathUtil.clamp(desiredVel, minXVel, maxXVel), xDis);
+                ySpeed = Math.copySign(MathUtil.clamp(desiredXVel, minXVel, maxXVel), xDis);
+            }
+            if (Math.abs(ll.getyDistanceMeters()) < LimelightConstants.yDisThreshold) {
+                xSpeed = 0;
+            } else {
+                xSpeed = Math.copySign(MathUtil.clamp(desiredYVel, minYVel, maxYVel), yDis);
             }
             if (Math.abs(ll.getYawAngleDegrees()) < LimelightConstants.rotThreshold) {
                 rotSpeed = 0;
@@ -86,8 +102,10 @@ public class CenterOnTag extends Command {
                 rotSpeed = Math.copySign(MathUtil.clamp(desiredAngVel, minAngVel, maxAngVel), rotAngleDegrees);
             }
             ySpeedEntry.setDouble(ySpeed);
+            xSpeedEntry.setDouble(xSpeed);
             rotSpeedEntry.setDouble(rotSpeed);
             xDisEntry.setDouble(xDis);
+            yDisEntry.setDouble(yDis);
             yawAngleEntry.setDouble(rotAngleDegrees);
             dt.drive(xSpeed, ySpeed, Math.toRadians(rotSpeed));
         } else if (ll.getTimeSinceValid() < 10) {
@@ -100,7 +118,8 @@ public class CenterOnTag extends Command {
 
     @Override
     public boolean isFinished() {
-        if (Math.abs(ll.getxDistanceMeters()) < LimelightConstants.xDisThreshold
+        if (Math.abs(ll.getxDistanceMeters()) < LimelightConstants.xDisThreshold && Math
+                .abs(ll.getyDistanceMeters()) < LimelightConstants.yDisThreshold
                 && Math.abs(ll.getYawAngleDegrees()) < LimelightConstants.rotThreshold) {
             dt.setFieldRelative(true);
             dt.drive(0, 0, 0);
