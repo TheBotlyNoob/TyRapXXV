@@ -42,8 +42,8 @@ public class SimLimelight extends Limelight {
             targetPosCameraFrame.getZ(), // Camera X axis is positive right from camera
             targetPosCameraFrame.getX(),  // Camera Z axis is positive up 
             Math.toDegrees(targetPosCameraFrame.getRotation().getY()*-1),
-            Math.toDegrees(targetPosCameraFrame.getRotation().getZ()),
-            Math.toDegrees(targetPosCameraFrame.getRotation().getX())};
+            Math.toDegrees(targetPosCameraFrame.getRotation().getZ()*-1),
+            Math.toDegrees(targetPosCameraFrame.getRotation().getX()*-1)};
         if (this.useErrors)
         {
             // Generate normal random errors and add to measurements

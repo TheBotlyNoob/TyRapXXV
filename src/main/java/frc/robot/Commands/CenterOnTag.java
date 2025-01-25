@@ -42,6 +42,8 @@ public class CenterOnTag extends Command {
     private double minVel = 0;
     private double minAngVel = 0;
     private double maxAngVel = 0;
+    private double currentRotProportion = 0.0;
+    private double currentXProportion = 0.0;
 
     @Override
     public void initialize() {
@@ -49,15 +51,16 @@ public class CenterOnTag extends Command {
         minVel = minVelEntry.getDouble(LimelightConstants.minLinearVelocity);
         minAngVel = minAngVelEntry.getDouble(LimelightConstants.minAngVelocityDPS);
         maxAngVel = maxAngVelEntry.getDouble(LimelightConstants.maxAngVelocityDPS);
+        currentRotProportion = rotProportion.getDouble(2);
+        currentXProportion = xProportion.getDouble(1.0);
         System.out.println("minVel=" + minVel + " minAngVel=" + minAngVel + "  maxAngVel=" + maxAngVel);
     }
 
     @Override
     public void execute() {
-        double currentRotProportion = rotProportion.getDouble(2);
         double rotAngleDegrees = -1 * ll.getFilteredYawDegrees();
         double xDis = -1 * ll.getxDistanceMeters();
-        double desiredVel = Math.abs(xDis * xProportion.getDouble(1.0));
+        double desiredVel = Math.abs(xDis * currentXProportion);
         double desiredAngVel = Math.abs(rotAngleDegrees * currentRotProportion);
         if (Math.abs(ll.getxDistanceMeters()) < LimelightConstants.xDisThreshold) {
             ySpeed = 0;

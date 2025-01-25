@@ -46,7 +46,7 @@ public class Limelight extends SubsystemBase {
   double yDistanceMeters;
   double zDistanceMeters;
   Pose3d pose3D;
-  private LinearFilter filteredYawDegrees = LinearFilter.movingAverage(4);
+  private LinearFilter filteredYawDegrees = LinearFilter.movingAverage(6);
 
 
   public Limelight() {

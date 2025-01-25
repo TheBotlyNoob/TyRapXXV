@@ -99,7 +99,7 @@ public class Constants {
         public static final double maxAngVelocityDPS = 30;
         public static final double xDisThreshold = 0.05;
         public static final double yDisThreshold = 0.05;
-        public static final double rotThreshold = 2;
+        public static final double rotThreshold = 1.0;
 
     }
 }
