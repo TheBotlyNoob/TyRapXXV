@@ -61,8 +61,10 @@ public class RobotSim {
 
         DataLogManager.start("simlogs","SimLog.wpilog");
         runSim(5.0f, 2.0f, 3.0f, 10.0f);
-        runSim(5.0f, 2.0f, 3.0f, 0.0f);
-        runSim(5.0f, 2.0f, 5.0f, 0.0f);
+        runSim(5.0f, 2.0f, 3.5f, 0.0f);
+        runSim(5.0f, 2.0f, 4.5f, 0.0f);
+        runSim(5.0f, 2.0f, 5.0f, -10.0f);
+        runSim(5.0f, 1.0f, 5.0f, -10.0f);
     }
 
     public void runSim(float endTimeSec, float startX, float startY, float startYawDeg)
@@ -74,6 +76,7 @@ public class RobotSim {
             startX, startY, 0.0, new Rotation3d(0.0, 0.0, Math.toRadians(startYawDeg))
         );
         m_drive.setSimPose(startPose);
+        m_limelight.reset();
     
         // Load command
         CenterOnTag cot = new CenterOnTag(m_drive, m_limelight);

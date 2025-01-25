@@ -46,13 +46,13 @@ public class SimLimelight extends Limelight {
         if (Math.abs(Math.toDegrees(azAngleToTargetRad)) > LimelightConstants.azimuthFieldOfViewDeg) {
             // Tag out of field of view
             retVal = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-            System.out.println("Out of field of view");
+            System.out.println("Out of field of view az=" + Math.toDegrees(azAngleToTargetRad));
         } else {
             // Store in Limelight output format
             retVal = new double[] {
-                targetPosCameraFrame.getY()*-1, // Camera Z axis is out from camera 
-                targetPosCameraFrame.getZ(), // Camera X axis is positive right from camera
-                targetPosCameraFrame.getX(),  // Camera Z axis is positive up 
+                targetPosCameraFrame.getY()*-1, // Camera X axis is positive right from camera 
+                targetPosCameraFrame.getZ(), // Camera Y axis is positive up from camera
+                targetPosCameraFrame.getX(),  // Camera Z axis is positive out from camera 
                 Math.toDegrees(targetPosCameraFrame.getRotation().getY()*-1), // Limelight angles are CW positive
                 Math.toDegrees(targetPosCameraFrame.getRotation().getZ()*-1),
                 Math.toDegrees(targetPosCameraFrame.getRotation().getX()*-1)};
@@ -70,5 +70,9 @@ public class SimLimelight extends Limelight {
         //System.out.println("targetPosCameraFrame: " + targetPosCameraFrame.toString());
         System.out.println("camera x=" + retVal[0] + " y=" + retVal[1] + " z=" + retVal[2] + " yaw=" + retVal[4]);
         return retVal;
+    }
+
+    public void reset() {
+        this.timeSinceValid = 0;
     }
 }
