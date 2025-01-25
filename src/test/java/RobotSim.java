@@ -1,5 +1,3 @@
-package frc.sim;
-
 import java.util.Vector;
 import java.nio.ByteBuffer;
 
@@ -16,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Robot;
+import frc.sim.*;
 import frc.robot.Commands.CenterOnTag;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -46,7 +45,7 @@ public class RobotSim {
     public void testCase()
     {
         SmartDashboard.putData("Field",field);
-        runSim(5.0f, 2.0f, 1.0f, 20.0f);
+        runSim(3.0f, 2.0f, 1.0f, 20.0f);
     }
 
     public void runSim(float endTimeSec, float targetX, float targetY, float targetYawDeg)

@@ -83,7 +83,7 @@ public class Constants {
         // Ensure that the encoder offsets are between -Pi & Pi
         /**
          * Encoder offsets. These can be obtained by straightening
-         * all wheels in the forward position and reading the encoder values 
+         * all wheels in the forward position and reading the encoder values
          * from the dashboard by uncommenting the lines in Robot.java
          * disabledPeriodic.
          */
@@ -95,6 +95,11 @@ public class Constants {
 
     public static class LimelightConstants {
         public static final double minLinearVelocity = 0.2;
-        
+        public static final double minAngVelocityDPS = 0;
+        public static final double maxAngVelocityDPS = 30;
+        public static final double xDisThreshold = 0.05;
+        public static final double yDisThreshold = 0.05;
+        public static final double rotThreshold = 2;
+
     }
 }
