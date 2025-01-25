@@ -103,11 +103,13 @@ public class Constants {
         public static final double xDisThreshold = 0.03;
         public static final double yDisThreshold = 0.03;
         public static final double rotThreshold = 1.0;
+        public static final double azimuthFieldOfViewDeg = 29.0;
         public static final double xOffset = 0.0;
         public static final double yOffset = 0.5;
         public static final double maxAccMSS = 0.5;
         public static final double maxDccMSS = 1;
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
+
     }
 }

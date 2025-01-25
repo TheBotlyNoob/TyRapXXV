@@ -60,7 +60,8 @@ public class RobotSim {
 
         DataLogManager.start("simlogs", "SimLog.wpilog");
         runSim(5.0f, 2.0f, 3.0f, 10.0f);
-        runSim(5.0f, 2.0f, 3.0f, -10.01f);
+        runSim(5.0f, 2.0f, 3.0f, 0.0f);
+        runSim(5.0f, 2.0f, 5.0f, 0.0f);
     }
 
     public void runSim(float endTimeSec, float startX, float startY, float startYawDeg) {
