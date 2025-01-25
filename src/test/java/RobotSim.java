@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Robot;
+import frc.sim.*;
 import frc.robot.Commands.CenterOnTag;
 import frc.sim.*;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
