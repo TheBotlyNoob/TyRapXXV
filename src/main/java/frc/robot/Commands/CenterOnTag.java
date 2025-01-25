@@ -16,17 +16,17 @@ import frc.robot.Subsystems.Limelight;
 public class CenterOnTag extends Command {
     Drivetrain dt;
     Limelight ll;
-    private GenericEntry rotProportion = Shuffleboard.getTab("Limelight").add("rotProportion", 2).getEntry();
-    private GenericEntry xProportion = Shuffleboard.getTab("Limelight").add("xProportion", 2).getEntry();
-    private GenericEntry ySpeedEntry = Shuffleboard.getTab("Limelight").add("ySpeedEntry", 0.5).getEntry();
-    private GenericEntry xDisEntry = Shuffleboard.getTab("Limelight").add("xDisEntry", 0.5).getEntry();
-    private GenericEntry rotSpeedEntry = Shuffleboard.getTab("Limelight").add("rotSpeedEntry", 0.5).getEntry();
-    private GenericEntry yawAngleEntry = Shuffleboard.getTab("Limelight").add("yawAngleEntry", 0.5).getEntry();
-    private GenericEntry minVelEntry = Shuffleboard.getTab("Limelight")
+    private static GenericEntry rotProportion = Shuffleboard.getTab("Limelight").add("rotProportion", 2).getEntry();
+    private static GenericEntry xProportion = Shuffleboard.getTab("Limelight").add("xProportion", 2).getEntry();
+    private static GenericEntry ySpeedEntry = Shuffleboard.getTab("Limelight").add("ySpeedEntry", 0.5).getEntry();
+    private static GenericEntry xDisEntry = Shuffleboard.getTab("Limelight").add("xDisEntry", 0.5).getEntry();
+    private static GenericEntry rotSpeedEntry = Shuffleboard.getTab("Limelight").add("rotSpeedEntry", 0.5).getEntry();
+    private static GenericEntry yawAngleEntry = Shuffleboard.getTab("Limelight").add("yawAngleEntry", 0.5).getEntry();
+    private static GenericEntry minVelEntry = Shuffleboard.getTab("Limelight")
             .add("minVelEntry", LimelightConstants.minLinearVelocity).getEntry();
-    private GenericEntry minAngVelEntry = Shuffleboard.getTab("Limelight")
+    private static GenericEntry minAngVelEntry = Shuffleboard.getTab("Limelight")
             .add("minAngVelEntry", LimelightConstants.minAngVelocityDPS).getEntry();
-    private GenericEntry maxAngVelEntry = Shuffleboard.getTab("Limelight")
+    private static GenericEntry maxAngVelEntry = Shuffleboard.getTab("Limelight")
             .add("maxAngVelEntry", LimelightConstants.maxAngVelocityDPS).getEntry();
 
     public CenterOnTag(Drivetrain dt, Limelight ll) {
