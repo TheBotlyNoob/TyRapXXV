@@ -42,20 +42,20 @@ public class Drivetrain extends SubsystemBase {
     
     public static final double kMaxAngularSpeed = 1.5 * Math.PI; // per second
 
-    private final Translation2d m_frontLeftLocation = new Translation2d(
+    protected final Translation2d m_frontLeftLocation = new Translation2d(
             DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXForward,
             DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYLeft);
-    private final Translation2d m_frontRightLocation = new Translation2d(
+    protected final Translation2d m_frontRightLocation = new Translation2d(
             DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXForward,
             DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYRight);
-    private final Translation2d m_backLeftLocation = new Translation2d(
+    protected final Translation2d m_backLeftLocation = new Translation2d(
             DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXBackward,
             DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYLeft);
-    private final Translation2d m_backRightLocation = new Translation2d(
+    protected final Translation2d m_backRightLocation = new Translation2d(
             DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXBackward,
             DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYRight); 
 
-    private final SwerveModule m_frontLeft = new SwerveModule("FrontLeft",
+    protected final SwerveModule m_frontLeft = new SwerveModule("FrontLeft",
             ID.kFrontLeftDrive,
             ID.kFrontLeftTurn,
             ID.kFrontLeftCANCoder,
@@ -64,7 +64,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward);
-    private final SwerveModule m_frontRight = new SwerveModule("FrontRight",
+    protected final SwerveModule m_frontRight = new SwerveModule("FrontRight",
             ID.kFrontRightDrive,
             ID.kFrontRightTurn,
             ID.kFrontRightCANCoder,
@@ -73,7 +73,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward);
-    private final SwerveModule m_backLeft = new SwerveModule("BackLeft",
+    protected final SwerveModule m_backLeft = new SwerveModule("BackLeft",
             ID.kBackLeftDrive,
             ID.kBackLeftTurn,
             ID.kBackLeftCANCoder,
@@ -82,7 +82,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward);
-    private final SwerveModule m_backRight = new SwerveModule("BackRight",
+    protected final SwerveModule m_backRight = new SwerveModule("BackRight",
             ID.kBackRightDrive,
             ID.kBackRightTurn,
             ID.kBackRightCANCoder,
@@ -92,12 +92,12 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward);
 
-    private final Pigeon2 m_gyro;
+    protected final Pigeon2 m_gyro;
 
-    private boolean fieldRelative = true;
-    private final ShuffleboardTab m_driveTab = Shuffleboard.getTab("drive subsystem");
-    private final SimpleWidget m_fieldRelativeWidget = m_driveTab.add("drive field relative", fieldRelative);
-    private final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0).getEntry();
+    protected boolean fieldRelative = true;
+    protected final ShuffleboardTab m_driveTab = Shuffleboard.getTab("drive subsystem");
+    protected final SimpleWidget m_fieldRelativeWidget = m_driveTab.add("drive field relative", fieldRelative);
+    protected final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0).getEntry();
 
     /**
      * The order that you initialize these is important! Later uses of functions
@@ -105,14 +105,14 @@ public class Drivetrain extends SubsystemBase {
      * See
      * https://docs.wpilib.org/en/stable/docs/software/kinematics-and-odometry/swerve-drive-kinematics.html
      */
-    private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
+    protected final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
-    private final SwerveDriveOdometry m_odometry;
+    protected final SwerveDriveOdometry m_odometry;
 
-    private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
+    protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
 
-    private ExecutorService executorService = Executors.newFixedThreadPool(4);
+    protected ExecutorService executorService = Executors.newFixedThreadPool(4);
 
     public Drivetrain(Pigeon2 gyro) {
         // Zero at beginning of match. Zero = whatever direction the robot (more
@@ -267,7 +267,7 @@ public class Drivetrain extends SubsystemBase {
         return Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
     }
 
-    private double driveMultiplier = 1;
+    protected double driveMultiplier = 1;
 
     public void setDriveMult(double mult) {
         driveMultiplier = mult;
