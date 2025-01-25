@@ -5,6 +5,7 @@ package frc.robot.Subsystems;
 
 import java.lang.reflect.Array;
 
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -44,8 +45,8 @@ public class Limelight extends SubsystemBase {
   double xDistanceMeters;
   double yDistanceMeters;
   double zDistanceMeters;
-
   Pose3d pose3D;
+  private LinearFilter filteredYawDegrees = LinearFilter.movingAverage(4);
 
 
   public Limelight() {
@@ -71,6 +72,7 @@ public class Limelight extends SubsystemBase {
     yDistanceMeters = cameraTargetPose[1];
     zDistanceMeters = cameraTargetPose[2];
     yawAngleDegrees = cameraTargetPose[4];
+    filteredYawDegrees.calculate(yawAngleDegrees);
 
 
     if (count % 15 == 0) {
@@ -89,6 +91,7 @@ public class Limelight extends SubsystemBase {
     if (count == 150000) {
       count = 0;
     }
+
   }
 
   public void setLimelightPipeline(int pipeline) {
@@ -118,6 +121,10 @@ public class Limelight extends SubsystemBase {
 
   public double getzDistanceMeters() {
     return zDistanceMeters;
+  }
+
+  public double getFilteredYawDegrees() {
+    return filteredYawDegrees.lastValue();
   }
 
 }

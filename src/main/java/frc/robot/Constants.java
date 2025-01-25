@@ -92,4 +92,9 @@ public class Constants {
         public static final double kBackLeftOffset = 1.10;
         public static final double kBackRightOffset = -0.08;
     }
+
+    public static class LimelightConstants {
+        public static final double minLinearVelocity = 0.2;
+        
+    }
 }
