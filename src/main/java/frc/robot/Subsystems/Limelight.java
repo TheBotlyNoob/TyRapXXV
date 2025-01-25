@@ -26,7 +26,7 @@ import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 public class Limelight extends SubsystemBase {
 
   private static String pickupLimeLightName = "limelight-c";
-  //private static String pickupLimeLightHttp = "http://10.3.86.13";
+  // private static String pickupLimeLightHttp = "http://10.3.86.13";
   private final NetworkTable limeTable = NetworkTableInstance.getDefault().getTable(pickupLimeLightName);
   private final NetworkTableEntry txEntry = limeTable.getEntry("tx");
   private final NetworkTableEntry tyEntry = limeTable.getEntry("ty");
@@ -46,8 +46,8 @@ public class Limelight extends SubsystemBase {
   double yDistanceMeters;
   double zDistanceMeters;
   Pose3d pose3D;
+  private int timeSinceValid = 0;
   private LinearFilter filteredYawDegrees = LinearFilter.movingAverage(6);
-
 
   public Limelight() {
     // Util.logf("-------- Start Limelight %s\n", Robot.alliance);
@@ -57,6 +57,16 @@ public class Limelight extends SubsystemBase {
   // This method is encapsulated so it can be overriden for simulation
   protected double[] getTargetPoseCameraSpace() {
     return LimelightHelpers.getTargetPose_CameraSpace(pickupLimeLightName);
+  }
+
+  // Check if limelight is out of field of view
+  public boolean isAllZeros(double[] arr) {
+    for (int i = 0; i < arr.length; i++) {
+      if (arr[i] != 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -74,13 +84,19 @@ public class Limelight extends SubsystemBase {
     SmartDashboard.putString("plType", LimelightHelpers.getCurrentPipelineType(pickupLimeLightName));
     double[] cameraTargetPose = getTargetPoseCameraSpace();
     if (cameraTargetPose.length > 0) {
-      xDistanceMeters = cameraTargetPose[0];
-      yDistanceMeters = cameraTargetPose[1];
-      zDistanceMeters = cameraTargetPose[2];
-      yawAngleDegrees = cameraTargetPose[4];
-      filteredYawDegrees.calculate(yawAngleDegrees);
+      if (isAllZeros(cameraTargetPose)) {
+        timeSinceValid++;
+      } else {
+        xDistanceMeters = cameraTargetPose[0];
+        yDistanceMeters = cameraTargetPose[1];
+        zDistanceMeters = cameraTargetPose[2];
+        yawAngleDegrees = cameraTargetPose[4];
+        filteredYawDegrees.calculate(yawAngleDegrees);
+        timeSinceValid = 0;
+      }
+    } else {
+      timeSinceValid++;
     }
-
 
     if (count % 15 == 0) {
       SmartDashboard.putNumber("TX", tx);
@@ -132,6 +148,10 @@ public class Limelight extends SubsystemBase {
 
   public double getFilteredYawDegrees() {
     return filteredYawDegrees.lastValue();
+  }
+
+  public int getTimeSinceValid() {
+    return timeSinceValid;
   }
 
 }

@@ -94,12 +94,16 @@ public class Constants {
     }
 
     public static class LimelightConstants {
-        public static final double minLinearVelocity = 0.2;
+        public static final double minXVelocity = 0.2;
+        public static final double maxXVelocity = 1.5;
+        public static final double minYVelocity = 0.2;
+        public static final double maxYVelocity = 1.5;
         public static final double minAngVelocityDPS = 0;
         public static final double maxAngVelocityDPS = 30;
-        public static final double xDisThreshold = 0.05;
-        public static final double yDisThreshold = 0.05;
+        public static final double xDisThreshold = 0.03;
+        public static final double yDisThreshold = 0.03;
         public static final double rotThreshold = 1.0;
+        public static final double yOffset = 0.2;
 
     }
 }
