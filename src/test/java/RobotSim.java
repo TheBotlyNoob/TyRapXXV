@@ -1,9 +1,8 @@
-package frc.sim;
-
 import java.util.Vector;
 import java.nio.ByteBuffer;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.datalog.DataLog;
@@ -17,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Robot;
 import frc.robot.Commands.CenterOnTag;
+import frc.sim.*;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotState;
@@ -39,26 +39,33 @@ public class RobotSim {
 
     @BeforeEach
     public void setup() {
-        scheduler = CommandScheduler.getInstance();
+            // Tag 18 coordinates
+            /*SimTarget target = new SimTarget((float)Units.Meters.convertFrom(144, Units.Inches), 
+                (float)Units.Meters.convertFrom(158.5, Units.Inches), 10.0f);*/
+            SimTarget target = new SimTarget(2.0f, 1.0f, 10.0f);
+            targets.add(target);
+            scheduler = CommandScheduler.getInstance();
+            SmartDashboard.putData("Field",field);
     }
 
     @org.junit.jupiter.api.Test
     public void testCase()
-    {
-        SmartDashboard.putData("Field",field);
-        runSim(5.0f, 2.0f, 1.0f, 20.0f);
+    {    
+        runSim(5.0f, 0.0f, 0.0f, 0.0f);
     }
 
-    public void runSim(float endTimeSec, float targetX, float targetY, float targetYawDeg)
+    public void runSim(float endTimeSec, float startX, float startY, float startYawDeg)
     {
         this.endTimeSec = endTimeSec;
 
         // Initialize the sim environment
-        SimTarget target = new SimTarget(targetX, targetY, targetYawDeg);
-        targets.add(target);
         DataLogManager.start("simlogs","SimLog.wpilog");
 
         // Initialize simulated hardware
+        Pose3d startPose = new Pose3d(
+            startX, startY, 0.0, new Rotation3d(0.0, 0.0, Math.toRadians(startYawDeg))
+        );
+        m_drive.setSimPose(startPose);
         m_limelight = new SimLimelight(m_drive, targets, useLimelightErrors);
 
         // Enable the simulated robot

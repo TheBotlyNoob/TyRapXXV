@@ -48,4 +48,8 @@ public class SimDrivetrain extends Drivetrain {
     public Pose3d getSimPose() {
         return this.currentPose;
     }
+
+    public void setSimPose(Pose3d newPose) {
+        this.currentPose = newPose;
+    }
 }
