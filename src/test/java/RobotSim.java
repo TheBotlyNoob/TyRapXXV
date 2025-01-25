@@ -31,8 +31,8 @@ public class RobotSim {
     Vector<SimTarget> targets = new Vector<SimTarget>();
     protected final Field2d field = new Field2d();
     protected CommandScheduler scheduler = null;
-    NetworkTableInstance nt = NetworkTableInstance.getDefault();
-    RawLogEntry poseLogEntry;
+    protected NetworkTableInstance nt = NetworkTableInstance.getDefault();
+    protected final boolean useLimelightErrors = true;
 
     public RobotSim() {
     }
@@ -57,10 +57,9 @@ public class RobotSim {
         SimTarget target = new SimTarget(targetX, targetY, targetYawDeg);
         targets.add(target);
         DataLogManager.start("simlogs","SimLog.wpilog");
-        poseLogEntry = new RawLogEntry(DataLogManager.getLog(), "RobotPose");
 
         // Initialize simulated hardware
-        m_limelight = new SimLimelight(m_drive, targets);
+        m_limelight = new SimLimelight(m_drive, targets, useLimelightErrors);
 
         // Enable the simulated robot
         DriverStationSim.setDsAttached(true);
@@ -70,9 +69,8 @@ public class RobotSim {
         nt.startLocal();
     
         // Load command
-        scheduler.schedule(new CenterOnTag(m_drive, m_limelight));
-
-        int x = 0;
+        CenterOnTag cot = new CenterOnTag(m_drive, m_limelight);
+        scheduler.schedule(cot);
     
         // Run simulation loop
         double timeStepSec = 0.02;
@@ -84,7 +82,10 @@ public class RobotSim {
             System.out.println("T=" + (float)t + " Robot x=" + m_drive.getSimPose().getX() +
                 " y=" + m_drive.getSimPose().getY() + " yaw=" + m_drive.getSimPose().getRotation().getMeasureZ().in(Units.Degrees));
             nt.flushLocal();
-            
+            if (cot.isFinished())
+            {
+                break;
+            }
         }
         assertEquals(1, 1);
     }

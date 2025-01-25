@@ -12,11 +12,16 @@ public class SimLimelight extends Limelight {
     protected Vector<SimTarget> targets;
     protected SimDrivetrain drivetrain;
     protected Pose3d cameraPosOnBot = new Pose3d(0.3, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
+    protected boolean useErrors;
 
-    public SimLimelight(SimDrivetrain drivetrain, Vector<SimTarget> targets)
+    protected final double SIGMA_ROTATION_DEG = 1.0;
+    protected final double SIGMA_POSITION_METERS = 0.002;
+
+    public SimLimelight(SimDrivetrain drivetrain, Vector<SimTarget> targets, boolean useErrors)
     {
         this.drivetrain = drivetrain;
         this.targets = targets;
+        this.useErrors = useErrors;
     }
 
     @Override
@@ -39,6 +44,15 @@ public class SimLimelight extends Limelight {
             Math.toDegrees(targetPosCameraFrame.getRotation().getY()*-1),
             Math.toDegrees(targetPosCameraFrame.getRotation().getZ()),
             Math.toDegrees(targetPosCameraFrame.getRotation().getX())};
+        if (this.useErrors)
+        {
+            // Generate normal random errors and add to measurements
+            // Currently assuming no correlation between errors
+            retVal[0] = SimUtilities.getGuasian(retVal[0], SIGMA_POSITION_METERS);
+            retVal[1] = SimUtilities.getGuasian(retVal[1], SIGMA_POSITION_METERS);
+            retVal[2] = SimUtilities.getGuasian(retVal[2], SIGMA_POSITION_METERS);
+            retVal[4] = SimUtilities.getGuasian(retVal[4], SIGMA_ROTATION_DEG);
+        }
         //System.out.println("targetPosCameraFrame: " + targetPosCameraFrame.toString());
         System.out.println("camera x=" + retVal[0] + " y=" + retVal[1] + " z=" + retVal[2] + " yaw=" + retVal[4]);
         return retVal;
