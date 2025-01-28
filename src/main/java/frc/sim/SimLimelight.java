@@ -25,6 +25,14 @@ public class SimLimelight extends Limelight {
         this.useErrors = useErrors;
     }
 
+    public Pose3d getCameraPosOnBot() {
+        return cameraPosOnBot;
+    }
+
+    public Transform3d getCameraTransform() {
+        return new Transform3d(new Pose3d(), cameraPosOnBot);
+    }
+
     @Override
     public double[] getTargetPoseCameraSpace() {
         // Calculate the target pose in the camera's reference frame

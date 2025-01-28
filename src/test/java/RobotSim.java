@@ -1,31 +1,28 @@
 import java.util.Vector;
-import java.nio.ByteBuffer;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.util.datalog.DataLog;
-import edu.wpi.first.util.datalog.RawLogEntry;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Robot;
 import frc.sim.*;
 import frc.robot.Commands.CenterOnTag;
+import frc.robot.Constants.LimelightConstants;
 import frc.sim.*;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.DataLogManager;
 
 public class RobotSim {
 
     protected float endTimeSec = (float) 0.0;
+    protected double TOLERANCE_METERS = 0.01;
+    protected double TOLERANCE_DEGREES = 0.5;
 
     SimDrivetrain m_drive = new SimDrivetrain();
     SimLimelight m_limelight;
@@ -59,7 +56,7 @@ public class RobotSim {
         nt.startLocal();
 
         DataLogManager.start("simlogs", "SimLog.wpilog");
-        runSim(5.0f, 2.0f, 3.0f, 10.0f);
+        //runSim(5.0f, 2.0f, 3.0f, 15.0f);
         runSim(5.0f, 2.0f, 3.5f, 0.0f);
         runSim(5.0f, 2.0f, 4.5f, 0.0f);
         runSim(5.0f, 2.0f, 5.0f, -10.0f);
@@ -97,6 +94,29 @@ public class RobotSim {
                 break;
             }
         }
-        assertEquals(1, 1);
+
+        // Calculate ideal termination conditions
+        Pose3d optimalEndPose = new Pose3d(targets.get(0).getPose3d().getTranslation(),
+            targets.get(0).getPose3d().getRotation());
+        optimalEndPose = optimalEndPose.plus(new Transform3d(
+            -1.0*LimelightConstants.yOffset, 
+            -1.0*LimelightConstants.xOffset, 0.0, new Rotation3d()));
+
+        // Check whether we ended up with tolerances
+        Pose3d finalCameraPos = m_drive.getSimPose().plus(m_limelight.getCameraTransform());
+        Transform3d deltaPos = finalCameraPos.minus(optimalEndPose);
+        System.out.println("Case start x=" + startX + " y=" + startY + " yaw=" + startYawDeg);
+        System.out.println("Final pose: " + finalCameraPos.getTranslation().toString() + " " + 
+            Math.toDegrees(finalCameraPos.getRotation().getZ()));
+        System.out.println("Optimal end pose: " + optimalEndPose.getTranslation() + " " + 
+            Math.toDegrees(optimalEndPose.getRotation().getZ()));
+        System.out.println("x thresh=" + LimelightConstants.xDisThreshold + " x_act=" + deltaPos.getX());
+        System.out.println("y thresh=" + LimelightConstants.yDisThreshold + " y_act=" + deltaPos.getY());
+        System.out.println("rot thresh=" + LimelightConstants.rotThreshold + " rot_act=" +
+            Math.toDegrees(deltaPos.getRotation().getZ()));
+        assertTrue(Math.abs(deltaPos.getX()) <= (LimelightConstants.xDisThreshold + TOLERANCE_METERS), "X thresh check");
+        assertTrue(Math.abs(deltaPos.getY()) <= (LimelightConstants.yDisThreshold+ TOLERANCE_METERS), "Y thresh check");
+        assertTrue(Math.abs(Math.toDegrees(deltaPos.getRotation().getZ())) <= 
+            (LimelightConstants.rotThreshold + TOLERANCE_DEGREES), "Angle thresh check");
     }
 }
