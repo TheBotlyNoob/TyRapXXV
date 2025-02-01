@@ -82,9 +82,9 @@ public class RobotSim {
             DriverStationSim.setMatchTime(t);
             scheduler.run();
             field.setRobotPose(m_drive.getSimPose().toPose2d());
-            System.out.println("T=" + (float) t + " Robot x=" + m_drive.getSimPose().getX() +
+            /*System.out.println("T=" + (float) t + " Robot x=" + m_drive.getSimPose().getX() +
                     " y=" + m_drive.getSimPose().getY() + " yaw="
-                    + m_drive.getSimPose().getRotation().getMeasureZ().in(Units.Degrees));
+                    + m_drive.getSimPose().getRotation().getMeasureZ().in(Units.Degrees));*/
             try {
                 Thread.sleep(10);
             } catch (InterruptedException e) {
@@ -119,4 +119,5 @@ public class RobotSim {
         assertTrue(Math.abs(Math.toDegrees(deltaPos.getRotation().getZ())) <= 
             (LimelightConstants.rotThreshold + TOLERANCE_DEGREES), "Angle thresh check");
     }
+
 }

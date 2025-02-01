@@ -76,7 +76,7 @@ public class SimLimelight extends Limelight {
         }
 
         //System.out.println("targetPosCameraFrame: " + targetPosCameraFrame.toString());
-        System.out.println("camera x=" + retVal[0] + " y=" + retVal[1] + " z=" + retVal[2] + " yaw=" + retVal[4]);
+        //System.out.println("camera x=" + retVal[0] + " y=" + retVal[1] + " z=" + retVal[2] + " yaw=" + retVal[4]);
         return retVal;
     }
 
