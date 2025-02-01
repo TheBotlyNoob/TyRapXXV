@@ -31,27 +31,33 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
   private ShuffleboardTab shuffle_tab = Shuffleboard.getTab(getName());
 
   private GenericEntry shuffle_motor_current = shuffle_tab.add("Motor Current", 0.0)
-      .withWidget(BuiltInWidgets.kNumberBar)
-      .withProperties(Map.of("max", 50.0)).withSize(2, 1)
-      .withPosition(0, 0).getEntry();
+      .withWidget(BuiltInWidgets.kGraph)
+      .withProperties(Map.of("max", 50.0)).withSize(4, 2)
+      .withPosition(2, 0).getEntry();
 
   private GenericEntry shuffle_motor_voltage = shuffle_tab.add("Motor Voltage", 0.0)
       .withWidget(BuiltInWidgets.kNumberBar)
       .withProperties(Map.of("max", 12.0)).withSize(2, 1)
+      .withPosition(0, 0).getEntry();
+
+  private GenericEntry shuffle_motor_under_load = shuffle_tab.add("Motor Under Load", false)
+      .withWidget(BuiltInWidgets.kBooleanBox).withSize(2, 1)
       .withPosition(0, 1).getEntry();
 
-  // private GenericEntry shuffle_compressor_current = shuffle_tab.add("Compressor
-  // Current Draw", 0.0)
-  // .withWidget(BuiltInWidgets.kNumberBar)
-  // .withSize(2, 1).withPosition(2, 0).getEntry();
-  // private GenericEntry shuffle_compressor_pressure =
-  // shuffle_tab.add("Compressor Pressure", 0.0)
-  // .withWidget(BuiltInWidgets.kNumberBar)
-  // .withSize(2, 1).withPosition(2, 1).getEntry();
+  /*
+   * private GenericEntry shuffle_compressor_current =
+   * shuffle_tab.add("Compressor Current Draw", 0.0)
+   * .withWidget(BuiltInWidgets.kNumberBar)
+   * .withSize(2, 1).withPosition(2, 0).getEntry();
+   * private GenericEntry shuffle_compressor_pressure =
+   * shuffle_tab.add("Compressor Pressure", 0.0)
+   * .withWidget(BuiltInWidgets.kNumberBar)
+   * .withSize(2, 1).withPosition(2, 1).getEntry();
+   */
 
-  private GenericEntry shuffle_solenoid_state = shuffle_tab.add("Solenoid State", "Off")
+  private GenericEntry shuffle_solenoid_state = shuffle_tab.add("Solenoid State", "off")
       .withWidget(BuiltInWidgets.kTextView)
-      .withSize(2, 1).withPosition(2, 2).getEntry();
+      .withSize(2, 1).withPosition(1, 2).getEntry();
 
   /** Creates a new AlgaeGrabber. */
   public AlgaeGrabberSubsystem() {
@@ -59,7 +65,8 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
 
     // FIXME: put in proper solneoid type
     raise_pneumatics_solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH,
-        Constants.ID.kAlgaeGrabberSolenoidCANID1, Constants.ID.kAlgaeGrabberSolenoidCANID2);
+        Constants.ID.kAlgaeGrabberSolenoidCANID1,
+        Constants.ID.kAlgaeGrabberSolenoidCANID2);
   }
 
   /**
@@ -72,29 +79,19 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
-          retrieval_motor.set(1.0);
-          raise_pneumatics_solenoid.set(Value.kForward);
+          retrieval_motor.set(0.1);
+          // raise_pneumatics_solenoid.set(Value.kForward);
 
           new Trigger(() -> isMotorUnderLoad()).onTrue(runOnce(() -> {
             retrieval_motor.set(0.0);
-            raise_pneumatics_solenoid.set(Value.kOff);
+            // raise_pneumatics_solenoid.set(Value.kOff);
           }));
         });
   }
 
-  /**
-   * An example method querying a boolean state of the subsystem (for example, a
-   * digital sensor).
-   *
-   * @return value of some boolean subsystem state, such as a digital sensor.
-   */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
-  }
-
   public boolean isMotorUnderLoad() {
-    return retrieval_motor.getOutputCurrent() > 40;
+    return false;
+    // return retrieval_motor.getOutputCurrent() > 40;
   }
 
   @Override
@@ -102,10 +99,14 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
     shuffle_motor_current.setDouble(retrieval_motor.getOutputCurrent());
     shuffle_motor_voltage.setDouble(retrieval_motor.getAppliedOutput());
 
+    shuffle_motor_under_load.setBoolean(isMotorUnderLoad());
+
     // shuffle_compressor_current.setDouble(raise_pneumatics_compressor.getCurrent());
     // shuffle_compressor_pressure.setDouble(raise_pneumatics_compressor.getPressure());
 
-    shuffle_solenoid_state.setString(raise_pneumatics_solenoid.toString());
+    // Value state = raise_pneumatics_solenoid.get();
+    // shuffle_solenoid_state.setString(state == Value.kForward ? "forward" : state
+    // == Value.kReverse ? "reverse" : "off");
 
     // This method will be called once per scheduler run
   }

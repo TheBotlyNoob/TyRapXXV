@@ -6,15 +6,25 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.AlgaeGrabberSubsystem;
 
 public class RobotContainer {
+  private final AlgaeGrabberSubsystem algaeGrabberSubsystem;
+
   public RobotContainer() {
     configureBindings();
+
+    algaeGrabberSubsystem = new AlgaeGrabberSubsystem();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
+  }
+
+  public Command getTeleopCommand() {
+    return algaeGrabberSubsystem.beginRetrieval();
   }
 }
