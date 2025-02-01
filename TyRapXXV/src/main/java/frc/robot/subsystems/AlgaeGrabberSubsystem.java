@@ -64,7 +64,7 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
     retrieval_motor = new SparkMax(Constants.ID.kAlgaeGrabberMotorCANID, MotorType.kBrushless);
 
     // FIXME: put in proper solneoid type
-    raise_pneumatics_solenoid = new DoubleSolenoid(PneumaticsModuleType.REVPH,
+    raise_pneumatics_solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,
         Constants.ID.kAlgaeGrabberSolenoidCANID1,
         Constants.ID.kAlgaeGrabberSolenoidCANID2);
   }
@@ -79,12 +79,12 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
     // Subsystem::RunOnce implicitly requires `this` subsystem.
     return runOnce(
         () -> {
-          retrieval_motor.set(0.1);
-          // raise_pneumatics_solenoid.set(Value.kForward);
+          retrieval_motor.set(0.2);
+          raise_pneumatics_solenoid.set(Value.kForward);
 
           new Trigger(() -> isMotorUnderLoad()).onTrue(runOnce(() -> {
             retrieval_motor.set(0.0);
-            // raise_pneumatics_solenoid.set(Value.kOff);
+            raise_pneumatics_solenoid.set(Value.kOff);
           }));
         });
   }
@@ -104,9 +104,8 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
     // shuffle_compressor_current.setDouble(raise_pneumatics_compressor.getCurrent());
     // shuffle_compressor_pressure.setDouble(raise_pneumatics_compressor.getPressure());
 
-    // Value state = raise_pneumatics_solenoid.get();
-    // shuffle_solenoid_state.setString(state == Value.kForward ? "forward" : state
-    // == Value.kReverse ? "reverse" : "off");
+    Value state = raise_pneumatics_solenoid.get();
+    shuffle_solenoid_state.setString(state == Value.kForward ? "forward" : state == Value.kReverse ? "reverse" : "off");
 
     // This method will be called once per scheduler run
   }
