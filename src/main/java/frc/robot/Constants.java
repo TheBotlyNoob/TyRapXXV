@@ -110,6 +110,9 @@ public class Constants {
         public static final double maxDccMSS = 1;
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
+        public static final double minVelocity = 0.1;
+        public static final double maxVelocity = 1.0;
+        public static final double offset = 0.0;
 
     }
 }
