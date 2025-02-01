@@ -75,7 +75,7 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     table_motor_current.set(retrieval_motor.getOutputCurrent());
-    table_motor_voltage.set(retrieval_motor.getAppliedOutput());
+    table_motor_voltage.set(retrieval_motor.getBusVoltage());
 
     table_motor_under_load.set(isMotorUnderLoad());
 
