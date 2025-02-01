@@ -84,14 +84,13 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
 
           new Trigger(() -> isMotorUnderLoad()).onTrue(runOnce(() -> {
             retrieval_motor.set(0.0);
-            raise_pneumatics_solenoid.set(Value.kOff);
+            raise_pneumatics_solenoid.set(Value.kReverse);
           }));
         });
   }
 
   public boolean isMotorUnderLoad() {
-    return false;
-    // return retrieval_motor.getOutputCurrent() > 40;
+    return retrieval_motor.getOutputCurrent() > 21;
   }
 
   @Override
