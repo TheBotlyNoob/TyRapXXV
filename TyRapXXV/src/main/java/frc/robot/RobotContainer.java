@@ -27,6 +27,6 @@ public class RobotContainer {
   }
 
   public Command getTeleopCommand() {
-    return algaeGrabberSubsystem.beginRetrieval();
+    return algaeGrabberSubsystem.toggleRetriever();
   }
 }

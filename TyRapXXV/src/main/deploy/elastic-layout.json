@@ -58,7 +58,7 @@
             }
           },
           {
-            "title": "solenoid_state",
+            "title": "Pneumatic State",
             "x": 0.0,
             "y": 384.0,
             "width": 256.0,
@@ -72,14 +72,27 @@
             }
           },
           {
-            "title": "motor_under_load",
+            "title": "Should Retrieve?",
+            "x": 640.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/AlgaeGrabberSubsystem/should_retrieve",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "Motor Stalled?",
             "x": 256.0,
             "y": 384.0,
             "width": 256.0,
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/AlgaeGrabberSubsystem/motor_under_load",
+              "topic": "/AlgaeGrabberSubsystem/motor_stalled",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
