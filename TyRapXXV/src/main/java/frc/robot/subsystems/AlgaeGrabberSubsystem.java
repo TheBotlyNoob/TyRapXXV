@@ -1,72 +1,51 @@
 package frc.robot.subsystems;
 
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.Compressor;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 
-import com.revrobotics.spark.SparkMax;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
-
 public class AlgaeGrabberSubsystem extends SubsystemBase {
-  private SparkMax retrieval_motor;
-  private DoubleSolenoid raise_pneumatics_solenoid;
+  private final SparkMax retrieval_motor;
+  private final DoubleSolenoid raise_pneumatics_solenoid;
 
-  private ShuffleboardTab shuffle_tab = Shuffleboard.getTab(getName());
+  private final NetworkTable table;
 
-  private GenericEntry shuffle_motor_current = shuffle_tab.add("Motor Current", 0.0)
-      .withWidget(BuiltInWidgets.kGraph)
-      .withProperties(Map.of("max", 50.0)).withSize(4, 2)
-      .withPosition(2, 0).getEntry();
+  private final DoublePublisher table_motor_current;
+  private final DoublePublisher table_motor_voltage;
 
-  private GenericEntry shuffle_motor_voltage = shuffle_tab.add("Motor Voltage", 0.0)
-      .withWidget(BuiltInWidgets.kNumberBar)
-      .withProperties(Map.of("max", 12.0)).withSize(2, 1)
-      .withPosition(0, 0).getEntry();
+  private final BooleanPublisher table_motor_under_load;
 
-  private GenericEntry shuffle_motor_under_load = shuffle_tab.add("Motor Under Load", false)
-      .withWidget(BuiltInWidgets.kBooleanBox).withSize(2, 1)
-      .withPosition(0, 1).getEntry();
-
-  /*
-   * private GenericEntry shuffle_compressor_current =
-   * shuffle_tab.add("Compressor Current Draw", 0.0)
-   * .withWidget(BuiltInWidgets.kNumberBar)
-   * .withSize(2, 1).withPosition(2, 0).getEntry();
-   * private GenericEntry shuffle_compressor_pressure =
-   * shuffle_tab.add("Compressor Pressure", 0.0)
-   * .withWidget(BuiltInWidgets.kNumberBar)
-   * .withSize(2, 1).withPosition(2, 1).getEntry();
-   */
-
-  private GenericEntry shuffle_solenoid_state = shuffle_tab.add("Solenoid State", "off")
-      .withWidget(BuiltInWidgets.kTextView)
-      .withSize(2, 1).withPosition(1, 2).getEntry();
+  private final StringPublisher table_solenoid_state;
 
   /** Creates a new AlgaeGrabber. */
-  public AlgaeGrabberSubsystem() {
+  public AlgaeGrabberSubsystem(NetworkTableInstance nt) {
     retrieval_motor = new SparkMax(Constants.ID.kAlgaeGrabberMotorCANID, MotorType.kBrushless);
 
     // FIXME: put in proper solneoid type
     raise_pneumatics_solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,
         Constants.ID.kAlgaeGrabberSolenoidCANID1,
         Constants.ID.kAlgaeGrabberSolenoidCANID2);
+
+    table = nt.getTable(getName());
+
+    table_motor_current = table.getDoubleTopic("motor_current").publish();
+    table_motor_voltage = table.getDoubleTopic("motor_voltage").publish();
+
+    table_motor_under_load = table.getBooleanTopic("motor_under_load").publish();
+
+    table_solenoid_state = table.getStringTopic("solenoid_state").publish();
   }
 
   /**
@@ -95,16 +74,13 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    shuffle_motor_current.setDouble(retrieval_motor.getOutputCurrent());
-    shuffle_motor_voltage.setDouble(retrieval_motor.getAppliedOutput());
+    table_motor_current.set(retrieval_motor.getOutputCurrent());
+    table_motor_voltage.set(retrieval_motor.getAppliedOutput());
 
-    shuffle_motor_under_load.setBoolean(isMotorUnderLoad());
-
-    // shuffle_compressor_current.setDouble(raise_pneumatics_compressor.getCurrent());
-    // shuffle_compressor_pressure.setDouble(raise_pneumatics_compressor.getPressure());
+    table_motor_under_load.set(isMotorUnderLoad());
 
     Value state = raise_pneumatics_solenoid.get();
-    shuffle_solenoid_state.setString(state == Value.kForward ? "forward" : state == Value.kReverse ? "reverse" : "off");
+    table_solenoid_state.set(state == Value.kForward ? "forward" : state == Value.kReverse ? "reverse" : "off");
 
     // This method will be called once per scheduler run
   }

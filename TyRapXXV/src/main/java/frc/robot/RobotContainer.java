@@ -4,17 +4,19 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.AlgaeGrabberSubsystem;
 
 public class RobotContainer {
   private final AlgaeGrabberSubsystem algaeGrabberSubsystem;
+  private final NetworkTableInstance nt = NetworkTableInstance.getDefault();
 
   public RobotContainer() {
     configureBindings();
 
-    algaeGrabberSubsystem = new AlgaeGrabberSubsystem();
+    algaeGrabberSubsystem = new AlgaeGrabberSubsystem(nt);
   }
 
   private void configureBindings() {
