@@ -36,7 +36,13 @@ public class CoordinateUtilities {
      * @return Bearing in degrees from first to second pos position
      */
     public static double bearingTo(Pose2d first, Pose2d second) {
-        return Math.toDegrees(Math.atan2(second.getY()-first.getY(), second.getX()-first.getX()));
+        return Math.toDegrees(Math.atan2(second.getY() - first.getY(), second.getX() - first.getX()));
+    }
+    
+    public static double robotBearingTo(Pose2d first, Pose2d second) {
+        double fieldBearing = bearingTo(first, second);
+        double robotBearing = first.getRotation().getDegrees();
+        return fieldBearing - robotBearing;
     }
 
     /**
@@ -47,8 +53,12 @@ public class CoordinateUtilities {
      */
     public static ChassisSpeeds courseSpeedToLinearVelocity(double courseDeg, double speedMetersPerSecond) {
         return new ChassisSpeeds(
-            speedMetersPerSecond*Math.cos(Math.toRadians(courseDeg)),
-            speedMetersPerSecond*Math.sin(Math.toRadians(courseDeg)),
-            0.0);
+                speedMetersPerSecond * Math.cos(Math.toRadians(courseDeg)),
+                speedMetersPerSecond * Math.sin(Math.toRadians(courseDeg)),
+                0.0);
+    }
+    
+    public static double getChassisMagnitude(ChassisSpeeds speeds) {
+        return Math.sqrt(Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2));
     }
 }

@@ -51,30 +51,33 @@ public class ProportionalController {
         // Desired Velocities
         // If the error is less than the threshold, meaning we have driven to the correct place, 
         //    stop the robot by setting speed to 0
-        // If not, meaning we still have to drive further, set the calculated velocity
-        //    to be between a min and max, while using the correct sign (+ or -)
         if (Math.abs(error) < threshold) {
             desiredVel = 0;
+        // If not, meaning we still have to drive further, set the calculated velocity
+        //    to be between a min and max, while using the correct sign (+ or -)
         } else {
             desiredVel = Math.copySign(MathUtil.clamp(calculatedVel, minVel, maxVel), error);
         }
 
         // Commanded X Velocity ramped
         // If the desired velocity is greater than the commanded velocity (in the same direction), we accelerate
-        // If not, we decelerate
-        // We have to switch because there are different values for both
         if ((Math.abs(desiredVel) - Math.abs(commandedVel)) > 0) {
             deltaVel = maxAcc;
+        // If not, we decelerate
+        // We have to switch because there are different values for both
         } else {
             deltaVel = maxDcc;
         }
-        // 
+        // Set commanded velocity based on acceleration or deceleration
+        // Acceleration
         if (desiredVel > commandedVel) {
             commandedVel = Math.min(desiredVel, commandedVel + deltaVel);
+        // Deceleration
         } else if (desiredVel < commandedVel) {
             commandedVel = Math.max(desiredVel, commandedVel - deltaVel);
         }
 
+        // Return final velocity
         return speed = commandedVel;
     }
 }
