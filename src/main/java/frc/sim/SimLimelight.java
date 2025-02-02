@@ -54,7 +54,7 @@ public class SimLimelight extends Limelight {
         if (Math.abs(Math.toDegrees(azAngleToTargetRad)) > LimelightConstants.azimuthFieldOfViewDeg) {
             // Tag out of field of view
             retVal = new double[] {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-            System.out.println("Out of field of view az=" + Math.toDegrees(azAngleToTargetRad));
+            //System.out.println("Out of field of view az=" + Math.toDegrees(azAngleToTargetRad));
         } else {
             // Store in Limelight output format
             retVal = new double[] {

@@ -116,6 +116,6 @@ public class Constants {
         public static final double maxVelocity = 1.0;
         public static final double offset = 0.0;
         public static final double proportion = 2;
-        public static final double threshold = 2;
+        public static final double threshold = .02;
     }
 }

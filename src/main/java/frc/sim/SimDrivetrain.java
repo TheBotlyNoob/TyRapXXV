@@ -52,4 +52,16 @@ public class SimDrivetrain extends Drivetrain {
     public void setSimPose(Pose3d newPose) {
         this.currentPose = newPose;
     }
+
+    @Override
+    public void updateOdometry() {
+        // For the odometry to the simulated robot position since we are
+        // not simulating the actual swerve drive dynamics yet
+        m_odometry.resetPose(getSimPose().toPose2d());
+        m_odometry.resetRotation(getSimPose().getRotation().toRotation2d());
+
+        // Set the chassis speeds to the true simulated speeds
+        m_chassisSpeeds = new ChassisSpeeds(this.currentXSpeedMps, 
+            this.currentYSPeedMps, this.currentRotSpeedDps);
+    }
 }

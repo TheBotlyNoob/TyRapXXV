@@ -30,7 +30,8 @@ public class DriveDistance extends Command{
     Drivetrain dt;
 
     // Shuffleboard
-    private static GenericEntry desiredPosEntry = Shuffleboard.getTab("Limelight").add("desiredPose", 0).getEntry();
+    private static GenericEntry desiredPosXEntry = Shuffleboard.getTab("Limelight").add("desiredPoseX", 0).getEntry();
+    private static GenericEntry desiredPosYEntry = Shuffleboard.getTab("Limelight").add("desiredPoseY", 0).getEntry();
     private static GenericEntry rangeMEntry = Shuffleboard.getTab("Limelight").add("rangeM", 0).getEntry();
     private static GenericEntry bearingEntry = Shuffleboard.getTab("Limelight").add("bearing", 0).getEntry();
     private static GenericEntry currentXVelEntry = Shuffleboard.getTab("Limelight").add("currentXVel", 0).getEntry();
@@ -79,21 +80,28 @@ public class DriveDistance extends Command{
 
     @Override
     public void initialize() {
-        // Initialize timer
-        m_timer = new Timer();
-        // Initialize proportion
-        proportion = LimelightConstants.proportion;
-        // Initialize threshold
-        threshold = LimelightConstants.threshold;
-        // Get current position from odometry
-        currentPose = dt.getRoboPose2d();
-        // Get desired position from odometry
-        desiredPose = currentPose.plus(CoordinateUtilities.rangeAngleToTransform(desiredDistance, desiredAngle));
-        // Shuffleboard desired pose
-        desiredPosEntry.setValue(desiredPose);
-        // Create a new Trapezoid profile
-        profile = new TrapezoidProfile(
-                new TrapezoidProfile.Constraints(LimelightConstants.maxVelocity, LimelightConstants.maxAccMSS));
+        try {
+            // Initialize timer
+            m_timer = new Timer();
+            // Initialize proportion
+            proportion = LimelightConstants.proportion;
+            // Initialize threshold
+            threshold = LimelightConstants.threshold;
+            // Get current position from odometry
+            currentPose = dt.getRoboPose2d();
+            // Get desired position from odometry
+            desiredPose = currentPose.plus(CoordinateUtilities.rangeAngleToTransform(desiredDistance, desiredAngle));
+            // Shuffleboard desired pose
+            desiredPosXEntry.setValue(desiredPose.getX());
+            desiredPosYEntry.setValue(desiredPose.getY());
+            // Create a new Trapezoid profile
+            profile = new TrapezoidProfile(
+                    new TrapezoidProfile.Constraints(LimelightConstants.maxVelocity, LimelightConstants.maxAccMSS));
+        } catch (Exception e) {
+            System.out.println("Exception initializing DriveDistance");
+            e.printStackTrace();
+        }
+
     }
 
     @Override

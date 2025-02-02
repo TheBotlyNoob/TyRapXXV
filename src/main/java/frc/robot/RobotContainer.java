@@ -26,6 +26,7 @@ import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.Drive;
+import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
 
@@ -110,6 +111,7 @@ public class RobotContainer {
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
         Controller.kDriveController.a().onTrue(new CenterOnTag(m_swerve, m_Limelight));
+        Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve, 0.5, 0.0));
     }
 
     public Drivetrain getDrivetrain() {
