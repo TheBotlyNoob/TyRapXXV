@@ -116,7 +116,9 @@ public class RobotContainer {
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
         Controller.kDriveController.a().onTrue(new CenterOnTag(m_swerve, m_Limelight));
-        Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve, 0.5, 0.0));
+        Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve));
+        Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
+                () -> m_Limelight.getzDistanceMeters() + 0.03, 0));
     }
 
     public Drivetrain getDrivetrain() {

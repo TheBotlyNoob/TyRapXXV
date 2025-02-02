@@ -110,10 +110,10 @@ public class Constants {
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
         // For ProportionalController & DriveDistance as well
-        public static final double maxAccMSS = 0.5;
-        public static final double maxDccMSS = 1;
+        public static final double maxAccMSS = 2;
+        public static final double maxDccMSS = 3;
         public static final double minVelocity = 0.1;
-        public static final double maxVelocity = 1.0;
+        public static final double maxVelocity = 3.0;
         public static final double offset = 0.0;
         public static final double proportion = 2;
         public static final double threshold = .02;

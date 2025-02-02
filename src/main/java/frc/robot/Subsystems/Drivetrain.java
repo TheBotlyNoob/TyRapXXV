@@ -4,6 +4,8 @@
 
 package frc.robot.Subsystems;
 
+import java.io.File;
+import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -114,11 +117,14 @@ public class Drivetrain extends SubsystemBase {
 
     protected ExecutorService executorService = Executors.newFixedThreadPool(4);
 
+    protected final Field2d field = new Field2d();
+
     public Drivetrain(Pigeon2 gyro) {
         // Zero at beginning of match. Zero = whatever direction the robot (more
         // specifically the gyro) is facing
         this.m_gyro = gyro;
         this.resetGyro();
+        m_driveTab.add("field", field);
 
         m_odometry = new SwerveDriveOdometry(
                 m_kinematics,
@@ -369,6 +375,8 @@ public class Drivetrain extends SubsystemBase {
         // Converting module speeds to chassis speeds
         m_chassisSpeeds = m_kinematics.toChassisSpeeds(
                 frontLeftState, frontRightState, backLeftState, backRightState);
+        
+        field.setRobotPose(getRoboPose2d());
     }
 
     @Override
