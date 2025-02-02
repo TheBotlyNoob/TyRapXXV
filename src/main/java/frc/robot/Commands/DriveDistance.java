@@ -1,5 +1,7 @@
 package frc.robot.Commands;
 
+import java.util.function.DoubleSupplier;
+
 // Imports
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -25,56 +27,66 @@ import frc.robot.SparkJrConstants.*;
 // This Command will use the current position in odometry and desired position (theoretically by an AprilTag) 
 //      to set drivetrain speeds until odometry indicates the robot is at the desired position
 // This is for more precise positioning, like when we need to be close to an AprilTag
-public class DriveDistance extends Command{
+public class DriveDistance extends Command {
     // Drivetrain Object
     Drivetrain dt;
 
     // Shuffleboard
-    private static GenericEntry desiredPosXEntry = Shuffleboard.getTab("Limelight").add("desiredPoseX", 0).getEntry();
-    private static GenericEntry desiredPosYEntry = Shuffleboard.getTab("Limelight").add("desiredPoseY", 0).getEntry();
-    private static GenericEntry rangeMEntry = Shuffleboard.getTab("Limelight").add("rangeM", 0).getEntry();
-    private static GenericEntry bearingEntry = Shuffleboard.getTab("Limelight").add("bearing", 0).getEntry();
-    private static GenericEntry currentXVelEntry = Shuffleboard.getTab("Limelight").add("currentXVel", 0).getEntry();
-    private static GenericEntry currentYVelEntry = Shuffleboard.getTab("Limelight").add("currentYVel", 0).getEntry();
-    private static GenericEntry timeEntry = Shuffleboard.getTab("Limelight").add("time", 0).getEntry();
+    private static GenericEntry desiredPosXEntry = Shuffleboard.getTab("DriveDistance").add("desiredPoseX", 0)
+            .getEntry();
+    private static GenericEntry desiredPosYEntry = Shuffleboard.getTab("DriveDistance").add("desiredPoseY", 0)
+            .getEntry();
+    private static GenericEntry rangeMEntry = Shuffleboard.getTab("DriveDistance").add("rangeM", 0).getEntry();
+    private static GenericEntry bearingEntry = Shuffleboard.getTab("DriveDistance").add("bearing", 0).getEntry();
+    private static GenericEntry currentXVelEntry = Shuffleboard.getTab("DriveDistance").add("currentXVel", 0)
+            .getEntry();
+    private static GenericEntry currentYVelEntry = Shuffleboard.getTab("DriveDistance").add("currentYVel", 0)
+            .getEntry();
+    private static GenericEntry timeEntry = Shuffleboard.getTab("DriveDistance").add("time", 0).getEntry();
+    private static GenericEntry minVelEntry = Shuffleboard.getTab("DriveDistance")
+            .add("minVelEntry", LimelightConstants.minVelocity).getEntry();
+    private static GenericEntry maxVelEntry = Shuffleboard.getTab("DriveDistance")
+            .add("maxVelEntry", LimelightConstants.maxVelocity).getEntry();
+    private static GenericEntry maxAccEntry = Shuffleboard.getTab("DriveDistance")
+            .add("maxAccEntry", LimelightConstants.maxAccMSS).getEntry();
+    private static GenericEntry maxDccEntry = Shuffleboard.getTab("DriveDistance")
+            .add("maxDccEntry", LimelightConstants.maxDccMSS).getEntry();
+    protected static GenericEntry desiredDisEntry = Shuffleboard.getTab("DriveDistance")
+            .add("desiredDis", 1.5).getEntry();
+    protected static GenericEntry desiredAngEntry = Shuffleboard.getTab("DriveDistance")
+            .add("desiredAng", 0).getEntry();
 
     // Variables
-    private double currentX;
-    private double currentY;
     private double currentVel;
-    private Rotation2d currentAngle;
     private double desiredDistance;
-    private double desiredX;
-    private double desiredY;
     private double desiredAngle;
-    private double xDiff;
-    private double yDiff;
-    private double totalDis;
-    private double calcAngle;
     private ChassisSpeeds calcVel;
     private ChassisSpeeds chassisSpeed;
     private double chassisMagnitude;
-    private double xVel;
-    private double yVel;
-    private double desiredVel;
-    private double rotVel;
+    private double minVel;
+    private double maxVel;
     private Pose2d currentPose;
     private Pose2d desiredPose;
     private double rangeM;
     private double bearingDeg;
-    private Pose2d offset;
     private Timer m_timer;
     private TrapezoidProfile profile;
     private TrapezoidProfile.State initial;
     private TrapezoidProfile.State goal;
-    private ProportionalController controller;
-    private double proportion;
     private double threshold;
+    protected boolean useDashboardEntries = false;
+    protected DoubleSupplier distanceSupplier;
 
-    public DriveDistance(Drivetrain dt, double desiredDistance, double desiredAngle) {
+    public DriveDistance(Drivetrain dt, DoubleSupplier distanceSupplier, double desiredAngle) {
         this.dt = dt;
-        this.desiredDistance = desiredDistance;
+        this.distanceSupplier = distanceSupplier;
         this.desiredAngle = desiredAngle;
+        addRequirements(dt);
+    }
+
+    public DriveDistance(Drivetrain dt) {
+        this.dt = dt;
+        this.useDashboardEntries = true;
         addRequirements(dt);
     }
 
@@ -83,20 +95,33 @@ public class DriveDistance extends Command{
         try {
             // Initialize timer
             m_timer = new Timer();
-            // Initialize proportion
-            proportion = LimelightConstants.proportion;
+
+            if (this.useDashboardEntries) {
+                System.out.println("Using dashboard values");
+                this.desiredDistance = desiredDisEntry.getDouble(1.5);
+                this.desiredAngle = desiredAngEntry.getDouble(0);
+                System.out.println("dist:" + this.desiredDistance + " ang: " + this.desiredAngle);
+            } else {
+                this.desiredDistance = this.distanceSupplier.getAsDouble();
+                System.out.println("Using argument values:" + this.desiredDistance + " ang: " + this.desiredAngle);
+            }
+
             // Initialize threshold
             threshold = LimelightConstants.threshold;
+            // Set min & max velocity
+            minVel = minVelEntry.getDouble(LimelightConstants.minVelocity);
+            maxVel = maxVelEntry.getDouble(LimelightConstants.maxVelocity);
             // Get current position from odometry
             currentPose = dt.getRoboPose2d();
             // Get desired position from odometry
-            desiredPose = currentPose.plus(CoordinateUtilities.rangeAngleToTransform(desiredDistance, desiredAngle));
+            desiredPose = currentPose
+                    .plus(CoordinateUtilities.rangeAngleToTransform(this.desiredDistance, this.desiredAngle));
             // Shuffleboard desired pose
             desiredPosXEntry.setValue(desiredPose.getX());
             desiredPosYEntry.setValue(desiredPose.getY());
             // Create a new Trapezoid profile
             profile = new TrapezoidProfile(
-                    new TrapezoidProfile.Constraints(LimelightConstants.maxVelocity, LimelightConstants.maxAccMSS));
+                    new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(LimelightConstants.maxAccMSS)));
         } catch (Exception e) {
             System.out.println("Exception initializing DriveDistance");
             e.printStackTrace();
@@ -123,11 +148,12 @@ public class DriveDistance extends Command{
         goal = new TrapezoidProfile.State(rangeM, 0);
         // Set Trapezoid profile
         var setpoint = profile.calculate(0.02, initial, goal);
-        currentVel = setpoint.velocity;
+        currentVel = Math.max(setpoint.velocity, minVel);
+
         // Calculate x and y components of desired velocity
         calcVel = CoordinateUtilities.courseSpeedToLinearVelocity(bearingDeg, currentVel);
         // Drive
-        dt.drive(calcVel.vxMetersPerSecond, calcVel.vyMetersPerSecond, calcVel.omegaRadiansPerSecond);
+        dt.driveChassisSpeeds(calcVel);
         // Shuffleboard range, bearing, vel, time
         rangeMEntry.setDouble(rangeM);
         bearingEntry.setDouble(bearingDeg);
@@ -138,7 +164,7 @@ public class DriveDistance extends Command{
 
     @Override
     public boolean isFinished() {
-        if(rangeM<=threshold){
+        if (rangeM <= threshold) {
             return true;
         }
         return false;
