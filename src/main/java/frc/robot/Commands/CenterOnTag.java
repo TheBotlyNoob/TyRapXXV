@@ -10,6 +10,7 @@ import frc.robot.SparkJrConstants.*;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.Limelight;
 
+// Used to get a general location, not exact
 public class CenterOnTag extends Command {
     Drivetrain dt;
     Limelight ll;
@@ -85,6 +86,7 @@ public class CenterOnTag extends Command {
 
     @Override
     public void initialize() {
+        // Set FieldRelative to false because we calculate based off of limelight camera
         dt.setFieldRelative(false);
         minXVel = minXVelEntry.getDouble(LimelightConstants.minXVelocity);
         maxXVel = maxXVelEntry.getDouble(LimelightConstants.maxXVelocity);
@@ -107,6 +109,7 @@ public class CenterOnTag extends Command {
 
     @Override
     public void execute() {
+        // Check if we have a valid target before calculating and setting values
         if (ll.getTimeSinceValid() == 0) {
             double rotAngleDegrees = -1 * ll.getFilteredYawDegrees();
             double xDis = -1 * ll.getxDistanceMeters();
@@ -201,12 +204,14 @@ public class CenterOnTag extends Command {
         if (Math.abs(xError) < LimelightConstants.xDisThreshold && Math
                 .abs(yError) < LimelightConstants.yDisThreshold
                 && Math.abs(ll.getFilteredYawDegrees()) < LimelightConstants.rotThreshold) {
+            // Set FieldRelative back to true so the drivetrain works for teleop
             dt.setFieldRelative(true);
             dt.drive(0, 0, 0);
             System.out.println("COT command complete");
             return true;
         } else if (llLost == true) {
             System.out.println("COT command aborted because limelight lost");
+            // Set FieldRelative back to true so the drivetrain works for teleop
             dt.setFieldRelative(true);
             dt.drive(0, 0, 0);
             return true;
