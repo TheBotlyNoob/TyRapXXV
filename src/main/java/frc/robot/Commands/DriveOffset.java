@@ -11,11 +11,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.CoordinateUtilities;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import frc.robot.Constants;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Utils.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -23,12 +26,11 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 //import frc.robot.TyRap24Constants.*;
 import frc.robot.SparkJrConstants.*;
 
-// This Command will use the current position in odometry and desired position (theoretically by an AprilTag) 
-//      to set drivetrain speeds until odometry indicates the robot is at the desired position
-// This is for more precise positioning, like when we need to be close to an AprilTag
-public class DriveDistance extends Command {
-    // Drivetrain Object
+// This Command combines DriveDistance and CenterOnTag, using Limelight to drive to an april tag and then drive a specific offset left or right from it
+public class DriveOffset extends Command {
+    // Drivetrain and Limelight objects
     Drivetrain dt;
+    Limelight ll;
 
     // Shuffleboard
     private static GenericEntry desiredPosXEntry = Shuffleboard.getTab("DriveDistance").add("desiredPoseX", 0)
@@ -56,16 +58,25 @@ public class DriveDistance extends Command {
             .add("desiredAng", 0).getEntry();
 
     // Variables
-    private double currentVel;
+    private boolean isLeft;
+    private double xOffset;
+    private double yOffset;
+    private double xError;
+    private double yError;
+    private Pose2d tagPose;
+    private Pose2d currentPose;
+    private Pose2d desiredPose;
     private double desiredDistance;
     private double desiredAngle;
+    protected Transform2d cameraToRobot;
+
+    // Variables from CenterOnTag
+    private double currentVel;
     private ChassisSpeeds calcVel;
     private ChassisSpeeds chassisSpeed;
     private double chassisMagnitude;
     private double minVel;
     private double maxVel;
-    private Pose2d currentPose;
-    private Pose2d desiredPose;
     private double rangeM;
     private double bearingDeg;
     private Timer m_timer;
@@ -73,65 +84,58 @@ public class DriveDistance extends Command {
     private TrapezoidProfile.State initial;
     private TrapezoidProfile.State goal;
     private double threshold;
+    private int counter;
     protected boolean useDashboardEntries = false;
     protected DoubleSupplier distanceSupplier;
 
-    // Constructors
-    public DriveDistance(Drivetrain dt, DoubleSupplier distanceSupplier, double desiredAngle) {
+    // Constructor
+    public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft) {
         this.dt = dt;
-        this.distanceSupplier = distanceSupplier;
-        this.desiredAngle = desiredAngle;
-        addRequirements(dt);
-    }
-
-    public DriveDistance(Drivetrain dt) {
-        this.dt = dt;
-        this.useDashboardEntries = true;
-        addRequirements(dt);
+        this.ll = ll;
+        this.isLeft = isLeft;
+        cameraToRobot = new Transform2d(-.19, 0, new Rotation2d());
     }
 
     @Override
     public void initialize() {
-        try {
-            // Initialize timer
-            m_timer = new Timer();
+        desiredPose = getDesiredPose();
+    }
 
-            // Make sure dashboard values are used in code
-            if (this.useDashboardEntries) {
-                System.out.println("Using dashboard values");
-                this.desiredDistance = desiredDisEntry.getDouble(1.5);
-                this.desiredAngle = desiredAngEntry.getDouble(0);
-                System.out.println("dist:" + this.desiredDistance + " ang: " + this.desiredAngle);
-            } else {
-                this.desiredDistance = this.distanceSupplier.getAsDouble();
-                System.out.println("Using argument values:" + this.desiredDistance + " ang: " + this.desiredAngle);
-            }
+    public Pose2d getDesiredPose() {
+        // Get values from limelight
+        double rotAngleDegrees = -1 * ll.getFilteredYawDegrees();
+        double yDis = -1 * ll.getxDistanceMeters();
+        double xDis = ll.getzDistanceMeters();
+        // Get tag position from camera
+        tagPose = new Pose2d(xDis, yDis, new Rotation2d(Math.toRadians(rotAngleDegrees)));
 
-            // Initialize threshold
-            threshold = LimelightConstants.threshold;
-            // Set min & max velocity
-            minVel = minVelEntry.getDouble(LimelightConstants.minVelocity);
-            maxVel = maxVelEntry.getDouble(LimelightConstants.maxVelocity);
-            // Get current position from odometry
-            currentPose = dt.getRoboPose2d();
-            // Get desired position from odometry
-            desiredPose = currentPose
-                    .plus(CoordinateUtilities.rangeAngleToTransform(this.desiredDistance, this.desiredAngle));
-            // Shuffleboard desired pose
-            desiredPosXEntry.setValue(desiredPose.getX());
-            desiredPosYEntry.setValue(desiredPose.getY());
-            // Create a new Trapezoid profile
-            profile = new TrapezoidProfile(
-                    new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(LimelightConstants.maxAccMSS)));
-        } catch (Exception e) {
-            System.out.println("Exception initializing DriveDistance");
-            e.printStackTrace();
-        }
+        Transform2d desiredOffset = new Transform2d(xOffset, yOffset, new Rotation2d());
 
+        Pose2d desiredPoseRobotRelative = tagPose.plus(desiredOffset).plus(cameraToRobot);
+
+        // Get current robot pose
+        currentPose = dt.getRoboPose2d();
+
+        // Get desired position from odometry
+        Pose2d desiredPoseField = currentPose
+                .plus(new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(),
+                        new Rotation2d()));
+        
+        System.out.println("currentPose = " + currentPose);
+        System.out.println("tagPose = " + tagPose);
+        System.out.println("desiredPoseRobotRelative = "+desiredPoseRobotRelative);
+        System.out.println("desiredPoseField = "+desiredPoseField);
+        
+        return desiredPoseField;
     }
 
     @Override
     public void execute() {
+        // Update desired pose every so often
+        if (ll.getTimeSinceValid() == 0 && (counter%5==0)) {
+            desiredPose = getDesiredPose();
+        }
+        counter++;
         // Get current pose
         currentPose = dt.getRoboPose2d();
         // Get current time
@@ -161,12 +165,9 @@ public class DriveDistance extends Command {
         currentYVelEntry.setDouble(calcVel.vyMetersPerSecond);
         timeEntry.setDouble(lastTime);
     }
-
+    
     @Override
     public boolean isFinished() {
-        if (rangeM <= threshold) {
-            return true;
-        }
         return false;
     }
 }
