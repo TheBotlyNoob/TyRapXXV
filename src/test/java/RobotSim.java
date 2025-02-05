@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.sim.*;
@@ -27,6 +28,7 @@ public class RobotSim {
 
     SimDrivetrain m_drive = new SimDrivetrain();
     SimLimelight m_limelight;
+    SimElevator m_elevator = new SimElevator();
     Vector<SimTarget> targets = new Vector<SimTarget>();
     protected final Field2d field = new Field2d();
     protected CommandScheduler scheduler = null;
@@ -158,6 +160,8 @@ public class RobotSim {
                 startX, startY, 0.0, new Rotation3d(0.0, 0.0, Math.toRadians(startYawDeg)));
         m_drive.setSimPose(startPose);
         m_limelight.reset();
+        m_elevator.reset();
+        m_elevator.setSpeed(0.5);
 
         // Load command
         DriveDistance ddc = new DriveDistance(m_drive, () -> distanceM, bearingDeg);
