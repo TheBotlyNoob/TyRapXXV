@@ -120,4 +120,10 @@ public class Constants {
         
         
     }
+
+    public static class ElevatorConstants {
+        public static final double maxHeightM = 2.0;
+        public static final double minHeightM = 0.8;
+        public static final double maxVelocityMps = 2.0;
+    }
 }
