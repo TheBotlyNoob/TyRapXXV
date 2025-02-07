@@ -156,6 +156,12 @@ public class DriveOffset extends Command {
         currentVel = Math.max(setpoint.velocity, minVel);
         // Calculate x and y components of desired velocity
         calcVel = CoordinateUtilities.courseSpeedToLinearVelocity(bearingDeg, currentVel);
+        // Calculate total time left
+        double remainingTime = profile.totalTime();
+        // Calculate angle error
+        double angleError = desiredPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
+        // Calculate angular speed
+        calcVel.omegaRadiansPerSecond = angleError / remainingTime;
         // Drive
         dt.driveChassisSpeeds(calcVel);
         // Set range, bearing, vel, and time in Shuffleboard
