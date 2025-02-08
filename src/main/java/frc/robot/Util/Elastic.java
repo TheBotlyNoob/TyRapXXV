@@ -3,7 +3,7 @@
 // defined by the Elastic license:
 // https://github.com/Gold872/elastic-dashboard/blob/main/LICENSE
 
-package frc.robot.util;
+package frc.robot.Util;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,7 +13,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StringTopic;
-import frc.robot.util.Elastic.Notification.NotificationLevel;
+import frc.robot.Util.Elastic.Notification.NotificationLevel;
 
 public final class Elastic {
     private static final StringTopic notificationTopic = NetworkTableInstance.getDefault()

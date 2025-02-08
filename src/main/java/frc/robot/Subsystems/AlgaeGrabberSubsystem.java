@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.Subsystems;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -16,9 +16,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.util.Elastic;
-import frc.robot.util.Elastic.Notification;
-import frc.robot.util.Elastic.Notification.NotificationLevel;
+import frc.robot.Util.Elastic;
+import frc.robot.Util.Elastic.Notification;
+import frc.robot.Util.Elastic.Notification.NotificationLevel;
 
 public class AlgaeGrabberSubsystem extends SubsystemBase {
   private final Value pneumaticOut = Value.kReverse;
