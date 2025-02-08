@@ -8,8 +8,10 @@ import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Subsystems.Elevator;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
-public class SimElevator extends SubsystemBase{
+public class SimElevator extends Elevator{
 
     protected Mechanism2d elevatorModel; // Sim
     protected MechanismLigament2d elevatorPiece; // Sim
