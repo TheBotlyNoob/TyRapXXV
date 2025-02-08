@@ -28,6 +28,7 @@ import frc.robot.Subsystems.RangeSensor;
 import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
+import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.DriveRange;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
@@ -116,7 +117,7 @@ public class RobotContainer {
 
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
-        Controller.kDriveController.a().onTrue(new CenterOnTag(m_swerve, m_Limelight));
+        Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
         Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
