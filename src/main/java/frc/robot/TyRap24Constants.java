@@ -66,6 +66,8 @@ public class TyRap24Constants {
 
         public static final boolean kInvertTurn = false;
         public static final double kMaxPossibleSpeed = 5.0; // meters per second
+
+        public static final boolean sparkFlex = false;
     };
 
     public static final class Modules {

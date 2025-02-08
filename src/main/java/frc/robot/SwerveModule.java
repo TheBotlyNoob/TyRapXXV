@@ -8,9 +8,12 @@ import com.ctre.phoenix6.configs.MagnetSensorConfigs;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
@@ -24,7 +27,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 //import frc.robot.TyRap24Constants.*;
-import frc.robot.SparkJrConstants.*;
+import frc.robot.TyRap25Constants.*;
+//import frc.robot.SparkJrConstants.*;
 
 public class SwerveModule {
 
@@ -36,7 +40,7 @@ public class SwerveModule {
      * The drive motor is responsible for the actual power across the ground e.g. to
      * make it move forward/backward
      */
-    private final SparkMax m_driveMotor;
+    protected SparkBase m_driveMotor;
 
     /**
      * The turning/steering motor is responsible for the orientation of the wheel
@@ -99,7 +103,8 @@ public class SwerveModule {
             double[] steerPID,
             double[] drivePID,
             double[] turnFeedForward,
-            double[] driveFeedForward) {
+            double[] driveFeedForward,
+            boolean sparkFlex) {
 
         m_drivePIDController = new PIDController(
                 drivePID[0],
@@ -118,15 +123,27 @@ public class SwerveModule {
         /*
          * Set up the drive motor
          */
-        m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
-        m_driveMotor.getEncoder().setPosition(0);
-        SparkMaxConfig driveConfig = new SparkMaxConfig();
-        driveConfig.smartCurrentLimit(40); //m_driveMotor.setSmartCurrentLimit(40);
-        driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter); //m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
-        driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); //m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
-        driveConfig.idleMode(IdleMode.kBrake); //m_driveMotor.setIdleMode(IdleMode.kBrake);
-        driveConfig.inverted(false); //m_driveMotor.setInverted(false);
-        m_driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        if (sparkFlex) {
+            m_driveMotor = new SparkFlex(driveMotorChannel, MotorType.kBrushless);
+            m_driveMotor.getEncoder().setPosition(0);
+            SparkFlexConfig driveConfig = new SparkFlexConfig();
+            driveConfig.smartCurrentLimit(40); //m_driveMotor.setSmartCurrentLimit(40);
+            driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter); //m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
+            driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); //m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
+            driveConfig.idleMode(IdleMode.kBrake); //m_driveMotor.setIdleMode(IdleMode.kBrake);
+            driveConfig.inverted(false); //m_driveMotor.setInverted(false);
+            m_driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        } else {
+            m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
+            m_driveMotor.getEncoder().setPosition(0);
+            SparkMaxConfig driveConfig = new SparkMaxConfig();
+            driveConfig.smartCurrentLimit(40); //m_driveMotor.setSmartCurrentLimit(40);
+            driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter); //m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
+            driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); //m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
+            driveConfig.idleMode(IdleMode.kBrake); //m_driveMotor.setIdleMode(IdleMode.kBrake);
+            driveConfig.inverted(false); //m_driveMotor.setInverted(false);
+            m_driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        }  
 
         /*
          * Set up the turning motor. We had to invert the turning motor so it agreed

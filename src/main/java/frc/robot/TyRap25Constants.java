@@ -3,29 +3,36 @@ package frc.robot;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-public class SparkJrConstants {
+public class TyRap25Constants {
     public static class ID {
         // Swerve motor controller IDs
-        public static final int kFrontLeftTurn = 5;
-        public static final int kFrontLeftDrive = 6;
+        public static final int kFrontLeftTurn = 1;
+        public static final int kFrontLeftDrive = 2;
 
-        public static final int kFrontRightTurn = 8;
-        public static final int kFrontRightDrive = 52;
+        public static final int kFrontRightTurn = 3;
+        public static final int kFrontRightDrive = 4;
 
-        public static final int kBackRightTurn = 3;
-        public static final int kBackRightDrive = 2;
+        public static final int kBackLeftTurn = 5;
+        public static final int kBackLeftDrive = 6;
 
-        public static final int kBackLeftTurn = 4;
-        public static final int kBackLeftDrive = 7;
+        public static final int kBackRightTurn = 7;
+        public static final int kBackRightDrive = 8;
 
         // Swerve CanCoder IDs
-        public static final int kFrontLeftCANCoder = 11;
-        public static final int kFrontRightCANCoder = 12;
-        public static final int kBackRightCANCoder = 9;
-        public static final int kBackLeftCANCoder = 10;
-
+        public static final int kFrontRightCANCoder = 21;       
+        public static final int kBackRightCANCoder = 24;
+        public static final int kBackLeftCANCoder = 23;
+        public static final int kFrontLeftCANCoder = 22;
+        
         // Pigeon
-        public static final int kGyro = 13;
+        public static final int kGyro = 2;
+    }
+
+    public static class MechID {
+        public static final int kAlgaeCanId = 9;
+        public static final int kClimberCanId = 10;
+        public static final int kElevatorBackCanId = 11;
+        public static final int kElevatorFrontCanId = 12;
     }
 
     public static class Deadbands {
@@ -51,10 +58,10 @@ public class SparkJrConstants {
         public static final double[] turnFeedForward = { 0.0, 0.3 };
         public static final double[] driveFeedForward = { 0.0, 2.675 };
 
-        public static final boolean kInvertTurn = true;
+        public static final boolean kInvertTurn = false;
         public static final double kMaxPossibleSpeed = 1.5; // meters per second
 
-        public static final boolean sparkFlex = false;
+        public static final boolean sparkFlex = true;
     };
 
     public static final class Modules {
@@ -89,9 +96,9 @@ public class SparkJrConstants {
          * from the dashboard by uncommenting the lines in Robot.java
          * disabledPeriodic.
          */
-        public static final double kFrontLeftOffset = 2.79;
-        public static final double kFrontRightOffset = 2.106;
-        public static final double kBackLeftOffset = 1.10;
-        public static final double kBackRightOffset = -0.08;
+        public static final double kFrontLeftOffset = -2.08;
+        public static final double kFrontRightOffset = 3.09;
+        public static final double kBackLeftOffset = -2.11;
+        public static final double kBackRightOffset = 0.78;
     }
 }

@@ -52,10 +52,10 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledPeriodic() {
         // Uncomment these lines in order to output the swerve turn encoder values (to obtain offsets)
-        //SmartDashboard.putNumber("BackLeft", m_container.getDrivetrain().getBackLeftSwerveModule().getRawTurningPositionRadians());
-        //SmartDashboard.putNumber("BackRight", m_container.getDrivetrain().getBackRightSwerveModule().getRawTurningPositionRadians());
-        //SmartDashboard.putNumber("FrontLeft", m_container.getDrivetrain().getFrontLeftSwerveModule().getRawTurningPositionRadians());
-        //SmartDashboard.putNumber("FrontRight", m_container.getDrivetrain().getFrontRightSwerveModule().getRawTurningPositionRadians());
+        SmartDashboard.putNumber("BackLeft", m_container.getDrivetrain().getBackLeftSwerveModule().getRawTurningPositionRadians());
+        SmartDashboard.putNumber("BackRight", m_container.getDrivetrain().getBackRightSwerveModule().getRawTurningPositionRadians());
+        SmartDashboard.putNumber("FrontLeft", m_container.getDrivetrain().getFrontLeftSwerveModule().getRawTurningPositionRadians());
+        SmartDashboard.putNumber("FrontRight", m_container.getDrivetrain().getFrontRightSwerveModule().getRawTurningPositionRadians());
     }
 
 }
