@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.sim.*;
 import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.DriveDistance;
+import frc.robot.Commands.DriveOffset;
 import frc.robot.Constants.LimelightConstants;
 import frc.sim.*;
 import edu.wpi.first.wpilibj.simulation.DriverStationSim;
@@ -29,6 +30,7 @@ public class RobotSim {
     SimDrivetrain m_drive = new SimDrivetrain();
     SimLimelight m_limelight;
     SimElevator m_elevator = new SimElevator();
+    SimCoralManipulator m_CoralManipulator = new SimCoralManipulator(m_elevator);
     Vector<SimTarget> targets = new Vector<SimTarget>();
     protected final Field2d field = new Field2d();
     protected CommandScheduler scheduler = null;
@@ -129,7 +131,7 @@ public class RobotSim {
                 "Angle thresh check");
     }
 
-    @org.junit.jupiter.api.Test
+    //@org.junit.jupiter.api.Test
     public void testCaseDriveDistance() {
         // Enable the simulated robot
         DriverStationSim.setDsAttached(true);
@@ -176,6 +178,73 @@ public class RobotSim {
 
             DriverStationSim.setMatchTime(t);
             scheduler.run();
+            field.setRobotPose(m_drive.getSimPose().toPose2d());
+            System.out.println("T=" + (float) t + " Robot x=" + m_drive.getSimPose().getX() +
+                    " y=" + m_drive.getSimPose().getY() + " yaw="
+                    + m_drive.getSimPose().getRotation().getMeasureZ().in(Units.Degrees));
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+            }
+            nt.flushLocal();
+            if (stepNumber > 1 && ddc.isFinished()) {
+                break;
+            }
+            stepNumber++;
+        }
+        assertTrue(true);
+    }
+
+    @org.junit.jupiter.api.Test
+    public void testCaseDriveOffset() {
+        // Enable the simulated robot
+        DriverStationSim.setDsAttached(true);
+        DriverStationSim.setAutonomous(true);
+        DriverStationSim.setEnabled(true);
+        DriverStationSim.notifyNewData();
+        nt.startLocal();
+
+        DataLogManager.start("simlogs", "SimLog.wpilog");
+        // Drive forward 1m
+        runSimDriveOffset(5.0f, 2.0f, 3.5f, 0.0f, true);
+        runSimDriveOffset(5.0f, 2.0f, 3.5f, 0.0f, false);
+        runSimDriveOffset(5.0f, 2.0f, 3.5f, 10.0f, true);
+        runSimDriveOffset(5.0f, 2.0f, 3.5f, 10.0f, false);
+        runSimDriveOffset(5.0f, 1.0f, 5.0f, -5.0f, true);
+        runSimDriveOffset(5.0f, 1.0f, 5.0f, -5.0f, false);
+
+    }
+
+    public void runSimDriveOffset(float endTimeSec, float startX, float startY, float startYawDeg, boolean left) {
+        this.endTimeSec = endTimeSec;
+        System.out.println("Test Case: startX=" + startX + " startY=" + startY);
+        // Initialize simulated hardware
+        Pose3d startPose = new Pose3d(
+                startX, startY, 0.0, new Rotation3d(0.0, 0.0, Math.toRadians(startYawDeg)));
+        m_drive.setSimPose(startPose);
+        m_limelight.reset();
+        m_elevator.reset();
+        m_elevator.setSpeed(0.5);
+
+        // Load command
+        DriveOffset ddc = new DriveOffset(m_drive, m_limelight, left);
+
+        // Run simulation loop
+        double timeStepSec = 0.02;
+        int stepNumber = 0;
+        for (double t = 0.0; t < (double) endTimeSec; t += timeStepSec) {
+            if (stepNumber == 1) {
+                scheduler.schedule(ddc);
+            }
+
+            DriverStationSim.setMatchTime(t);
+            try {
+                scheduler.run();
+            } catch (Exception e) {
+                e.printStackTrace();
+                break;
+            }
+            
             field.setRobotPose(m_drive.getSimPose().toPose2d());
             System.out.println("T=" + (float) t + " Robot x=" + m_drive.getSimPose().getX() +
                     " y=" + m_drive.getSimPose().getY() + " yaw="

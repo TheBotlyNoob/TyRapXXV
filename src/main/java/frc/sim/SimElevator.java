@@ -21,7 +21,7 @@ public class SimElevator extends Elevator{
     
     public SimElevator() {
         elevatorModel = new Mechanism2d(.1, ElevatorConstants.minHeightM);
-        MechanismRoot2d root = elevatorModel.getRoot("base", .2, .2);
+        MechanismRoot2d root = elevatorModel.getRoot("base", .3, .2);
         elevatorPiece = root.append(new MechanismLigament2d("elevator", ElevatorConstants.minHeightM, 90));
         SmartDashboard.putData("ElevatorModel",elevatorModel);
     }

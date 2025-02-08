@@ -1,8 +1,7 @@
 package frc.robot.Commands;
 
-import java.util.function.DoubleSupplier;
-
 // Imports
+import java.util.function.DoubleSupplier;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -77,6 +76,7 @@ public class DriveDistance extends Command {
     protected boolean useDashboardEntries = false;
     protected DoubleSupplier distanceSupplier;
 
+    // Constructors
     public DriveDistance(Drivetrain dt, DoubleSupplier distanceSupplier, double desiredAngle) {
         this.dt = dt;
         this.distanceSupplier = distanceSupplier;
@@ -96,6 +96,7 @@ public class DriveDistance extends Command {
             // Initialize timer
             m_timer = new Timer();
 
+            // Make sure dashboard values are used in code
             if (this.useDashboardEntries) {
                 System.out.println("Using dashboard values");
                 this.desiredDistance = desiredDisEntry.getDouble(1.5);
@@ -149,12 +150,11 @@ public class DriveDistance extends Command {
         // Set Trapezoid profile
         var setpoint = profile.calculate(0.02, initial, goal);
         currentVel = Math.max(setpoint.velocity, minVel);
-
         // Calculate x and y components of desired velocity
         calcVel = CoordinateUtilities.courseSpeedToLinearVelocity(bearingDeg, currentVel);
         // Drive
         dt.driveChassisSpeeds(calcVel);
-        // Shuffleboard range, bearing, vel, time
+        // Set range, bearing, vel, and time in Shuffleboard
         rangeMEntry.setDouble(rangeM);
         bearingEntry.setDouble(bearingDeg);
         currentXVelEntry.setDouble(calcVel.vxMetersPerSecond);
