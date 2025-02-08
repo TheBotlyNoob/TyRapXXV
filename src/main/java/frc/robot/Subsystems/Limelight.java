@@ -3,19 +3,16 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.Subsystems;
 
-import java.lang.reflect.Array;
-
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
-import frc.robot.LimelightHelpers.LimelightResults;
-import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 
 //import frc.robot.utilities.Util;
 //import static frc.robot.utilities.Util.round2;
@@ -26,7 +23,7 @@ import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 public class Limelight extends SubsystemBase {
 
   private static String pickupLimeLightName = "limelight-c";
-  // private static String pickupLimeLightHttp = "http://10.3.86.13";
+  private static String pickupLimeLightHttp = "http://http://10.3.86.11:5800";
   private final NetworkTable limeTable = NetworkTableInstance.getDefault().getTable(pickupLimeLightName);
   private final NetworkTableEntry txEntry = limeTable.getEntry("tx");
   private final NetworkTableEntry tyEntry = limeTable.getEntry("ty");
@@ -52,6 +49,8 @@ public class Limelight extends SubsystemBase {
   public Limelight() {
     // Util.logf("-------- Start Limelight %s\n", Robot.alliance);
     System.out.println("-------- Start Limelight\n");
+
+    CameraServer.startAutomaticCapture(new HttpCamera(pickupLimeLightName, pickupLimeLightHttp));
   }
 
   // This method is encapsulated so it can be overriden for simulation

@@ -4,8 +4,6 @@
 
 package frc.robot.Subsystems;
 
-import java.io.File;
-import java.lang.reflect.Field;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,7 +35,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 //import frc.robot.TyRap24Constants.*;
-import frc.robot.SparkJrConstants.*;
+import frc.robot.TyRap25Constants.*;
+//import frc.robot.SparkJrConstants.*;
 import frc.robot.SwerveModule;
 
 /** Represents a swerve drive style drivetrain. */
@@ -66,7 +65,8 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnPID,
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
-            DriveTrainConstants.driveFeedForward);
+            DriveTrainConstants.driveFeedForward,
+            DriveTrainConstants.sparkFlex);
     protected final SwerveModule m_frontRight = new SwerveModule("FrontRight",
             ID.kFrontRightDrive,
             ID.kFrontRightTurn,
@@ -75,7 +75,8 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnPID,
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
-            DriveTrainConstants.driveFeedForward);
+            DriveTrainConstants.driveFeedForward,
+            DriveTrainConstants.sparkFlex);
     protected final SwerveModule m_backLeft = new SwerveModule("BackLeft",
             ID.kBackLeftDrive,
             ID.kBackLeftTurn,
@@ -84,7 +85,8 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnPID,
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
-            DriveTrainConstants.driveFeedForward);
+            DriveTrainConstants.driveFeedForward,
+            DriveTrainConstants.sparkFlex);
     protected final SwerveModule m_backRight = new SwerveModule("BackRight",
             ID.kBackRightDrive,
             ID.kBackRightTurn,
@@ -93,7 +95,8 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnPID,
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
-            DriveTrainConstants.driveFeedForward);
+            DriveTrainConstants.driveFeedForward,
+            DriveTrainConstants.sparkFlex);
 
     protected final Pigeon2 m_gyro;
 

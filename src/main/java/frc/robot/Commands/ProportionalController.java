@@ -2,17 +2,6 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import frc.robot.Constants.LimelightConstants;
-import frc.robot.Subsystems.Drivetrain;
-import frc.robot.Subsystems.Limelight;
-// Depending on the robot, use different constants
-//import frc.robot.TyRap24Constants.*;
-import frc.robot.SparkJrConstants.*;
 
 // This Command calculates velocities for limelight for one value
 public class ProportionalController {
