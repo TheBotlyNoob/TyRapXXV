@@ -18,4 +18,15 @@ public class Constants {
         /** Motor speed. */
         public static final double kMotorSpeed = 0.2;
     }
+
+    /**
+     * TODO: measure this on TyRapXXV and update the constants
+     */
+    public static class ElevatorHeights {
+        public static final double kGround = 0.0;
+        public static final double kLevel1 = 1.0;
+        public static final double kLevel2 = 2.0;
+        public static final double kLevel3 = 3.0;
+        public static final double kLevel4 = 4.0;
+    }
 }
