@@ -41,8 +41,9 @@ public class TyRap25Constants {
     }
 
     public static class DriveTrainConstants {
-        public static final double kDistanceMiddleToFrontMotor = 0.314325;
-        public static final double kDistanceMiddleToSideMotor = 0.314325;
+        // Distance in meters
+        public static final double kDistanceMiddleToFrontMotor = 0.339852;
+        public static final double kDistanceMiddleToSideMotor = 0.289052;
         public static final double kDriveBaseRadius = Math.sqrt( // distance from the middle to the furthest wheel
                 kDistanceMiddleToFrontMotor * kDistanceMiddleToFrontMotor +
                         kDistanceMiddleToSideMotor * kDistanceMiddleToSideMotor);
@@ -58,7 +59,7 @@ public class TyRap25Constants {
         public static final double[] turnFeedForward = { 0.0, 0.3 };
         public static final double[] driveFeedForward = { 0.0, 2.675 };
 
-        public static final boolean kInvertTurn = false;
+        public static final boolean kInvertTurn = true;
         public static final double kMaxPossibleSpeed = 1.5; // meters per second
 
         public static final boolean sparkFlex = true;
@@ -96,9 +97,10 @@ public class TyRap25Constants {
          * from the dashboard by uncommenting the lines in Robot.java
          * disabledPeriodic.
          */
-        public static final double kFrontLeftOffset = -2.08;
-        public static final double kFrontRightOffset = 3.09;
-        public static final double kBackLeftOffset = -2.11;
-        public static final double kBackRightOffset = 0.78;
+        public static final double kFrontLeftOffset = -2.31;
+        public static final double kFrontRightOffset = 0.16;
+        public static final double kBackLeftOffset = 2.27;
+        public static final double kBackRightOffset = -2.05;
+        // public static final double kBackRightOffset = 1.11;
     }
 }
