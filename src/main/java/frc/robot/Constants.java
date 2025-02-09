@@ -117,6 +117,15 @@ public class Constants {
         public static final double offset = 0.0;
         public static final double proportion = 2;
         public static final double threshold = .02;
+        // For DriveOffset
+        public static final double driveOffsetXOffset = 0.5;
+        public static final double driveOffsetYOffset = 0.3;
+        public static final double driveOffsetMaxAccMSS = 5;
+        public static final double driveOffsetMaxDccMSS = 5;
+        public static final double driveOffsetMinVel = 0.1;
+        public static final double driveOffsetMaxVel = 1.5;
+        public static final double driveOffsetAngleError = 0.03;
+        public static final double driveOffsetRangeMThreshold = 0.02;
         // Camera Positioning
         public static final double cameraOffsetForwardM = 0.19;
 

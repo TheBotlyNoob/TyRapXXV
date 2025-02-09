@@ -26,6 +26,7 @@ public class SparkJrConstants {
 
         // Pigeon
         public static final int kGyro = 13;
+
     }
 
     public static class Deadbands {
@@ -91,5 +92,8 @@ public class SparkJrConstants {
         public static final double kFrontRightOffset = 2.106;
         public static final double kBackLeftOffset = 1.10;
         public static final double kBackRightOffset = -0.08;
+        
+        // Camera Positioning
+        public static final double cameraOffsetForwardM = 0.19;
     }
 }
