@@ -132,8 +132,33 @@ public class Constants {
     }
 
     public static class ElevatorConstants {
+        //sim
         public static final double maxHeightM = 2.0;
         public static final double minHeightM = 0.8;
         public static final double maxVelocityMps = 2.0;
+
+        public static final double kMaxVelocity = 4.0;
+        public static final double kMaxAcceleration = 4.0;
+        public static final double kMaxVoltage = 3;
+        //elevator pid not tuned
+        public static final double kp = 1.3;
+        public static final double ki = 0.0;
+        public static final double kd = 0.7;
+        //elevator ff not tuned
+        public static final double ks = 1.1; //static friction (V)
+        public static final double kg = 1.2; //gravity (V)
+        public static final double kv = 1.3; //volts per velocity (V/(m/s))
+        public static final double ka = 0.0; //volts per acceleration (V/(m/s^2))
+        //fake values
+        public static final double kMaxElevatorHeight = 1.75; //determine units
+        public static final double kMinElevatorHeight = 0.0;
+        public static double[] HEIGHT_STAGE = {0, 1, 2, 3};
+        public static final double kElevatorGearing = 10;
+        public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
+        public static final double kCarriageMass = 4.0; // kg
+        //demoboard IDs
+        public static final int leadCANID = 13; 
+        public static final int followCANID = 14;
+
     }
 }
