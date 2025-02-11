@@ -104,7 +104,8 @@ public class SwerveModule {
             double[] drivePID,
             double[] turnFeedForward,
             double[] driveFeedForward,
-            boolean sparkFlex) {
+            boolean sparkFlex,
+            boolean invertDrive) {
 
         m_drivePIDController = new PIDController(
                 drivePID[0],
@@ -131,7 +132,7 @@ public class SwerveModule {
             driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter); //m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
             driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); //m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
             driveConfig.idleMode(IdleMode.kBrake); //m_driveMotor.setIdleMode(IdleMode.kBrake);
-            driveConfig.inverted(false); //m_driveMotor.setInverted(false);
+            driveConfig.inverted(invertDrive); //m_driveMotor.setInverted(false); #TODO Paramatize this 
             m_driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         } else {
             m_driveMotor = new SparkMax(driveMotorChannel, MotorType.kBrushless);
@@ -141,7 +142,7 @@ public class SwerveModule {
             driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter); //m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
             driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); //m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
             driveConfig.idleMode(IdleMode.kBrake); //m_driveMotor.setIdleMode(IdleMode.kBrake);
-            driveConfig.inverted(false); //m_driveMotor.setInverted(false);
+            driveConfig.inverted(invertDrive); //m_driveMotor.setInverted(false);
             m_driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         }  
 

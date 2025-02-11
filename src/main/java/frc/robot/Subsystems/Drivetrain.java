@@ -66,7 +66,10 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
-            DriveTrainConstants.sparkFlex);
+            DriveTrainConstants.sparkFlex,
+            true //Pass inverstion value
+            
+            );
     protected final SwerveModule m_frontRight = new SwerveModule("FrontRight",
             ID.kFrontRightDrive,
             ID.kFrontRightTurn,
@@ -76,7 +79,9 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
-            DriveTrainConstants.sparkFlex);
+            DriveTrainConstants.sparkFlex,
+            false
+            );
     protected final SwerveModule m_backLeft = new SwerveModule("BackLeft",
             ID.kBackLeftDrive,
             ID.kBackLeftTurn,
@@ -86,7 +91,9 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
-            DriveTrainConstants.sparkFlex);
+            DriveTrainConstants.sparkFlex,
+            true
+            );
     protected final SwerveModule m_backRight = new SwerveModule("BackRight",
             ID.kBackRightDrive,
             ID.kBackRightTurn,
@@ -96,7 +103,9 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.drivePID,
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
-            DriveTrainConstants.sparkFlex);
+            DriveTrainConstants.sparkFlex,
+            false
+            );
 
     protected final Pigeon2 m_gyro;
 
@@ -361,6 +370,9 @@ public class Drivetrain extends SubsystemBase {
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_backLeft.setDesiredState(swerveModuleStates[2]);
         m_backRight.setDesiredState(swerveModuleStates[3]);
+
+        // Parameters for robot configuration 
+
     }
 
     /** Updates the field relative position of the robot. */

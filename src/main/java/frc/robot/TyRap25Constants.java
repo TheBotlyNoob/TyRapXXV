@@ -96,9 +96,9 @@ public class TyRap25Constants {
          * from the dashboard by uncommenting the lines in Robot.java
          * disabledPeriodic.
          */
-        public static final double kFrontLeftOffset = -2.08;
+        public static final double kFrontLeftOffset = 2.08;
         public static final double kFrontRightOffset = 3.09;
-        public static final double kBackLeftOffset = -2.11;
+        public static final double kBackLeftOffset = 2.11;
         public static final double kBackRightOffset = 0.78;
     }
 }
