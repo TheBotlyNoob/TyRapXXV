@@ -1,6 +1,6 @@
-# 2025_Swerve_pathplanner
+# 2025_Swerve_vision
 
-This project contains the base swerve drive train implementation plus pathplanner support. This
+This project contains the base swerve drive train implementation plus pathplanner and Limelight vision support. This
 represents a superset of the base swerve branch. The implementation can be extracted and included
 in a new project that needs a swerve drive train.
 
