@@ -1,21 +1,17 @@
 package frc.robot.Commands;
 
 // Imports
-import java.util.function.DoubleSupplier;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.CoordinateUtilities;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import frc.robot.Utils.TrapezoidController;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.Utils.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 // Depending on the robot, use different constants
 //import frc.robot.TyRap24Constants.*;
@@ -48,10 +44,15 @@ public class DriveOffset extends Command {
             .add("DriveOffsetXOffset", LimelightConstants.driveOffsetXOffset).getEntry();
     protected static GenericEntry yOffsetENtry = Shuffleboard.getTab("DriveOffset")
             .add("DriveOffsetYOffset", LimelightConstants.driveOffsetYOffset).getEntry();
+    protected static GenericEntry omegaDps = Shuffleboard.getTab("DriveOffset")
+            .add("OmegaSpeedDps", 0).getEntry();
     protected static GenericEntry angleErrorEntry = Shuffleboard.getTab("DriveOffset").add("DriveOffsetAngleError", 0)
             .getEntry();
     private static GenericEntry currentLinearSpeedEntry = Shuffleboard.getTab("DriveOffset")
             .add("CurrentLinearSpeed", 0)
+            .getEntry();
+    private static GenericEntry decelKpEntry = Shuffleboard.getTab("DriveOffset")
+            .add("DecelKp", 5.0)
             .getEntry();
 
     // Variables created for DriveOffset
@@ -72,19 +73,17 @@ public class DriveOffset extends Command {
     private double rangeM;
     private double bearingDeg;
     private double angleError;
-    private TrapezoidProfile profile;
-    private TrapezoidProfile.State initial;
-    private TrapezoidProfile.State goal;
+    protected double commandedSpeed;
     protected final double threshold = LimelightConstants.driveOffsetRangeMThreshold;
     private int counter;
-    protected boolean useDashboardEntries = false;
-    protected DoubleSupplier distanceSupplier;
+    protected TrapezoidController trapezoidController;
 
     // Constructor
     public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft) {
         this.dt = dt;
         this.ll = ll;
         this.isLeft = isLeft;
+        addRequirements(dt);
         // 2D transform between robot and camera frames
         // Currently get offset from SparkJrConstants, but can change later
         cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
@@ -92,8 +91,6 @@ public class DriveOffset extends Command {
 
     @Override
     public void initialize() {
-        // Reset counter
-        counter = 0;
         // Create a new Trapezoid profile
         xOffset = xOffsetEntry.getDouble(0.3);
         yOffset = yOffsetENtry.getDouble(0.0);
@@ -104,11 +101,16 @@ public class DriveOffset extends Command {
         }
         // Get minimun velocity from Constants and shuffleboard
         minVel = minVelEntry.getDouble(LimelightConstants.driveOffsetMinVel);
-        // Create a trapezoid profile
-        profile = new TrapezoidProfile(
-                new TrapezoidProfile.Constraints(maxVelEntry.getDouble(LimelightConstants.driveOffsetMinVel),
-                        maxAccEntry.getDouble(LimelightConstants.maxAccMSS)));
         desiredPose = getDesiredPose();
+
+        // Reset counter
+        counter = 0;
+
+        trapezoidController = new TrapezoidController(0.0, threshold,minVel,
+            maxVelEntry.getDouble(LimelightConstants.driveOffsetMinVel),
+            maxAccEntry.getDouble(LimelightConstants.driveOffsetMaxAccMSS),
+            maxDccEntry.getDouble(LimelightConstants.driveOffsetMaxDccMSS),
+            decelKpEntry.getDouble(1.0));
     }
 
     // This function uses limelight and odometry to report the desired pose relative to the field
@@ -144,6 +146,7 @@ public class DriveOffset extends Command {
         if (ll.getTimeSinceValid() == 0 && (counter % 5 == 0)) {
             desiredPose = getDesiredPose();
         }
+        counter++;
         // Get current pose
         currentPose = dt.getRoboPose2d();
         // Calculate distance to the new position from the current one
@@ -154,37 +157,30 @@ public class DriveOffset extends Command {
         chassisSpeed = dt.getChassisSpeeds();
         // Get chassis magnitude
         chassisMagnitude = CoordinateUtilities.getChassisMagnitude(chassisSpeed);
-        // Set/reset Trapezoid states for the first 20 runs
-        // This is to give wheels time to turn to correct position
-        // Then set current State based on current initial and goal states
-        State setpoint;
-        if (counter == 0 || counter > 20) {
-            goal = new TrapezoidProfile.State(rangeM, 0);
-            initial = new TrapezoidProfile.State(0, chassisMagnitude);
-            setpoint = profile.calculate(0.02, initial, goal);
-        } else {
-            // Set current state based on final initial and goal states
-            // For time factor, calculate based on how many times execure has run so far
-            setpoint = profile.calculate(0.02 * (counter + 1), initial, goal);
-        }
-        // Increase counter every time execute is run (every 0.02 seconds)
-        counter++;
-        // Set Trapezoid profile
-        var currentVel = Math.max(setpoint.velocity, minVel);
+     
+        double commandedVel = trapezoidController.calculate(rangeM, chassisMagnitude);
+
         // Calculate x and y components of desired velocity
-        calcVel = CoordinateUtilities.courseSpeedToLinearVelocity(bearingDeg, currentVel);
+        calcVel = CoordinateUtilities.courseSpeedToLinearVelocity(bearingDeg, commandedVel);
+        
         // Calculate total time left
-        double remainingTime = profile.totalTime();
+        //var currentVel = Math.max(commandedSpeed, minVel);
+        double remainingTime = 1.0; // Placeholder. Calculate based on remaining distance
+        
         // Calculate angle error
         angleError = desiredPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
-        if (remainingTime > 0) {
-            // Calculate angular speed
-            calcVel.omegaRadiansPerSecond = angleError / remainingTime;
-        } else {
-            // Give robot a chance to turn to desired angle even after we've reached the correct distance
-            calcVel.omegaRadiansPerSecond = Math.toRadians(
-                    Math.copySign(LimelightConstants.minAngVelocityDPS, angleError));
+        if (Math.abs(angleError) > LimelightConstants.driveOffsetAngleError) {
+                if (remainingTime > 0) {
+                        // Calculate angular speed
+                        calcVel.omegaRadiansPerSecond = angleError / remainingTime;
+                        calcVel.omegaRadiansPerSecond = Math.copySign(Math.max(Math.abs(calcVel.omegaRadiansPerSecond), Math.toRadians(10.0)), calcVel.omegaRadiansPerSecond);
+                } else {
+                        // Give robot a chance to turn to desired angle even after we've reached the correct distance
+                        calcVel.omegaRadiansPerSecond = Math.toRadians(
+                                Math.copySign(Math.toRadians(10.0), angleError));
+                }
         }
+        omegaDps.setDouble(Math.toDegrees(calcVel.omegaRadiansPerSecond));
         // Drive
         dt.driveChassisSpeeds(calcVel);
         // Set range, bearing, velocities, and angleError in Shuffleboard

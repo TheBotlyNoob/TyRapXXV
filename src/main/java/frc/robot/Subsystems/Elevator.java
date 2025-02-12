@@ -11,8 +11,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Elevator extends SubsystemBase {
     private final SparkMax leadMotor;
@@ -21,10 +19,6 @@ public class Elevator extends SubsystemBase {
     private ProfiledPIDController elevatorPID;
     private double pidOutput;
     private double ffOutput;
-    //private final TrapezoidProfile m_profile =
-        //new TrapezoidProfile(new TrapezoidProfile.Constraints(ElevatorConstants.kMaxVelocity, ElevatorConstants.kMaxAcceleration));
-    //private TrapezoidProfile.State m_goal = new TrapezoidProfile.State();
-    //private TrapezoidProfile.State m_setpoint = new TrapezoidProfile.State();
 
     public Elevator(){
         this.elevatorPID = new ProfiledPIDController(

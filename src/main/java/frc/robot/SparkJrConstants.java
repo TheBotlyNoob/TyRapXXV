@@ -27,6 +27,8 @@ public class SparkJrConstants {
         // Pigeon
         public static final int kGyro = 13;
 
+        // Limelight Robot Specific
+        public static final String kFrontLimelightName = "limelight-c";
     }
 
     public static class Deadbands {
@@ -48,12 +50,12 @@ public class SparkJrConstants {
 
         // ITS TUNED. NO TOUCH!
         public static final double[] turnPID = { 1.5, 0.2, 0.0 };
-        public static final double[] drivePID = { 3, 0.1, 0.0 };
+        public static final double[] drivePID = { 2, 0.0, 0.0 };
         public static final double[] turnFeedForward = { 0.0, 0.3 };
-        public static final double[] driveFeedForward = { 0.0, 2.675 };
+        public static final double[] driveFeedForward = { 0.05, 2.0 };
 
         public static final boolean kInvertTurn = true;
-        public static final double kMaxPossibleSpeed = 1.5; // meters per second
+        public static final double kMaxPossibleSpeed = 3.0; // meters per second
     };
 
     public static final class Modules {
