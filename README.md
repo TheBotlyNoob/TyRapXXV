@@ -8,8 +8,6 @@ This repository contains the source code for our 2025 robot, including all subsy
 To maintain a clean and efficient workflow, follow these guidelines for branch naming and merging:
 
 ### **Branch Naming Conventions**
-- **Feature Branches (`feature/`):** Used when developing a new subsystem or major feature.
-  - Example: `feature/coral-processor`, `feature/algae-intake`
 - **Development Branches (`develop/`):** Used for experimental features, research, or algorithm testing.
   - Example: `develop/path-planning`, `develop/vision-improvements`
 - **Hotfix Branches (`hotfix/`):** For urgent bug fixes that need to be patched immediately.
