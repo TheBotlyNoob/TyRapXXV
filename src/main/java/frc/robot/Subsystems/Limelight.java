@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 //import frc.robot.TyRap24Constants.*;
 //import frc.robot.TyRap25Constants.*;
-import frc.robot.SparkJrConstants.*;
+import frc.robot.Constants.*;
 
 /**
  * The Limelight subsystem is a light that is lime green. If you look at it at a
@@ -38,8 +38,6 @@ public class Limelight extends SubsystemBase {
 
   public Limelight() {
     System.out.println("-------- Start Limelight\n");
-
-    CameraServer.startAutomaticCapture(new HttpCamera(pickupLimeLightName, pickupLimeLightHttp));
   }
 
   // This method is encapsulated so it can be overriden for simulation

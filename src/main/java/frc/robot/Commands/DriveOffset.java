@@ -15,7 +15,7 @@ import frc.robot.Constants.LimelightConstants;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 // Depending on the robot, use different constants
 //import frc.robot.TyRap24Constants.*;
-import frc.robot.SparkJrConstants.*;
+import frc.robot.Constants.*;
 
 // This Command combines DriveDistance and CenterOnTag, using Limelight and Odometry 
 //      to drive to an april tag and then drive a specific offset left or right from it.

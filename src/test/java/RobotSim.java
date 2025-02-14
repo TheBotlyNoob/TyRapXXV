@@ -29,8 +29,8 @@ public class RobotSim {
 
     SimDrivetrain m_drive = new SimDrivetrain();
     SimLimelight m_limelight;
-    SimElevator m_elevator = new SimElevator();
-    SimCoralManipulator m_CoralManipulator = new SimCoralManipulator(m_elevator);
+    // SimElevator m_elevator = new SimElevator();
+    // SimCoralManipulator m_CoralManipulator = new SimCoralManipulator(m_elevator);
     Vector<SimTarget> targets = new Vector<SimTarget>();
     protected final Field2d field = new Field2d();
     protected CommandScheduler scheduler = null;
@@ -162,8 +162,8 @@ public class RobotSim {
                 startX, startY, 0.0, new Rotation3d(0.0, 0.0, Math.toRadians(startYawDeg)));
         m_drive.setSimPose(startPose);
         m_limelight.reset();
-        m_elevator.reset();
-        m_elevator.setSpeed(0.5);
+        // m_elevator.reset();
+        // m_elevator.setSpeed(0.5);
 
         // Load command
         DriveDistance ddc = new DriveDistance(m_drive, () -> distanceM, bearingDeg);
@@ -223,8 +223,8 @@ public class RobotSim {
                 startX, startY, 0.0, new Rotation3d(0.0, 0.0, Math.toRadians(startYawDeg)));
         m_drive.setSimPose(startPose);
         m_limelight.reset();
-        m_elevator.reset();
-        m_elevator.setSpeed(0.5);
+        // m_elevator.reset();
+        // m_elevator.setSpeed(0.5);
 
         // Load command
         DriveOffset ddc = new DriveOffset(m_drive, m_limelight, left);
