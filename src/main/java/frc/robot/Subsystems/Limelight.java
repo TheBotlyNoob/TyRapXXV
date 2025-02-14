@@ -3,40 +3,30 @@
 // the WPILib BSD license file in the root directory of this project.
 package frc.robot.Subsystems;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
+//import frc.robot.TyRap24Constants.*;
+//import frc.robot.TyRap25Constants.*;
+import frc.robot.SparkJrConstants.*;
 
-//import frc.robot.utilities.Util;
-//import static frc.robot.utilities.Util.round2;
 /**
  * The Limelight subsystem is a light that is lime green. If you look at it at a
  * certain angle, you will go blind, so read this code with caution.
  */
 public class Limelight extends SubsystemBase {
 
-  private static String pickupLimeLightName = "limelight-c";
-  private static String pickupLimeLightHttp = "http://http://10.3.86.11:5800";
-  private final NetworkTable limeTable = NetworkTableInstance.getDefault().getTable(pickupLimeLightName);
-  private final NetworkTableEntry txEntry = limeTable.getEntry("tx");
-  private final NetworkTableEntry tyEntry = limeTable.getEntry("ty");
-  private final NetworkTableEntry tvEntry = limeTable.getEntry("tv");
-  private final NetworkTableEntry taEntry = limeTable.getEntry("ta");
+  private final NetworkTable limeTable = NetworkTableInstance.getDefault().getTable(ID.kFrontLimelightName);
+  private final NetworkTableEntry targetInViewEntry = limeTable.getEntry("TargetInView");
   private final NetworkTableEntry tplEntry = limeTable.getEntry("pipeline");
-  public double tx;
-  public double ty;
-  public boolean tv;
-  public double ta;
-  public double previousAngle = Double.MAX_VALUE;
-  public double previousTx = tx;
-  public double deltaTx = 0;
+  public boolean targetInView;
   private int count = 0;
   double yawAngleDegrees;
   double xDistanceMeters;
@@ -47,7 +37,6 @@ public class Limelight extends SubsystemBase {
   private LinearFilter filteredYawDegrees = LinearFilter.movingAverage(6);
 
   public Limelight() {
-    // Util.logf("-------- Start Limelight %s\n", Robot.alliance);
     System.out.println("-------- Start Limelight\n");
 
     CameraServer.startAutomaticCapture(new HttpCamera(pickupLimeLightName, pickupLimeLightHttp));
@@ -55,7 +44,11 @@ public class Limelight extends SubsystemBase {
 
   // This method is encapsulated so it can be overriden for simulation
   protected double[] getTargetPoseCameraSpace() {
-    return LimelightHelpers.getTargetPose_CameraSpace(pickupLimeLightName);
+    return LimelightHelpers.getTargetPose_CameraSpace(ID.kFrontLimelightName);
+  }
+
+  protected Transform2d getTransposeCameraToRobotSpace() {
+    return new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
   }
 
   // Check if limelight is out of field of view
@@ -70,17 +63,8 @@ public class Limelight extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // tx = round2(txEntry.getDouble(0));
-    // ty = round2(tyEntry.getDouble(0));
-    // tv = tvEntry.getDouble(0) == 1;
-    // ta = round2(taEntry.getDouble(0));
-    tx = txEntry.getDouble(0);
-    ty = tyEntry.getDouble(0);
-    tv = tvEntry.getDouble(0) == 1;
-    ta = taEntry.getDouble(0);
-    deltaTx = Math.abs(tx - previousTx);
-    previousTx = tx;
-    SmartDashboard.putString("plType", LimelightHelpers.getCurrentPipelineType(pickupLimeLightName));
+    targetInView = targetInViewEntry.getDouble(0) >= 1.0;
+    SmartDashboard.putString("plType", LimelightHelpers.getCurrentPipelineType(ID.kFrontLimelightName));
     double[] cameraTargetPose = getTargetPoseCameraSpace();
     if (cameraTargetPose.length > 0) {
       if (isAllZeros(cameraTargetPose)) {
@@ -98,15 +82,11 @@ public class Limelight extends SubsystemBase {
     }
 
     if (count % 15 == 0) {
-      SmartDashboard.putNumber("TX", tx);
-      SmartDashboard.putNumber("TY", ty);
-      SmartDashboard.putNumber("TA", ta);
       SmartDashboard.putNumber("xDis", xDistanceMeters);
       SmartDashboard.putNumber("yDis", yDistanceMeters);
       SmartDashboard.putNumber("zDis", zDistanceMeters);
       SmartDashboard.putNumber("yaw", yawAngleDegrees);
-      SmartDashboard.putNumber("TV", tv ? 1 : 0);
-      SmartDashboard.putBoolean("TVB", tv);
+      SmartDashboard.putNumber("TV", targetInView ? 1 : 0);
       SmartDashboard.putNumber("LLPl", getLimelightPipeline());
     }
     count++;
@@ -117,10 +97,6 @@ public class Limelight extends SubsystemBase {
   }
 
   public void setLimelightPipeline(int pipeline) {
-    // int prevPipeline = getLimelightPipeline();
-    // Util.logf("----------- Set Limelight pipeline robot alliance:%s new:%d
-    // prev:%d\n", Robot.alliance, pipeline,
-    // prevPipeline);
     System.out.println("Setting Limelight pipeline to " + pipeline);
     limeTable.getEntry("pipeline").setNumber(pipeline);
   }

@@ -11,15 +11,15 @@ import frc.robot.Utils.CoordinateUtilities;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.Utils.*;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 // Depending on the robot, use different constants
 //import frc.robot.TyRap24Constants.*;
 import frc.robot.TyRap25Constants.*;
 //import frc.robot.SparkJrConstants.*;
 
-// This Command will use the current position in odometry and desired position (theoretically by an AprilTag) 
-//      to set drivetrain speeds until odometry indicates the robot is at the desired position
+// This Command will use the current position in odometry to drive straight at 
+// a specifie distance and direction. 
+// Command will set drivetrain speeds until odometry indicates the robot is at the desired position
 // This is for more precise positioning, like when we need to be close to an AprilTag
 public class DriveDistance extends Command {
     // Drivetrain Object
@@ -63,7 +63,6 @@ public class DriveDistance extends Command {
     private Pose2d desiredPose;
     private double rangeM;
     private double bearingDeg;
-    private Timer m_timer;
     private TrapezoidProfile profile;
     private TrapezoidProfile.State initial;
     private TrapezoidProfile.State goal;
@@ -88,9 +87,6 @@ public class DriveDistance extends Command {
     @Override
     public void initialize() {
         try {
-            // Initialize timer
-            m_timer = new Timer();
-
             // Make sure dashboard values are used in code
             if (this.useDashboardEntries) {
                 System.out.println("Using dashboard values");
@@ -130,7 +126,7 @@ public class DriveDistance extends Command {
         // Get current pose
         currentPose = dt.getRoboPose2d();
         // Get current time
-        double lastTime = m_timer.getFPGATimestamp();
+        double lastTime = Timer.getFPGATimestamp();
         // Calculate distance to the new position from the current one
         rangeM = CoordinateUtilities.distanceTo(currentPose, desiredPose);
         // Calculate bearing

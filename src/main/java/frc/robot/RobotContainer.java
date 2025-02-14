@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -56,6 +57,8 @@ public class RobotContainer {
     private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
     private GenericEntry m_gyroAngle = m_competitionTab.add("Gyro Angle", 0).getEntry();
     private GenericEntry m_currentRange = m_competitionTab.add("Range", 0).getEntry();
+    private GenericEntry m_commandedXVel = m_competitionTab.add("CommandedVX", 0).getEntry();
+    private GenericEntry m_commandedYVel = m_competitionTab.add("CommandedVY", 0).getEntry();
     private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
     private SwerveModuleSB[] mSwerveModuleTelem;
@@ -174,6 +177,10 @@ public class RobotContainer {
                 m_swerve.getFrontLeftSwerveModule().getState(),
                 m_swerve.getFrontRightSwerveModule().getState() };
         publisher.set(states);
+        m_currentRange.setDouble(m_range.getRange());
+        ChassisSpeeds commandedSpeeds = m_swerve.getCommandeChassisSpeeds();
+        m_commandedXVel.setDouble(commandedSpeeds.vxMetersPerSecond);
+        m_commandedYVel.setDouble(commandedSpeeds.vyMetersPerSecond);
         //m_currentRange.setDouble(m_range.getRange());
     }
 }

@@ -126,6 +126,7 @@ public class Drivetrain extends SubsystemBase {
     protected final SwerveDriveOdometry m_odometry;
 
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
+    protected ChassisSpeeds commandedChassisSpeeds = new ChassisSpeeds();
 
     protected ExecutorService executorService = Executors.newFixedThreadPool(4);
 
@@ -285,6 +286,10 @@ public class Drivetrain extends SubsystemBase {
         return Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
     }
 
+    public ChassisSpeeds getCommandeChassisSpeeds() {
+        return commandedChassisSpeeds;
+    }
+
     protected double driveMultiplier = 1;
 
     public void setDriveMult(double mult) {
@@ -349,6 +354,10 @@ public class Drivetrain extends SubsystemBase {
         } catch (InterruptedException e) {
             // Pass
         }
+
+       commandedChassisSpeeds = m_kinematics.toChassisSpeeds(
+        swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3]);
+
     }
 
     public Pose2d getRoboPose2d() {

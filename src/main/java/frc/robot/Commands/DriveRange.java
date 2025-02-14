@@ -10,8 +10,8 @@ public class DriveRange extends DriveDistance {
     private DoubleSupplier rangeSupplier;
     
     // Constructors invoking DriveDistance
-    public DriveRange(Drivetrain dt, DoubleSupplier maxDistanceSupplier, DoubleSupplier rangeSupplier, double desiredAngle, double rangeThreshold){
-        super(dt, maxDistanceSupplier, desiredAngle);
+    public DriveRange(Drivetrain dt, DoubleSupplier maxDistanceSupplier, DoubleSupplier rangeSupplier, double driveAngle, double rangeThreshold){
+        super(dt, maxDistanceSupplier, driveAngle);
         this.rangeSupplier = rangeSupplier;
         this.rangeThreshold = rangeThreshold;
     }
