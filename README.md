@@ -25,7 +25,7 @@ To maintain a clean and efficient workflow, follow these guidelines for branch n
 ## Development Workflow
 1. **Create a branch based on the feature or experiment:**
    ```sh
-   git checkout -b feature/coral-processor
+   git checkout -b develop/coral-processor
    ```
 2. **Commit and push changes:**
    ```sh
