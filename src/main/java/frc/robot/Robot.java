@@ -4,93 +4,58 @@
 
 package frc.robot;
 
-import edu.wpi.first.net.WebServer;
-import edu.wpi.first.wpilibj.Filesystem;
+import com.pathplanner.lib.commands.FollowPathCommand;
+
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
-  private Command m_teleopCommand;
+    private RobotContainer m_container;
 
-  private final RobotContainer m_robotContainer;
-
-  public Robot() {
-    m_robotContainer = new RobotContainer();
-  }
-
-  @Override
-  public void robotInit() {
-    // Start the webserver to serve the remote layout files for elastic
-    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
-  }
-
-  @Override
-  public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
-  }
-
-  @Override
-  public void disabledInit() {
-  }
-
-  @Override
-  public void disabledPeriodic() {
-  }
-
-  @Override
-  public void disabledExit() {
-  }
-
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
-  }
-
-  @Override
-  public void autonomousPeriodic() {
-  }
-
-  @Override
-  public void autonomousExit() {
-  }
-
-  @Override
-  public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    @Override
+    public void robotInit() {
+        m_container = new RobotContainer();
+        FollowPathCommand.warmupCommand().schedule();
     }
 
-    m_teleopCommand = m_robotContainer.getTeleopCommand();
+    @Override
+    public void autonomousInit() {
+        m_container.getDrivetrain().setFieldRelative(true);
 
-    if (m_teleopCommand != null) {
-      m_teleopCommand.schedule();
+        m_container.clearDefaultCommand();
+        m_container.setAutoDefaultCommand();
+        m_container.getAutonomousCommand().schedule();
     }
-  }
 
-  @Override
-  public void teleopPeriodic() {
-  }
+    @Override
+    public void teleopInit() {
+        m_container.getDrivetrain().setFieldRelative(true);
+        m_container.clearDefaultCommand();
+        m_container.setTeleDefaultCommand();
+    }
 
-  @Override
-  public void teleopExit() {
-  }
+    @Override
+    public void autonomousPeriodic() {
+    }
 
-  @Override
-  public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
-  }
+    @Override
+    public void teleopPeriodic() {
+    }
 
-  @Override
-  public void testPeriodic() {
-  }
+    @Override
+    public void robotPeriodic() {
+        CommandScheduler.getInstance().run();
+        m_container.reportTelemetry();
+    }
 
-  @Override
-  public void testExit() {
-  }
+    @Override
+    public void disabledPeriodic() {
+        // Uncomment these lines in order to output the swerve turn encoder values (to obtain offsets)
+        SmartDashboard.putNumber("BackLeft", m_container.getDrivetrain().getBackLeftSwerveModule().getRawTurningPositionRadians());
+        SmartDashboard.putNumber("BackRight", m_container.getDrivetrain().getBackRightSwerveModule().getRawTurningPositionRadians());
+        SmartDashboard.putNumber("FrontLeft", m_container.getDrivetrain().getFrontLeftSwerveModule().getRawTurningPositionRadians());
+        SmartDashboard.putNumber("FrontRight", m_container.getDrivetrain().getFrontRightSwerveModule().getRawTurningPositionRadians());
+    }
+
 }
