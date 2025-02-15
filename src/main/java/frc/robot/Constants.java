@@ -33,8 +33,8 @@ public class Constants {
         // Limelight
         public static final String kFrontLimelightName = "limelight-c";
 
-        public static final int kAlgaeGrabberSolenoidCANID1 = 1;
-        public static final int kAlgaeGrabberSolenoidCANID2 = 2;
+        public static final int kAlgaeGrabberSolenoidCANID1 = 0;
+        public static final int kAlgaeGrabberSolenoidCANID2 = 1;
 
     }
 
