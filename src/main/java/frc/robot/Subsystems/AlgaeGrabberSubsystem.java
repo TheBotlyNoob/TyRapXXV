@@ -69,7 +69,7 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
       //raise_pneumatics_solenoid.set(pneumaticIn);
     //}));  
   }
-
+  //for now this is a toggle, for ease of drivers it should be hold button to extend and release to retract
   public Command toggleRetriever() {
     return runOnce(() -> {
       Elastic.sendNotification(new Notification(NotificationLevel.INFO, getName(), "toggling algae retrieval"));
@@ -79,13 +79,18 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
       }
       else {
         raise_pneumatics_solenoid.set(pneumaticExtend);
-        retrieval_motor.set(Constants.AlgaeGrabber.kMotorSpeed);
+        retrieval_motor.set(-Constants.AlgaeGrabber.kIntakeSpeed);
       }
 
       table_should_retrieve.set(!table_should_retrieve.get());
     });
   }
-
+  public void stopMotor(){
+    retrieval_motor.set(0);
+  }
+  public void ejectAlgae(){
+    retrieval_motor.set(Constants.AlgaeGrabber.kEjectSpeed);
+  }
   public boolean isMotorStalled() {
     return retrieval_motor.getOutputCurrent() > Constants.AlgaeGrabber.kMotorCurrentThreshold;
   }

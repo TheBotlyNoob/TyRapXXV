@@ -71,7 +71,7 @@ public class Constants {
         public static final double[] driveFeedForward = { 0.0, 2.675 };
 
         public static final boolean kInvertTurn = true;
-        public static final double kMaxPossibleSpeed = 1.5; // meters per second
+        public static final double kMaxPossibleSpeed = 3.5; // meters per second
 
         public static final boolean sparkFlex = true;
     };
@@ -180,10 +180,10 @@ public class Constants {
 
     public static class AlgaeGrabber {
         public static final double kMotorCurrentThreshold = 1.0;
-        public static final double kMotorSpeed = 0.5;
+        public static final double kIntakeSpeed = 0.40;
+        public static final double kEjectSpeed = 0.75;
     }
 }
-
 // public static class ElevatorConstants {
 // //sim
 // public static final double maxHeightM = 2.0;

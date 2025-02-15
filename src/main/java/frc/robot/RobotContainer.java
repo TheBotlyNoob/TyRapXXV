@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import frc.robot.TyRap24Constants.*;
 import frc.robot.Constants.*;
 import frc.robot.Subsystems.AlgaeGrabberSubsystem;
+import frc.robot.Subsystems.Climber;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.RangeSensor;
@@ -31,6 +32,7 @@ import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.DriveRange;
+import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
 
@@ -50,6 +52,7 @@ public class RobotContainer {
     //remember to set this to final, commented out range code bc robot doesnt have canrange yet
     private RangeSensor m_range;
     private final AlgaeGrabberSubsystem m_algae;
+    private final Climber m_climber;
     private final SendableChooser<String> autoChooser;
 
 
@@ -83,6 +86,7 @@ public class RobotContainer {
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
+        this.m_climber = new Climber();
 
         //this.m_range = new RangeSensor(0);
 
@@ -128,7 +132,10 @@ public class RobotContainer {
         Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
-        Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever());
+        Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever()); //when disabling robot make sure grabber isnt extended
+        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae)); 
+        Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor()); //tests the climber motor with dpad, left on right off
+        Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
         //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
     }
 
