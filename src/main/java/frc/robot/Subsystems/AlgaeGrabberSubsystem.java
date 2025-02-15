@@ -16,10 +16,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
-import frc.robot.Util.Elastic;
-import frc.robot.Util.MotorPublisher;
-import frc.robot.Util.Elastic.Notification;
-import frc.robot.Util.Elastic.Notification.NotificationLevel;
+import frc.robot.Utils.Elastic;
+import frc.robot.Utils.Elastic.Notification;
+import frc.robot.Utils.Elastic.Notification.NotificationLevel;
+import frc.robot.Utils.MotorPublisher;
 
 public class AlgaeGrabberSubsystem extends SubsystemBase {
   private final Value pneumaticOut = Value.kReverse;
@@ -44,7 +44,7 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
 
   /** Creates a new AlgaeGrabber. */
   public AlgaeGrabberSubsystem(NetworkTableInstance nt) {
-    retrieval_motor = new SparkMax(Constants.ID.kAlgaeGrabberMotorCANID, MotorType.kBrushless);
+    retrieval_motor = new SparkMax(Constants.MechID.kAlgaeMotorCanId, MotorType.kBrushless);
 
     raise_pneumatics_solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,
         Constants.ID.kAlgaeGrabberSolenoidCANID1,
