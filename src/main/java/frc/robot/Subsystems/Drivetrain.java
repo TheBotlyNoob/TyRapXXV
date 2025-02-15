@@ -92,7 +92,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            true
+            false
             );
     protected final SwerveModule m_backRight = new SwerveModule("BackRight",
             ID.kBackRightDrive,
@@ -104,7 +104,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            false
+            true
             );
 
     protected final Pigeon2 m_gyro;
