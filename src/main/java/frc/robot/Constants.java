@@ -33,13 +33,17 @@ public class Constants {
         // Limelight
         public static final String kFrontLimelightName = "limelight-c";
 
+        public static final int kAlgaeGrabberSolenoidCANID1 = 0;
+        public static final int kAlgaeGrabberSolenoidCANID2 = 1;
+
     }
 
     public static class MechID {
-        public static final int kAlgaeCanId = 9;
+        public static final int kAlgaeMotorCanId = 9;
         public static final int kClimberCanId = 10;
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
+
     }
 
     public static class Deadbands {
@@ -172,6 +176,11 @@ public class Constants {
 
         public static final double kMaxVelocity = 4.0;
         public static final double kMaxAcceleration = 4.0;
+    }
+
+    public static class AlgaeGrabber {
+        public static final double kMotorCurrentThreshold = 1.0;
+        public static final double kMotorSpeed = 1.0;
     }
 }
 

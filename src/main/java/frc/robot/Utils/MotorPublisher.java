@@ -1,4 +1,4 @@
-package frc.robot.Util;
+package frc.robot.Utils;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
