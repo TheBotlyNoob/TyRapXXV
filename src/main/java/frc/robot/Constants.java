@@ -18,9 +18,6 @@ public class Constants {
         public static final int kBackRightTurn = 7;
         public static final int kBackRightDrive = 8;
 
-        public static final int kElevatorMotorLeaderCANID = 13;
-        public static final int kElevatorMotorFollowerCANID = 14;
-
         // Swerve CanCoder IDs
         public static final int kFrontRightCANCoder = 21;
         public static final int kBackRightCANCoder = 24;

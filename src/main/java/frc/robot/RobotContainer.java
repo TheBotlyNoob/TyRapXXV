@@ -26,6 +26,7 @@ import frc.robot.Constants.*;
 import frc.robot.Subsystems.AlgaeGrabberSubsystem;
 import frc.robot.Subsystems.Climber;
 import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.RangeSensor;
 import frc.robot.Commands.Drive;
@@ -54,7 +55,7 @@ public class RobotContainer {
     private final AlgaeGrabberSubsystem m_algae;
     private final Climber m_climber;
     private final SendableChooser<String> autoChooser;
-
+    protected final ElevatorSubsystem m_elevator;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
@@ -89,6 +90,7 @@ public class RobotContainer {
         this.m_climber = new Climber();
 
         //this.m_range = new RangeSensor(0);
+        this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -137,6 +139,11 @@ public class RobotContainer {
         Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor()); //tests the climber motor with dpad, left on right off
         Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
         //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
+    
+        Controller.kDriveController.povUp().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.5)));
+        Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
+        Controller.kDriveController.povDown().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.5)));
+        Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
     }
 
     public Drivetrain getDrivetrain() {
