@@ -177,8 +177,8 @@ public class Constants {
 
     public static class AlgaeGrabber {
         public static final double kMotorCurrentThreshold = 1.0;
-        public static final double kIntakeSpeed = 0.40;
-        public static final double kEjectSpeed = 0.75;
+        public static final double kIntakeSpeed = 0.60;
+        public static final double kEjectSpeed = 0.90;
     }
 }
 // public static class ElevatorConstants {

@@ -29,6 +29,7 @@ import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.RangeSensor;
+import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveOffset;
@@ -130,12 +131,13 @@ public class RobotContainer {
 
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
-        //Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
+        Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
         Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
-        Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever()); //when disabling robot make sure grabber isnt extended
+        //Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever()); 
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae)); 
+        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); //when disabling robot make sure grabber isnt extended
         Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor()); //tests the climber motor with dpad, left on right off
         Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
         //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
