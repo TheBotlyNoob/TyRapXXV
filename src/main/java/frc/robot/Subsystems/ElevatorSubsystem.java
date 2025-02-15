@@ -144,8 +144,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_table = nt.getTable(getName());
         m_table_level = m_table.getStringTopic("level").publish();
 
-        m_motorLeader = new SparkFlex(Constants.ID.kElevatorMotorLeaderCANID, MotorType.kBrushless);
-        m_motorFollower = new SparkFlex(Constants.ID.kElevatorMotorLeaderCANID, MotorType.kBrushless);
+        m_motorLeader = new SparkFlex(Constants.MechID.kElevatorFrontCanId, MotorType.kBrushless);
+        m_motorFollower = new SparkFlex(Constants.MechID.kElevatorBackCanId, MotorType.kBrushless);
 
         SparkBaseConfig motorConf = new SparkFlexConfig();
         motorConf.smartCurrentLimit(40);
@@ -154,8 +154,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         m_motorLeader.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        motorConf.follow(m_motorLeader, false);
-        m_motorFollower.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        SparkBaseConfig followerConf = new SparkFlexConfig();
+        followerConf.smartCurrentLimit(40);
+        followerConf.idleMode(IdleMode.kBrake);
+        followerConf.inverted(false);
+        followerConf.follow(m_motorLeader, false);
+        m_motorFollower.configure(followerConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         m_motorPublisherLeader = new MotorPublisher(m_motorLeader, m_table, "leader");
         m_motorPublisherFollower = new MotorPublisher(m_motorFollower, m_table, "follower");
@@ -181,13 +185,18 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         m_feedforward.calculate(m_controller.getSetpoint().velocity);
 
-        m_motorLeader.setVoltage(m_controller.calculate(m_motorLeader.getEncoder().getPosition(),
+        /*m_motorLeader.setVoltage(m_controller.calculate(m_motorLeader.getEncoder().getPosition(),
                 m_motorLeader.getEncoder().getVelocity())
-                + m_feedforward.calculate(m_controller.getSetpoint().velocity));
+                + m_feedforward.calculate(m_controller.getSetpoint().velocity));*/
     }
 
     public ElevatorLevel getLevel() {
         return m_level;
+    }
+
+    public void setVoltageTest(double voltage) {
+        System.out.println("Setting Elevator voltage " + voltage);
+        m_motorLeader.setVoltage(voltage);
     }
 
     @Override

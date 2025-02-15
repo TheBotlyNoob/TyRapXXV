@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import frc.robot.TyRap24Constants.*;
 import frc.robot.Constants.*;
+import frc.robot.Subsystems.AlgaeGrabberSubsystem;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.Limelight;
@@ -47,7 +48,9 @@ public class RobotContainer {
     private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
     private final Drivetrain m_swerve;
     private final Limelight m_Limelight;
-    private final RangeSensor m_range;
+    //remember to set this to final, commented out range code bc robot doesnt have canrange yet
+    private RangeSensor m_range;
+    private final AlgaeGrabberSubsystem m_algae;
     private final SendableChooser<String> autoChooser;
     protected final ElevatorSubsystem m_elevator;
 
@@ -80,8 +83,9 @@ public class RobotContainer {
 
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
+        this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
 
-        this.m_range = new RangeSensor(0);
+        //this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
 
         // Xbox controllers return negative values when we push forward.
@@ -122,11 +126,12 @@ public class RobotContainer {
 
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
-        Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
+        //Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
         Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
-        Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
+        Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever());
+        //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
     
         Controller.kDriveController.povUp().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.5)));
         Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
@@ -182,7 +187,7 @@ public class RobotContainer {
                 m_swerve.getFrontLeftSwerveModule().getState(),
                 m_swerve.getFrontRightSwerveModule().getState() };
         publisher.set(states);
-        m_currentRange.setDouble(m_range.getRange());
+        //m_currentRange.setDouble(m_range.getRange());
         ChassisSpeeds commandedSpeeds = m_swerve.getCommandeChassisSpeeds();
         m_commandedXVel.setDouble(commandedSpeeds.vxMetersPerSecond);
         m_commandedYVel.setDouble(commandedSpeeds.vyMetersPerSecond);
