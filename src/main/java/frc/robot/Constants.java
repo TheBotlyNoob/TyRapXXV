@@ -18,9 +18,6 @@ public class Constants {
         public static final int kBackRightTurn = 7;
         public static final int kBackRightDrive = 8;
 
-        public static final int kElevatorMotorLeaderCANID = 13;
-        public static final int kElevatorMotorFollowerCANID = 14;
-
         // Swerve CanCoder IDs
         public static final int kFrontRightCANCoder = 21;
         public static final int kBackRightCANCoder = 24;
@@ -39,7 +36,7 @@ public class Constants {
     }
 
     public static class MechID {
-        public static final int kAlgaeMotorCanId = 9;
+        public static final int kAlgaeMotorCanId = 41;
         public static final int kClimberCanId = 10;
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
@@ -71,7 +68,7 @@ public class Constants {
         public static final double[] driveFeedForward = { 0.0, 2.675 };
 
         public static final boolean kInvertTurn = true;
-        public static final double kMaxPossibleSpeed = 1.5; // meters per second
+        public static final double kMaxPossibleSpeed = 3.5; // meters per second
 
         public static final boolean sparkFlex = true;
     };
@@ -108,10 +105,10 @@ public class Constants {
          * from the dashboard by uncommenting the lines in Robot.java
          * disabledPeriodic.
          */
-        public static final double kFrontLeftOffset = 2.08;
-        public static final double kFrontRightOffset = 3.09;
-        public static final double kBackLeftOffset = 2.11;
-        public static final double kBackRightOffset = 0.78;
+        public static final double kFrontLeftOffset = 0.8268;
+        public static final double kFrontRightOffset = 0.158;
+        public static final double kBackLeftOffset = 2.269;
+        public static final double kBackRightOffset = 1.101;
 
         // Camera Positioning
         public static final double cameraOffsetForwardM = 0.19;
@@ -180,10 +177,10 @@ public class Constants {
 
     public static class AlgaeGrabber {
         public static final double kMotorCurrentThreshold = 1.0;
-        public static final double kMotorSpeed = 1.0;
+        public static final double kIntakeSpeed = 0.60;
+        public static final double kEjectSpeed = 0.90;
     }
 }
-
 // public static class ElevatorConstants {
 // //sim
 // public static final double maxHeightM = 2.0;

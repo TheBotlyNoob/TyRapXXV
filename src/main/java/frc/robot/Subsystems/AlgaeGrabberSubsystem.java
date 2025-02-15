@@ -5,7 +5,6 @@ import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.BooleanPublisher;
-import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -14,7 +13,6 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Utils.Elastic;
 import frc.robot.Utils.Elastic.Notification;
@@ -22,8 +20,8 @@ import frc.robot.Utils.Elastic.Notification.NotificationLevel;
 import frc.robot.Utils.MotorPublisher;
 
 public class AlgaeGrabberSubsystem extends SubsystemBase {
-  private final Value pneumaticOut = Value.kReverse;
-  private final Value pneumaticIn = Value.kForward;
+  private final Value pneumaticRetract = Value.kReverse; //this retracts the grabber
+  private final Value pneumaticExtend = Value.kForward; //extend grabber
   private final Value pneumaticOff = Value.kOff;
 
   private final SparkMax retrieval_motor;
@@ -62,23 +60,45 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
     // needed to make the entry show up in elastic
     table_should_retrieve.set(false);
 
-    new Trigger(() -> table_should_retrieve.get()).and(() -> !isMotorStalled()).onTrue(runOnce(() -> {
-      retrieval_motor.set(Constants.AlgaeGrabber.kMotorSpeed);
-      raise_pneumatics_solenoid.set(pneumaticOut);
-    })).onFalse(runOnce(() -> {
-      table_should_retrieve.set(false);
-      retrieval_motor.set(0.0);
-      raise_pneumatics_solenoid.set(pneumaticIn);
-    }));
+    // new Trigger(() -> table_should_retrieve.get()).and(() -> !isMotorStalled()).onTrue(runOnce(() -> {
+    //  retrieval_motor.set(Constants.AlgaeGrabber.kMotorSpeed);
+    //  raise_pneumatics_solenoid.set(pneumaticOut);
+    //)).onFalse(runOnce(() -> {
+      //table_should_retrieve.set(false);
+      //retrieval_motor.set(0.0);
+      //raise_pneumatics_solenoid.set(pneumaticIn);
+    //}));  
   }
-
-  public Command toggleRetriever() {
-    return runOnce(() -> {
-      Elastic.sendNotification(new Notification(NotificationLevel.INFO, getName(), "toggling algae retrieval"));
-      table_should_retrieve.set(!table_should_retrieve.get());
-    });
+  
+//  public Command toggleRetriever() {
+//    return runOnce(() -> {
+//      if (table_should_retrieve.get()){
+//        raise_pneumatics_solenoid.set(pneumaticRetract);
+//        retrieval_motor.set(0.0);
+//      }
+//      else {
+//        raise_pneumatics_solenoid.set(pneumaticExtend);
+//        retrieval_motor.set(-Constants.AlgaeGrabber.kIntakeSpeed);
+//      }
+//
+//      table_should_retrieve.set(!table_should_retrieve.get());
+//   });
+//  }
+  
+  public void extendGrabber(){
+    raise_pneumatics_solenoid.set(pneumaticExtend);
+    retrieval_motor.set(-Constants.AlgaeGrabber.kIntakeSpeed);
   }
-
+  public void retractGrabber(){
+    raise_pneumatics_solenoid.set(pneumaticRetract);
+    retrieval_motor.set(0.0);
+  }
+  public void stopMotor(){
+    retrieval_motor.set(0);
+  }
+  public void ejectAlgae(){
+    retrieval_motor.set(Constants.AlgaeGrabber.kEjectSpeed);
+  }
   public boolean isMotorStalled() {
     return retrieval_motor.getOutputCurrent() > Constants.AlgaeGrabber.kMotorCurrentThreshold;
   }
@@ -90,7 +110,7 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
     table_motor_stalled.set(isMotorStalled());
 
     Value state = raise_pneumatics_solenoid.get();
-    table_solenoid_state.set(state == pneumaticOut ? "out" : state == pneumaticIn ? "in" : "off");
+    table_solenoid_state.set(state == pneumaticRetract ? "out" : state == pneumaticExtend ? "in" : "off");
 
     // This method will be called once per scheduler run
   }
