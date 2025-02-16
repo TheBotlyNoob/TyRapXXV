@@ -29,6 +29,7 @@ import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.RangeSensor;
+import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
@@ -57,6 +58,7 @@ public class RobotContainer {
     private final Climber m_climber;
     private final SendableChooser<String> autoChooser;
     protected final ElevatorSubsystem m_elevator;
+    protected final CoralSubsystem m_coral;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
@@ -92,6 +94,7 @@ public class RobotContainer {
 
         //this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
+        this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -146,6 +149,11 @@ public class RobotContainer {
         Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
         Controller.kDriveController.povDown().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.5)));
         Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
+
+        Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (0.3)));
+        Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
+        Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (-0.3)));
+        Controller.kDriveController.rightBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
     }
 
     public Drivetrain getDrivetrain() {

@@ -40,7 +40,9 @@ public class Constants {
         public static final int kClimberCanId = 10;
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
-
+        //Can Id Unkown
+        public static final int kCoralCanId = 2;
+    
     }
 
     public static class Deadbands {
