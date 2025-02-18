@@ -73,16 +73,6 @@ public class RobotContainer {
     private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
     private SwerveModuleSB[] mSwerveModuleTelem;
-    protected DoubleSubscriber m_elevatorKs;
-    protected DoubleSubscriber m_elevatorKg;
-    protected DoubleSubscriber m_elevatorKv;
-    protected DoubleSubscriber m_elevatorKa;
-    protected DoubleSubscriber m_elevatorKp;
-    protected DoubleSubscriber m_elevatorKi;
-    protected DoubleSubscriber m_elevatorKd;
-    protected DoubleSubscriber m_elevatorKMaxVel;
-    protected DoubleSubscriber m_elevatorKMaxAccel;
-    
 
     Command m_driveCommand;
 

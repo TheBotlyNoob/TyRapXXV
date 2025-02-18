@@ -150,6 +150,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     protected DigitalInput bottomLimitSwitch;
     protected DigitalInput topLimitSwitch;
+    
     protected DoubleEntry m_elevatorKs;
     protected DoubleEntry m_elevatorKg;
     protected DoubleEntry m_elevatorKv;
@@ -159,6 +160,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     protected DoubleEntry m_elevatorKd;
     protected DoubleEntry m_elevatorKMaxVel;
     protected DoubleEntry m_elevatorKMaxAccel;
+
     protected double outputVoltage = 0;
 
     public ElevatorSubsystem(NetworkTableInstance nt) {
@@ -190,6 +192,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         m_motorLeader = new SparkFlex(Constants.MechID.kElevatorFrontCanId, MotorType.kBrushless);
         m_motorFollower = new SparkFlex(Constants.MechID.kElevatorBackCanId, MotorType.kBrushless);
+
         bottomLimitSwitch = new DigitalInput(Constants.Elevator.kBottomLimitSwitch);
         topLimitSwitch = new DigitalInput(Constants.Elevator.kTopLimitSwitch);
 
@@ -197,7 +200,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         motorConf.smartCurrentLimit(40);
         motorConf.idleMode(IdleMode.kBrake);
         motorConf.inverted(false);
-
         m_motorLeader.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         SparkBaseConfig followerConf = new SparkFlexConfig();
@@ -206,7 +208,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         followerConf.inverted(false);
         followerConf.follow(m_motorLeader, false);
         m_motorFollower.configure(followerConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        
         m_motorLeader.setVoltage(0);
+        m_motorLeader.getEncoder().setPosition(0);
+        m_motorFollower.getEncoder().setPosition(0);
+        
         m_motorPublisherLeader = new MotorPublisher(m_motorLeader, m_table, "leader");
         m_motorPublisherFollower = new MotorPublisher(m_motorFollower, m_table, "follower");
 
@@ -273,6 +279,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void periodic() {
         m_motorPublisherLeader.update();
         m_motorPublisherFollower.update();
+
         if (bottomLimitSwitch.get()){
             m_motorLeader.getEncoder().setPosition(0);
             if (outputVoltage < 0){
@@ -285,6 +292,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 outputVoltage = 0;
             }   
         }
+
         m_motorLeader.setVoltage(outputVoltage);
         m_encoder.set(m_motorLeader.getEncoder().getPosition());
         m_bottomlimitSwitch.set(bottomLimitSwitch.get());
