@@ -11,12 +11,18 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.networktables.DoublePublisher;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Utils.MotorPublisher;
+import edu.wpi.first.wpilibj.DigitalInput;
 
 public class ElevatorSubsystem extends SubsystemBase {
     public enum ElevatorLevel {
@@ -130,22 +136,62 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private final NetworkTable m_table;
     private final StringPublisher m_table_level;
-
+    private final DoublePublisher m_encoder;
+    private final BooleanPublisher m_bottomlimitSwitch;
+    private final BooleanPublisher m_toplimitSwitch;
     private final SparkFlex m_motorLeader;
     private final SparkFlex m_motorFollower;
 
-    private final MotorPublisher m_motorPublisherLeader;
-    private final MotorPublisher m_motorPublisherFollower;
+    protected final MotorPublisher m_motorPublisherLeader;
+    protected final MotorPublisher m_motorPublisherFollower;
 
     private final ElevatorFeedforward m_feedforward;
     private final ProfiledPIDController m_controller;
 
+    protected DigitalInput bottomLimitSwitch;
+    protected DigitalInput topLimitSwitch;
+    protected DoubleEntry m_elevatorKs;
+    protected DoubleEntry m_elevatorKg;
+    protected DoubleEntry m_elevatorKv;
+    protected DoubleEntry m_elevatorKa;
+    protected DoubleEntry m_elevatorKp;
+    protected DoubleEntry m_elevatorKi;
+    protected DoubleEntry m_elevatorKd;
+    protected DoubleEntry m_elevatorKMaxVel;
+    protected DoubleEntry m_elevatorKMaxAccel;
+    protected double outputVoltage = 0;
+
     public ElevatorSubsystem(NetworkTableInstance nt) {
         m_table = nt.getTable(getName());
         m_table_level = m_table.getStringTopic("level").publish();
+        m_encoder = m_table.getDoubleTopic("Encoder Position").publish();
+        m_bottomlimitSwitch = m_table.getBooleanTopic("Bottom Limit Switch").publish();
+        m_toplimitSwitch = m_table.getBooleanTopic("Top Limit Switch").publish();
+
+        m_elevatorKs = m_table.getDoubleTopic("Ks").getEntry(0.0);
+        m_elevatorKg = m_table.getDoubleTopic("Kg").getEntry(0.0);
+        m_elevatorKv = m_table.getDoubleTopic("Kv").getEntry(0.0);
+        m_elevatorKa = m_table.getDoubleTopic("Ka").getEntry(0.0);
+        m_elevatorKp = m_table.getDoubleTopic("Kp").getEntry(0.0);
+        m_elevatorKi = m_table.getDoubleTopic("Ki").getEntry(0.0);
+        m_elevatorKd = m_table.getDoubleTopic("Kd").getEntry(0.0);
+        m_elevatorKMaxVel = m_table.getDoubleTopic("KMaxVel").getEntry(0.0);
+        m_elevatorKMaxAccel = m_table.getDoubleTopic("KMaxAccel").getEntry(0.0);
+        
+        m_elevatorKs.set(0.0);
+        m_elevatorKg.set(0.0);
+        m_elevatorKv.set(0.0);
+        m_elevatorKa.set(0.0);
+        m_elevatorKp.set(0.0);
+        m_elevatorKi.set(0.0);
+        m_elevatorKd.set(0.0);
+        m_elevatorKMaxVel.set(0.0);
+        m_elevatorKMaxAccel.set(0.0);
 
         m_motorLeader = new SparkFlex(Constants.MechID.kElevatorFrontCanId, MotorType.kBrushless);
         m_motorFollower = new SparkFlex(Constants.MechID.kElevatorBackCanId, MotorType.kBrushless);
+        bottomLimitSwitch = new DigitalInput(Constants.Elevator.kBottomLimitSwitch);
+        topLimitSwitch = new DigitalInput(Constants.Elevator.kTopLimitSwitch);
 
         SparkBaseConfig motorConf = new SparkFlexConfig();
         motorConf.smartCurrentLimit(40);
@@ -160,7 +206,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         followerConf.inverted(false);
         followerConf.follow(m_motorLeader, false);
         m_motorFollower.configure(followerConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
+        m_motorLeader.setVoltage(0);
         m_motorPublisherLeader = new MotorPublisher(m_motorLeader, m_table, "leader");
         m_motorPublisherFollower = new MotorPublisher(m_motorFollower, m_table, "follower");
 
@@ -182,26 +228,67 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void setLevel(ElevatorLevel level) {
         m_level = level;
         m_table_level.set(level.toString());
+        //double pidOutput = m_controller.calculate(m_motorLeader.getEncoder().getPosition());
+        //double ffOutput = m_feedforward.calculate(m_controller.getSetpoint().velocity);
 
-        m_feedforward.calculate(m_controller.getSetpoint().velocity);
-
-        /*m_motorLeader.setVoltage(m_controller.calculate(m_motorLeader.getEncoder().getPosition(),
-                m_motorLeader.getEncoder().getVelocity())
-                + m_feedforward.calculate(m_controller.getSetpoint().velocity));*/
+        //m_motorLeader.setVoltage(pidOutput+ffOutput);
+    }
+    public ElevatorFeedforward getFeedforward(){
+        return m_feedforward;
+    }
+    public ProfiledPIDController getPID(){
+        return m_controller;
     }
 
     public ElevatorLevel getLevel() {
         return m_level;
     }
-
+    public void updateConstants(){
+        m_feedforward.setKs(m_elevatorKs.get());
+        m_feedforward.setKg(m_elevatorKg.get());
+        m_feedforward.setKv(m_elevatorKv.get());
+        m_feedforward.setKa(m_elevatorKa.get());
+        m_controller.setP(m_elevatorKp.get());
+        m_controller.setI(m_elevatorKi.get());
+        m_controller.setD(m_elevatorKd.get());
+        m_controller.setConstraints(new Constraints(m_elevatorKMaxVel.get(), m_elevatorKMaxAccel.get()));
+    }
     public void setVoltageTest(double voltage) {
         System.out.println("Setting Elevator voltage " + voltage);
-        m_motorLeader.setVoltage(voltage);
+        outputVoltage = voltage;
+        if (bottomLimitSwitch.get()){
+            if (voltage < 0){
+                outputVoltage = 0;
+            }
+        }
+        if (topLimitSwitch.get()){
+            if (voltage > 0){
+                outputVoltage = 0;
+            }
+        }   
+        m_motorLeader.setVoltage(outputVoltage);
     }
 
     @Override
     public void periodic() {
         m_motorPublisherLeader.update();
-        m_motorPublisherLeader.update();
+        m_motorPublisherFollower.update();
+        if (bottomLimitSwitch.get()){
+            m_motorLeader.getEncoder().setPosition(0);
+            if (outputVoltage < 0){
+                outputVoltage = 0;
+                
+            }   
+        }
+        if (topLimitSwitch.get()){
+            if (outputVoltage > 0){
+                outputVoltage = 0;
+            }   
+        }
+        m_motorLeader.setVoltage(outputVoltage);
+        m_encoder.set(m_motorLeader.getEncoder().getPosition());
+        m_bottomlimitSwitch.set(bottomLimitSwitch.get());
+        m_toplimitSwitch.set(topLimitSwitch.get());
+        
     }
 }

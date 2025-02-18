@@ -11,7 +11,9 @@ import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -38,6 +40,7 @@ import frc.robot.Commands.DriveRange;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -70,6 +73,16 @@ public class RobotContainer {
     private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
     private SwerveModuleSB[] mSwerveModuleTelem;
+    protected DoubleSubscriber m_elevatorKs;
+    protected DoubleSubscriber m_elevatorKg;
+    protected DoubleSubscriber m_elevatorKv;
+    protected DoubleSubscriber m_elevatorKa;
+    protected DoubleSubscriber m_elevatorKp;
+    protected DoubleSubscriber m_elevatorKi;
+    protected DoubleSubscriber m_elevatorKd;
+    protected DoubleSubscriber m_elevatorKMaxVel;
+    protected DoubleSubscriber m_elevatorKMaxAccel;
+    
 
     Command m_driveCommand;
 
@@ -145,9 +158,9 @@ public class RobotContainer {
         Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
         //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
     
-        Controller.kDriveController.povUp().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.5)));
+        Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.75)));
         Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
-        Controller.kDriveController.povDown().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.5)));
+        Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.75)));
         Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
 
         Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (0.3)));
@@ -189,6 +202,9 @@ public class RobotContainer {
 
     public void clearDefaultCommand() {
         this.m_swerve.removeDefaultCommand();
+    }
+    public void updateConstants(){
+        this.m_elevator.updateConstants();
     }
 
     public void reportTelemetry() {

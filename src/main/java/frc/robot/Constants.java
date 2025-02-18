@@ -175,6 +175,8 @@ public class Constants {
 
         public static final double kMaxVelocity = 4.0;
         public static final double kMaxAcceleration = 4.0;
+        public static final int kBottomLimitSwitch = 9;
+        public static final int kTopLimitSwitch = 8;
     }
 
     public static class AlgaeGrabber {
