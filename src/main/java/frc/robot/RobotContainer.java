@@ -38,8 +38,8 @@ import frc.robot.Commands.DriveRange;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
-import frc.robot.Commands.Climber;
 import frc.robot.Commands.ClimbGrabCage;
+
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -53,7 +53,8 @@ public class RobotContainer {
     private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
     private final Drivetrain m_swerve;
     private final Limelight m_Limelight;
-    //remember to set this to final, commented out range code bc robot doesnt have canrange yet
+    // remember to set this to final, commented out range code bc robot doesnt have
+    // canrange yet
     private RangeSensor m_range;
     private final AlgaeGrabberSubsystem m_algae;
     private final ClimberSubsystem m_climber;
@@ -93,7 +94,7 @@ public class RobotContainer {
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
         this.m_climber = new ClimberSubsystem(NetworkTableInstance.getDefault());
 
-        //this.m_range = new RangeSensor(0);
+        // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
         this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
@@ -139,21 +140,24 @@ public class RobotContainer {
         Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
-        //Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever()); 
-        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae)); 
-        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); //when disabling robot make sure grabber isnt extended
-        //Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor()); //tests the climber motor with dpad, left on right off
-        //Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
-        //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
-    
+        // Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever());
+        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
+        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
+                                                                                        // sure grabber isnt extended
+        // Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor());
+        // //tests the climber motor with dpad, left on right off
+        // Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
+        // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
+        // -> 0.5, () -> m_range.getRange(), 90, 0.2));
+
         Controller.kDriveController.povUp().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.5)));
         Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
         Controller.kDriveController.povDown().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.5)));
         Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
 
-        Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (0.3)));
+        Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(0.3)));
         Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
-        Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (-0.3)));
+        Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(-0.3)));
         Controller.kDriveController.rightBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
 
         Controller.kManipulatorController.povLeft().onTrue(m_climber.runOnce(() -> m_climber.extendStinger()));
@@ -161,11 +165,10 @@ public class RobotContainer {
         Controller.kManipulatorController.povRight().onTrue(m_climber.runOnce(() -> m_climber.retractStinger()));
         Controller.kManipulatorController.povRight().onFalse(m_climber.runOnce(() -> m_climber.stopMotor()));
 
-
         Controller.kManipulatorController.leftBumper()
-            .onTrue(m_climber.runOnce(() -> m_climber.moveArmsIn()))
-            .onFalse(m_climber.runOnce(() -> m_climber.resetArms()));
-        //Controller.kManipulatorController.back()
+                .onTrue(m_climber.runOnce(() -> m_climber.moveArmsIn()))
+                .onFalse(m_climber.runOnce(() -> m_climber.resetArms()));
+        // Controller.kManipulatorController.back()
     }
 
     public Drivetrain getDrivetrain() {
@@ -216,7 +219,7 @@ public class RobotContainer {
                 m_swerve.getFrontLeftSwerveModule().getState(),
                 m_swerve.getFrontRightSwerveModule().getState() };
         publisher.set(states);
-        //m_currentRange.setDouble(m_range.getRange());
+        // m_currentRange.setDouble(m_range.getRange());
         ChassisSpeeds commandedSpeeds = m_swerve.getCommandeChassisSpeeds();
         m_commandedXVel.setDouble(commandedSpeeds.vxMetersPerSecond);
         m_commandedYVel.setDouble(commandedSpeeds.vyMetersPerSecond);
