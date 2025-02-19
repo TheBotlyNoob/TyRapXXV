@@ -1,5 +1,6 @@
 package frc.robot.Utils;
 
+import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
 
@@ -11,7 +12,7 @@ import edu.wpi.first.networktables.NetworkTable;
  */
 public class MotorPublisher {
     protected final SparkBase motor;
-    protected final RelativeEncoder encoder;
+    protected final AbsoluteEncoder encoder;
 
     private final NetworkTable table;
 
@@ -22,7 +23,7 @@ public class MotorPublisher {
 
     public MotorPublisher(SparkBase motor, NetworkTable table, String name) {
         this.motor = motor;
-        this.encoder = motor.getEncoder();
+        this.encoder = motor.getAbsoluteEncoder();
 
         this.table = table;
 

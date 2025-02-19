@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 //import frc.robot.TyRap24Constants.*;
 import frc.robot.Constants.*;
 import frc.robot.Subsystems.AlgaeGrabberSubsystem;
-import frc.robot.Subsystems.Climber;
+import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.Limelight;
@@ -38,7 +38,8 @@ import frc.robot.Commands.DriveRange;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
-
+import frc.robot.Commands.Climber;
+import frc.robot.Commands.ClimbGrabCage;
 /**
  * This class is where the bulk of the robot should be declared. Since
  * Command-based is a
@@ -55,7 +56,7 @@ public class RobotContainer {
     //remember to set this to final, commented out range code bc robot doesnt have canrange yet
     private RangeSensor m_range;
     private final AlgaeGrabberSubsystem m_algae;
-    private final Climber m_climber;
+    private final ClimberSubsystem m_climber;
     private final SendableChooser<String> autoChooser;
     protected final ElevatorSubsystem m_elevator;
     protected final CoralSubsystem m_coral;
@@ -90,7 +91,7 @@ public class RobotContainer {
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
-        this.m_climber = new Climber();
+        this.m_climber = new ClimberSubsystem(NetworkTableInstance.getDefault());
 
         //this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
@@ -141,8 +142,8 @@ public class RobotContainer {
         //Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever()); 
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae)); 
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); //when disabling robot make sure grabber isnt extended
-        Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor()); //tests the climber motor with dpad, left on right off
-        Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
+        //Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor()); //tests the climber motor with dpad, left on right off
+        //Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
         //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
     
         Controller.kDriveController.povUp().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.5)));
@@ -154,6 +155,17 @@ public class RobotContainer {
         Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
         Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (-0.3)));
         Controller.kDriveController.rightBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
+
+        Controller.kManipulatorController.povLeft().onTrue(m_climber.runOnce(() -> m_climber.extendStinger()));
+        Controller.kManipulatorController.povLeft().onFalse(m_climber.runOnce(() -> m_climber.stopMotor()));
+        Controller.kManipulatorController.povRight().onTrue(m_climber.runOnce(() -> m_climber.retractStinger()));
+        Controller.kManipulatorController.povRight().onFalse(m_climber.runOnce(() -> m_climber.stopMotor()));
+
+
+        Controller.kManipulatorController.leftBumper()
+            .onTrue(m_climber.runOnce(() -> m_climber.moveArmsIn()))
+            .onFalse(m_climber.runOnce(() -> m_climber.resetArms()));
+        //Controller.kManipulatorController.back()
     }
 
     public Drivetrain getDrivetrain() {

@@ -45,8 +45,8 @@ public class AlgaeGrabberSubsystem extends SubsystemBase {
     retrieval_motor = new SparkMax(Constants.MechID.kAlgaeMotorCanId, MotorType.kBrushless);
 
     raise_pneumatics_solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,
-        Constants.ID.kAlgaeGrabberSolenoidCANID1,
-        Constants.ID.kAlgaeGrabberSolenoidCANID2);
+        Constants.AlgaeGrabber.kSolenoidCANID1,
+        Constants.AlgaeGrabber.kSolenoidCANID2);
 
     table = nt.getTable(getName());
 
