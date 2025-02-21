@@ -8,6 +8,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -23,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Utils.MotorPublisher;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 
 public class ElevatorSubsystem extends SubsystemBase {
     public enum ElevatorLevel {
@@ -141,6 +143,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final BooleanPublisher m_toplimitSwitch;
     private final SparkFlex m_motorLeader;
     private final SparkFlex m_motorFollower;
+    private final DoublePublisher outputVoltagePreClampPub;
 
     protected final MotorPublisher m_motorPublisherLeader;
     protected final MotorPublisher m_motorPublisherFollower;
@@ -162,6 +165,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     protected DoubleEntry m_elevatorKMaxAccel;
 
     protected double outputVoltage = 0;
+    protected double m_lastSpeed = 0.0;
+    protected double m_lastTime = 0.0;
 
     public ElevatorSubsystem(NetworkTableInstance nt) {
         m_table = nt.getTable(getName());
@@ -169,6 +174,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_encoder = m_table.getDoubleTopic("Encoder Position").publish();
         m_bottomlimitSwitch = m_table.getBooleanTopic("Bottom Limit Switch").publish();
         m_toplimitSwitch = m_table.getBooleanTopic("Top Limit Switch").publish();
+        outputVoltagePreClampPub = m_table.getDoubleTopic("Output V pre lamp").publish();
 
         m_elevatorKs = m_table.getDoubleTopic("Ks").getEntry(0.0);
         m_elevatorKg = m_table.getDoubleTopic("Kg").getEntry(0.0);
@@ -239,9 +245,11 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         //m_motorLeader.setVoltage(pidOutput+ffOutput);
     }
+
     public ElevatorFeedforward getFeedforward(){
         return m_feedforward;
     }
+
     public ProfiledPIDController getPID(){
         return m_controller;
     }
@@ -249,6 +257,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public ElevatorLevel getLevel() {
         return m_level;
     }
+
     public void updateConstants(){
         m_feedforward.setKs(m_elevatorKs.get());
         m_feedforward.setKg(m_elevatorKg.get());
@@ -259,6 +268,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_controller.setD(m_elevatorKd.get());
         m_controller.setConstraints(new Constraints(m_elevatorKMaxVel.get(), m_elevatorKMaxAccel.get()));
     }
+
     public void setVoltageTest(double voltage) {
         System.out.println("Setting Elevator voltage " + voltage);
         outputVoltage = voltage;
@@ -280,6 +290,21 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_motorPublisherLeader.update();
         m_motorPublisherFollower.update();
 
+        double currentPosition = m_motorLeader.getEncoder().getPosition();
+        double targetVelocity = m_controller.getSetpoint().velocity;
+        double targetAcceleration = (targetVelocity - this.m_lastSpeed)
+                / (Timer.getFPGATimestamp() - this.m_lastTime);
+
+        double actualVelocity = 2 * Math.PI * m_motorLeader.getEncoder().getVelocity()/60.;
+
+        double pidVal = m_controller.calculate(currentPosition, this.m_level.toHeight());
+        double FFVal = m_feedforward.calculate(m_controller.getSetpoint().velocity,
+                targetAcceleration);
+
+        outputVoltage = (pidVal + FFVal);
+        this.m_lastSpeed = actualVelocity;
+        this.m_lastTime = Timer.getFPGATimestamp();
+
         if (bottomLimitSwitch.get()){
             m_motorLeader.getEncoder().setPosition(0);
             if (outputVoltage < 0){
@@ -292,6 +317,9 @@ public class ElevatorSubsystem extends SubsystemBase {
                 outputVoltage = 0;
             }   
         }
+
+
+        MathUtil.clamp(outputVoltage, -1.75, 1.75);
 
         m_motorLeader.setVoltage(outputVoltage);
         m_encoder.set(m_motorLeader.getEncoder().getPosition());
