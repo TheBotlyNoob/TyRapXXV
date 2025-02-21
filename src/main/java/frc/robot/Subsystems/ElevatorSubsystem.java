@@ -2,6 +2,9 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.io.OutputStream;
+
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -302,6 +305,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 targetAcceleration);
 
         outputVoltage = (pidVal + FFVal);
+        outputVoltagePreClampPub.set(outputVoltage);
         this.m_lastSpeed = actualVelocity;
         this.m_lastTime = Timer.getFPGATimestamp();
 
