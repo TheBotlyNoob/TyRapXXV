@@ -28,8 +28,8 @@ public class CoralSubsystem extends SubsystemBase {
 
         m_table_level = m_table.getStringTopic("coral").publish();
 
-        m_containerMotor = new SparkMax(Constants.MechID.kCoralCanId, MotorType.kBrushless);
-        m_coralMotor = new SparkMax(Constants.MechID.kCoralCanId, MotorType.kBrushless);
+        m_containerMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushless);
+        m_coralMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
 
         m_containerMotorPublisher = new MotorPublisher(m_containerMotor, m_table, "container");
         m_coralMotorPublisher = new MotorPublisher(m_coralMotor, m_table, "coral");

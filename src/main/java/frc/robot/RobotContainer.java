@@ -45,7 +45,6 @@ import frc.robot.Commands.ElevatorJoystick;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
-import frc.robot.Commands.ClimbGrabCage;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -67,7 +66,7 @@ public class RobotContainer {
     private final ClimberSubsystem m_climber;
     private final SendableChooser<String> autoChooser;
     protected final ElevatorSubsystem m_elevator;
-    //protected final CoralSubsystem m_coral;
+    protected final CoralSubsystem m_coral;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
@@ -103,7 +102,7 @@ public class RobotContainer {
 
         // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
-        //this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
+        this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -149,7 +148,6 @@ public class RobotContainer {
         Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
-        // Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever());
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
