@@ -8,6 +8,9 @@ import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -92,7 +95,8 @@ public class RobotContainer {
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
-        this.m_climber = new ClimberSubsystem(NetworkTableInstance.getDefault());
+        this.m_climber = new ClimberSubsystem(
+                NetworkTableInstance.getDefault()); //climber absolute encoder is connected to back left turn
 
         // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
@@ -160,15 +164,17 @@ public class RobotContainer {
         Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(-0.3)));
         Controller.kDriveController.rightBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
 
-        Controller.kManipulatorController.povLeft().onTrue(m_climber.runOnce(() -> m_climber.extendStinger()));
+        Controller.kManipulatorController.povLeft().onTrue(m_climber.runOnce(() -> m_climber.forwardMotor()));
         Controller.kManipulatorController.povLeft().onFalse(m_climber.runOnce(() -> m_climber.stopMotor()));
-        Controller.kManipulatorController.povRight().onTrue(m_climber.runOnce(() -> m_climber.retractStinger()));
+        Controller.kManipulatorController.povRight().onTrue(m_climber.runOnce(() -> m_climber.reverseMotor()));
         Controller.kManipulatorController.povRight().onFalse(m_climber.runOnce(() -> m_climber.stopMotor()));
 
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.moveArmsIn()))
-                .onFalse(m_climber.runOnce(() -> m_climber.resetArms()));
-        // Controller.kManipulatorController.back()
+                .onFalse(m_climber.runOnce(() -> m_climber.moveArmsOut()));
+        Controller.kManipulatorController.rightBumper()
+                .onTrue(m_climber.runOnce(() -> m_climber.extendArms()))
+                .onFalse(m_climber.runOnce(() -> m_climber.retractArms()));
     }
 
     public Drivetrain getDrivetrain() {

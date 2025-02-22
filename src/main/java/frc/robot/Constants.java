@@ -32,13 +32,15 @@ public class Constants {
     }
     public static class Climber {
         // TODO
-        public static final int kLowerSolenoidCANID1 = 0;
-        public static final int kLowerSolenoidCANID2 = 0;
+        public static final int kLowerSolenoidCANID1 = 4;
+        public static final int kLowerSolenoidCANID2 = 5;
 
-        public static final int kClampSolenoidCANID1 = 0;
-        public static final int kClampSolenoidCANID2 = 0;
+        public static final int kClampSolenoidCANID1 = 2;
+        public static final int kClampSolenoidCANID2 = 3;
 
-        public static final double kClimbMotorVoltage = 0;
+        public static final double kClimbMotorVoltage = 0.5;
+        //public static final double kMaxEncoderPos = 0;
+        //public static final double kMinEncoderPos = 0;
     }
 
     public static class MechID {
