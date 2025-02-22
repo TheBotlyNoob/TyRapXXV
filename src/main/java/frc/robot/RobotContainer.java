@@ -36,6 +36,7 @@ import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
+import frc.robot.Commands.DriveLeftOrRight;
 import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.ElevatorJoystick;
@@ -160,6 +161,9 @@ public class RobotContainer {
 
         Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
         Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        
+        Controller.kDriveController.povLeft().onTrue(new DriveLeftOrRight(m_swerve, m_Limelight, true));
+        Controller.kDriveController.povRight().onTrue(new DriveLeftOrRight(m_swerve, m_Limelight, false));
 
         //Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(0.3)));
         //Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
@@ -172,6 +176,7 @@ public class RobotContainer {
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
         Controller.kManipulatorController.back()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
+        
     }
 
     public Drivetrain getDrivetrain() {
