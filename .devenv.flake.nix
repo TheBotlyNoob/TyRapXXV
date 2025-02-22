@@ -1,7 +1,7 @@
 {
   inputs =
     let
-      version = "1.4.0";
+      version = "1.4.1";
 system = "x86_64-linux";
 devenv_root = "/home/jj/github/TyRapXXV";
 devenv_dotfile = ./.devenv;
@@ -24,7 +24,7 @@ devenv_direnvrc_latest_version = 1;
 
       outputs = { nixpkgs, ... }@inputs:
         let
-          version = "1.4.0";
+          version = "1.4.1";
 system = "x86_64-linux";
 devenv_root = "/home/jj/github/TyRapXXV";
 devenv_dotfile = ./.devenv;

@@ -29,10 +29,18 @@ public class Constants {
 
         // Limelight
         public static final String kFrontLimelightName = "limelight-c";
+    }
+    public static class Climber {
+        // TODO
+        public static final int kLowerSolenoidCANID1 = 4;
+        public static final int kLowerSolenoidCANID2 = 5;
 
-        public static final int kAlgaeGrabberSolenoidCANID1 = 0;
-        public static final int kAlgaeGrabberSolenoidCANID2 = 1;
+        public static final int kClampSolenoidCANID1 = 2;
+        public static final int kClampSolenoidCANID2 = 3;
 
+        public static final double kClimbMotorVoltage = 1.0;
+        public static final double kMaxEncoderPos = 0.5;
+        public static final double kMinEncoderPos = 0.218;
     }
 
     public static class MechID {
@@ -41,7 +49,8 @@ public class Constants {
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
         //Can Id Unkown
-        public static final int kCoralCanId = 2;
+        public static final int kCoralWristCanId = 13;
+        public static final int kCoralWheelCanId = 14;
     
     }
 
@@ -113,7 +122,8 @@ public class Constants {
         public static final double kBackRightOffset = 1.101;
 
         // Camera Positioning
-        public static final double cameraOffsetForwardM = 0.19;
+        public static final double cameraOffsetForwardM = 0.10;
+        public static final double cameraOffsetFromFrontBumber = 0.38;
     }
 
     public static class LimelightConstants {
@@ -129,7 +139,7 @@ public class Constants {
         public static final double rotThreshold = 1.0;
         public static final double azimuthFieldOfViewDeg = 29.0;
         public static final double xOffset = 0.0;
-        public static final double yOffset = 0.5;
+        public static final double yOffset = 0.7;
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
         // For ProportionalController & DriveDistance as well
@@ -141,13 +151,13 @@ public class Constants {
         public static final double proportion = 2;
         public static final double threshold = .02;
         // For DriveOffset
-        public static final double driveOffsetXOffset = 0.5;
+        public static final double driveOffsetXOffset = 0.7;
         public static final double driveOffsetYOffset = 0.3;
-        public static final double driveOffsetMaxAccMSS = 5;
-        public static final double driveOffsetMaxDccMSS = 5;
+        public static final double driveOffsetMaxAccMSS = 2;
+        public static final double driveOffsetMaxDccMSS = 2;
         public static final double driveOffsetMinVel = 0.1;
         public static final double driveOffsetMaxVel = 1.5;
-        public static final double driveOffsetAngleError = 0.03;
+        public static final double driveOffsetAngleError = 0.015;
         public static final double driveOffsetRangeMThreshold = 0.02;
     }
 
@@ -188,6 +198,10 @@ public class Constants {
         public static final double kMotorCurrentThreshold = 1.0;
         public static final double kIntakeSpeed = 0.60;
         public static final double kEjectSpeed = 0.90;
+
+        public static final int kSolenoidCANID1 = 0;
+        public static final int kSolenoidCANID2 = 1;
+
     }
 }
 // public static class ElevatorConstants {

@@ -3,8 +3,6 @@ package frc.robot.Subsystems;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
-import java.io.OutputStream;
-
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -156,7 +154,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorFeedforward m_feedforward;
     private final ProfiledPIDController m_controller;
 
-    protected DigitalInput bottomLimitSwitch;
+    protected DigitalInput bottomLimitSwitch; //make sure limit switches are not unhooked or it freaks out
     protected DigitalInput topLimitSwitch;
     
     protected DoubleEntry m_elevatorKs;
