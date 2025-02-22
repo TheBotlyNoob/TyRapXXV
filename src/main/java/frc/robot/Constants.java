@@ -113,7 +113,8 @@ public class Constants {
         public static final double kBackRightOffset = 1.101;
 
         // Camera Positioning
-        public static final double cameraOffsetForwardM = 0.19;
+        public static final double cameraOffsetForwardM = 0.10;
+        public static final double cameraOffsetFromFrontBumber = 0.38;
     }
 
     public static class LimelightConstants {
@@ -129,7 +130,7 @@ public class Constants {
         public static final double rotThreshold = 1.0;
         public static final double azimuthFieldOfViewDeg = 29.0;
         public static final double xOffset = 0.0;
-        public static final double yOffset = 0.5;
+        public static final double yOffset = 0.7;
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
         // For ProportionalController & DriveDistance as well
@@ -141,23 +142,23 @@ public class Constants {
         public static final double proportion = 2;
         public static final double threshold = .02;
         // For DriveOffset
-        public static final double driveOffsetXOffset = 0.5;
+        public static final double driveOffsetXOffset = 0.7;
         public static final double driveOffsetYOffset = 0.3;
-        public static final double driveOffsetMaxAccMSS = 5;
-        public static final double driveOffsetMaxDccMSS = 5;
+        public static final double driveOffsetMaxAccMSS = 2;
+        public static final double driveOffsetMaxDccMSS = 2;
         public static final double driveOffsetMinVel = 0.1;
         public static final double driveOffsetMaxVel = 1.5;
-        public static final double driveOffsetAngleError = 0.03;
+        public static final double driveOffsetAngleError = 0.015;
         public static final double driveOffsetRangeMThreshold = 0.02;
     }
 
     public class Elevator {
         public static class Heights {
             public static final double kGround = 0.0;
-            public static final double kLevel1 = 0.5;
-            public static final double kLevel2 = 1.0;
-            public static final double kLevel3 = 1.5;
-            public static final double kLevel4 = 2.0;
+            public static final double kLevel1 = 2.0;
+            public static final double kLevel2 = 4.0;
+            public static final double kLevel3 = 6.0;
+            public static final double kLevel4 = 8.0;
         }
 
         public static class PID {
@@ -175,6 +176,13 @@ public class Constants {
 
         public static final double kMaxVelocity = 4.0;
         public static final double kMaxAcceleration = 4.0;
+
+        public static final double kElevatorGearRatio = 0;
+        public static final double kElevatorDrumRadius = 0;
+
+
+        public static final int kBottomLimitSwitch = 9;
+        public static final int kTopLimitSwitch = 8;
     }
 
     public static class AlgaeGrabber {
