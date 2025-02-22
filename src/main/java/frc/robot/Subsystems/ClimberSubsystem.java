@@ -21,7 +21,10 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public class ClimberSubsystem extends SubsystemBase {
     
     protected final NetworkTable table;
-    
+    protected final AbsoluteEncoder m_climbEncoder;
+    private final DoublePublisher m_encoderPub;
+    protected boolean isClimbMode;
+
     protected final SparkMax m_climbingMotor;
     protected final MotorPublisher m_climbMotorPublisher;
     protected final DoublePublisher m_encoderPublisher;
@@ -32,20 +35,40 @@ public class ClimberSubsystem extends SubsystemBase {
     private final Value kArmsExtend = Value.kForward; //grabber arms extends and lower to start climb
     private final Value kArmsRetract = Value.kReverse; 
     
-    private final Value kGrabberClose = Value.kForward; //grabber clamps to cage
-    private final Value kGrabberOpen = Value.kReverse; //unclamps
+    private final Value kGrabberClose = Value.kReverse; //grabber clamps to cage
+    private final Value kGrabberOpen = Value.kForward
+    ; //unclamps
 
-    public ClimberSubsystem(NetworkTableInstance nt) {
+    public ClimberSubsystem(AbsoluteEncoder climbArmEncoder, NetworkTableInstance nt) {
         table = nt.getTable(getName());
         m_climbingMotor = new SparkMax(Constants.MechID.kClimberCanId, MotorType.kBrushless);
         m_climbMotorPublisher = new MotorPublisher(m_climbingMotor, table, "climbingMotor");
         m_encoderPublisher = table.getDoubleTopic("absolute encoder").publish();
-        
-
-        //m_encoder = m_climbingMotor.getAbsoluteEncoder();
-
+        m_climbEncoder = climbArmEncoder;
+        m_encoderPub = nt.getDoubleTopic("Encoder Position").publish();
+        isClimbMode = false;
         m_clampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kClampSolenoidCANID1, Constants.Climber.kClampSolenoidCANID2);
         m_lowerPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kLowerSolenoidCANID1, Constants.Climber.kLowerSolenoidCANID2);
+        m_lowerPneumatic.set(kArmsRetract);
+        m_clampPneumatic.set(kGrabberOpen);
+    }
+    public void toggleClimbMode(){
+        System.out.println("Toggling climb current=" + isClimbMode);
+        if (isClimbMode){
+            retractArms();
+            moveArmsIn();
+            isClimbMode = false;
+        }
+        else {
+            extendArms();
+            moveArmsOut();
+            isClimbMode = true;
+        }
+
+    }
+    public void toggleGrabArms(){
+        System.out.println("Toggling grab arms current=" + m_clampPneumatic.get());
+        m_clampPneumatic.toggle();
     }
 
     public void extendArms() {
@@ -68,17 +91,21 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void reverseMotor(){
-        //if (m_encoder.getPosition() <= Constants.Climber.kMinEncoderPos){
-        //    stopMotor();
-        //}
-        m_climbingMotor.setVoltage(-Constants.Climber.kClimbMotorVoltage);
+        if (m_climbEncoder.getPosition() <= Constants.Climber.kMinEncoderPos){
+            stopMotor();
+        }
+        else {
+            m_climbingMotor.setVoltage(-Constants.Climber.kClimbMotorVoltage);
+        }
     }
     
     public void forwardMotor(){
-        //if (m_encoder.getPosition() >= Constants.Climber.kMaxEncoderPos){
-        //    stopMotor();
-        //}
-        m_climbingMotor.setVoltage(Constants.Climber.kClimbMotorVoltage);
+        if (m_climbEncoder.getPosition() >= Constants.Climber.kMaxEncoderPos){
+            stopMotor();
+        }
+        else {
+            m_climbingMotor.setVoltage(Constants.Climber.kClimbMotorVoltage);
+        }
     }
 
     public void stopMotor(){
@@ -98,5 +125,6 @@ public class ClimberSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         m_climbMotorPublisher.update();
+        m_encoderPub.set(m_climbEncoder.getPosition());
     }
 }

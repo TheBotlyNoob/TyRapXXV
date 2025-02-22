@@ -193,6 +193,10 @@ public class SwerveModule {
                 m_driveMotor.getEncoder().getVelocity(), new Rotation2d(getActualTurningPosition()));
     }
 
+    public SparkMax getTurnMotor() {
+        return m_turningMotor;
+    }
+
     /**
      * Returns the current position of the module. This includes info about the
      * distance measured by the wheel and the angle of the module.
