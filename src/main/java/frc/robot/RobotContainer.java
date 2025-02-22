@@ -94,7 +94,7 @@ public class RobotContainer {
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
-        this.m_climber = new Climber();
+        this.m_climber = new Climber(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(), NetworkTableInstance.getDefault());
 
         //this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
@@ -141,9 +141,9 @@ public class RobotContainer {
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
         Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
-        Controller.kDriveController.b().onTrue(new DriveDistance(m_swerve));
+        Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
-                () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
+                () -> (m_Limelight.getzDistanceMeters()-Constants.Offsets.cameraOffsetFromFrontBumber) + 0.02, 0));
         //Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever()); 
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae)); 
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); //when disabling robot make sure grabber isnt extended

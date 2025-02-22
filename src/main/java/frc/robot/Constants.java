@@ -113,7 +113,8 @@ public class Constants {
         public static final double kBackRightOffset = 1.101;
 
         // Camera Positioning
-        public static final double cameraOffsetForwardM = 0.19;
+        public static final double cameraOffsetForwardM = 0.10;
+        public static final double cameraOffsetFromFrontBumber = 0.38;
     }
 
     public static class LimelightConstants {
@@ -129,7 +130,7 @@ public class Constants {
         public static final double rotThreshold = 1.0;
         public static final double azimuthFieldOfViewDeg = 29.0;
         public static final double xOffset = 0.0;
-        public static final double yOffset = 0.5;
+        public static final double yOffset = 0.7;
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
         // For ProportionalController & DriveDistance as well
@@ -141,13 +142,13 @@ public class Constants {
         public static final double proportion = 2;
         public static final double threshold = .02;
         // For DriveOffset
-        public static final double driveOffsetXOffset = 0.5;
+        public static final double driveOffsetXOffset = 0.7;
         public static final double driveOffsetYOffset = 0.3;
-        public static final double driveOffsetMaxAccMSS = 5;
-        public static final double driveOffsetMaxDccMSS = 5;
+        public static final double driveOffsetMaxAccMSS = 2;
+        public static final double driveOffsetMaxDccMSS = 2;
         public static final double driveOffsetMinVel = 0.1;
         public static final double driveOffsetMaxVel = 1.5;
-        public static final double driveOffsetAngleError = 0.03;
+        public static final double driveOffsetAngleError = 0.015;
         public static final double driveOffsetRangeMThreshold = 0.02;
     }
 
