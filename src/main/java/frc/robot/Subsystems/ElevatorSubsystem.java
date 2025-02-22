@@ -139,11 +139,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final NetworkTable m_table;
     private final StringPublisher m_table_level;
     private final DoublePublisher m_encoder;
+    protected final DoublePublisher desiredVelocityPub;
     private final BooleanPublisher m_bottomlimitSwitch;
     private final BooleanPublisher m_toplimitSwitch;
     private final SparkFlex m_motorLeader;
     private final SparkFlex m_motorFollower;
     private final DoublePublisher outputVoltagePreClampPub;
+    private final DoublePublisher outputVoltagePostClampPub;
 
     protected final MotorPublisher m_motorPublisherLeader;
     protected final MotorPublisher m_motorPublisherFollower;
@@ -167,14 +169,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     protected double outputVoltage = 0;
     protected double m_lastSpeed = 0.0;
     protected double m_lastTime = 0.0;
+    protected boolean m_testMode = false;
 
     public ElevatorSubsystem(NetworkTableInstance nt) {
         m_table = nt.getTable(getName());
         m_table_level = m_table.getStringTopic("level").publish();
         m_encoder = m_table.getDoubleTopic("Encoder Position").publish();
+        desiredVelocityPub = m_table.getDoubleTopic("Desired Vel").publish();
         m_bottomlimitSwitch = m_table.getBooleanTopic("Bottom Limit Switch").publish();
         m_toplimitSwitch = m_table.getBooleanTopic("Top Limit Switch").publish();
         outputVoltagePreClampPub = m_table.getDoubleTopic("Output V pre lamp").publish();
+        outputVoltagePostClampPub = m_table.getDoubleTopic("Output V post lamp").publish();
 
         m_elevatorKs = m_table.getDoubleTopic("Ks").getEntry(0.0);
         m_elevatorKg = m_table.getDoubleTopic("Kg").getEntry(0.0);
@@ -240,10 +245,24 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void setLevel(ElevatorLevel level) {
         m_level = level;
         m_table_level.set(level.toString());
-        //double pidOutput = m_controller.calculate(m_motorLeader.getEncoder().getPosition());
-        //double ffOutput = m_feedforward.calculate(m_controller.getSetpoint().velocity);
+        
+        m_controller.setGoal(this.m_level.toHeight());
+    }
 
-        //m_motorLeader.setVoltage(pidOutput+ffOutput);
+    public void levelUp() {
+        int currentLevel = ElevatorLevel.toInt(m_level);
+        if (currentLevel < ElevatorLevel.toInt(ElevatorLevel.LEVEL4))
+        {
+            setLevel(ElevatorLevel.fromInt(currentLevel+1));
+        }
+    }
+
+    public void levelDown() {
+        int currentLevel = ElevatorLevel.toInt(m_level);
+        if (currentLevel > ElevatorLevel.toInt(ElevatorLevel.GROUND))
+        {
+            setLevel(ElevatorLevel.fromInt(currentLevel-1));
+        }
     }
 
     public ElevatorFeedforward getFeedforward(){
@@ -271,40 +290,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void setVoltageTest(double voltage) {
         System.out.println("Setting Elevator voltage " + voltage);
-        outputVoltage = voltage;
-        if (bottomLimitSwitch.get()){
-            if (voltage < 0){
-                outputVoltage = 0;
-            }
-        }
-        if (topLimitSwitch.get()){
-            if (voltage > 0){
-                outputVoltage = 0;
-            }
-        }   
-        m_motorLeader.setVoltage(outputVoltage);
-    }
-
-    @Override
-    public void periodic() {
-        m_motorPublisherLeader.update();
-        m_motorPublisherFollower.update();
-
         double currentPosition = m_motorLeader.getEncoder().getPosition();
-        double targetVelocity = m_controller.getSetpoint().velocity;
-        double targetAcceleration = (targetVelocity - this.m_lastSpeed)
-                / (Timer.getFPGATimestamp() - this.m_lastTime);
-
-        double actualVelocity = 2 * Math.PI * m_motorLeader.getEncoder().getVelocity()/60.;
-
-        double pidVal = m_controller.calculate(currentPosition, this.m_level.toHeight());
-        double FFVal = m_feedforward.calculate(m_controller.getSetpoint().velocity,
-                targetAcceleration);
-
-        outputVoltage = (pidVal + FFVal);
-        this.m_lastSpeed = actualVelocity;
-        this.m_lastTime = Timer.getFPGATimestamp();
-
+        outputVoltage = voltage;
         if (bottomLimitSwitch.get()){
             m_motorLeader.getEncoder().setPosition(0);
             if (outputVoltage < 0){
@@ -318,13 +305,65 @@ public class ElevatorSubsystem extends SubsystemBase {
             }   
         }
 
-
-        MathUtil.clamp(outputVoltage, -1.75, 1.75);
-
+        if (currentPosition > 14.0 && outputVoltage > 0.0)
+        {
+            System.out.println("Cut off output due to max height");
+            outputVoltage = 0.0;
+        }
         m_motorLeader.setVoltage(outputVoltage);
+    }
+
+    public void setTestMode(boolean testMode) {
+        this.m_testMode = testMode;
+    }
+ 
+    @Override
+    public void periodic() {
+        m_motorPublisherLeader.update();
+        m_motorPublisherFollower.update();
+
+        if (!this.m_testMode) {
+            double currentPosition = m_motorLeader.getEncoder().getPosition();
+            double targetVelocity = m_controller.getSetpoint().velocity;
+            double targetAcceleration = (targetVelocity - this.m_lastSpeed)
+                    / (Timer.getFPGATimestamp() - this.m_lastTime);
+
+            double actualVelocity = m_motorLeader.getEncoder().getVelocity()/60.;
+
+            double pidVal = m_controller.calculate(currentPosition, this.m_level.toHeight());
+            double FFVal = m_feedforward.calculate(m_controller.getSetpoint().velocity);
+
+            outputVoltage = (pidVal + FFVal);
+            this.m_lastSpeed = actualVelocity;
+            this.m_lastTime = Timer.getFPGATimestamp();
+
+            if (bottomLimitSwitch.get()){
+                m_motorLeader.getEncoder().setPosition(0);
+                if (outputVoltage < 0){
+                    outputVoltage = 0;
+                    
+                }   
+            }
+            if (topLimitSwitch.get()){
+                if (outputVoltage > 0){
+                    outputVoltage = 0;
+                }   
+            }
+
+            if (currentPosition > 14.0 && outputVoltage > 0.0)
+            {
+                System.out.println("Cut off output due to max height");
+                outputVoltage = 0.0;
+            }
+
+            outputVoltagePreClampPub.set(outputVoltage);
+            outputVoltage = MathUtil.clamp(outputVoltage, -6.0, 6.0);
+            outputVoltagePostClampPub.set(outputVoltage);
+            m_motorLeader.setVoltage(outputVoltage);
+            desiredVelocityPub.set(targetVelocity);
+        }
         m_encoder.set(m_motorLeader.getEncoder().getPosition());
         m_bottomlimitSwitch.set(bottomLimitSwitch.get());
-        m_toplimitSwitch.set(topLimitSwitch.get());
-        
+        m_toplimitSwitch.set(topLimitSwitch.get()); 
     }
 }

@@ -38,6 +38,7 @@ import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.DriveRange;
 import frc.robot.Commands.EjectAlgae;
+import frc.robot.Commands.ElevatorJoystick;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
 
@@ -135,6 +136,8 @@ public class RobotContainer {
                 .onTrue(this.m_swerve.setFieldRelativeCommand(false))
                 .onFalse(this.m_swerve.setFieldRelativeCommand(true));
 
+        Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
+
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
         Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
@@ -148,10 +151,12 @@ public class RobotContainer {
         Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
         //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
     
-        Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.75)));
-        Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
-        Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.75)));
-        Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
+        Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        //Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.75)));
+        //Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
+        //Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.75)));
+        //Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
 
         Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (0.3)));
         Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
@@ -193,6 +198,7 @@ public class RobotContainer {
     public void clearDefaultCommand() {
         this.m_swerve.removeDefaultCommand();
     }
+
     public void updateConstants(){
         this.m_elevator.updateConstants();
     }
