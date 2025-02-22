@@ -1,13 +1,8 @@
 package frc.robot.Subsystems;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.ctre.phoenix6.swerve.SwerveModule;
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
-
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Utils.MotorPublisher;
 import edu.wpi.first.networktables.DoublePublisher;

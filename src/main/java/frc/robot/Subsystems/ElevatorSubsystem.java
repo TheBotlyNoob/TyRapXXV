@@ -154,7 +154,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorFeedforward m_feedforward;
     private final ProfiledPIDController m_controller;
 
-    protected DigitalInput bottomLimitSwitch;
+    protected DigitalInput bottomLimitSwitch; //make sure limit switches are not unhooked or it freaks out
     protected DigitalInput topLimitSwitch;
     
     protected DoubleEntry m_elevatorKs;
@@ -170,7 +170,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     protected double outputVoltage = 0;
     protected double m_lastSpeed = 0.0;
     protected double m_lastTime = 0.0;
-    protected boolean m_testMode = true;
+    protected boolean m_testMode = false;
 
     public ElevatorSubsystem(NetworkTableInstance nt) {
         m_table = nt.getTable(getName());

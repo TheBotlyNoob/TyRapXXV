@@ -66,7 +66,7 @@ public class RobotContainer {
     private final AlgaeGrabberSubsystem m_algae;
     private final ClimberSubsystem m_climber;
     private final SendableChooser<String> autoChooser;
-    //protected final ElevatorSubsystem m_elevator;
+    protected final ElevatorSubsystem m_elevator;
     //protected final CoralSubsystem m_coral;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
@@ -102,7 +102,7 @@ public class RobotContainer {
         this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(), NetworkTableInstance.getDefault());
 
         // this.m_range = new RangeSensor(0);
-        //this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
+        this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
         //this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
         // Xbox controllers return negative values when we push forward.
@@ -141,7 +141,7 @@ public class RobotContainer {
                 .onTrue(this.m_swerve.setFieldRelativeCommand(false))
                 .onFalse(this.m_swerve.setFieldRelativeCommand(true));
 
-        //Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
+        Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
 
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
@@ -153,33 +153,25 @@ public class RobotContainer {
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
-        // Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor());
-        // //tests the climber motor with dpad, left on right off
-        // Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
         // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
         // -> 0.5, () -> m_range.getRange(), 90, 0.2));
 
-        //Controller.kDriveController.povUp().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.5)));
-        //Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
-        //Controller.kDriveController.povDown().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.5)));
-        //Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
+        Controller.kDriveController.povUp().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.5)));
+        Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
+        Controller.kDriveController.povDown().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.5)));
+        Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
 
         //Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(0.3)));
         //Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
         //Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(-0.3)));
         //Controller.kDriveController.rightBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
 
-        //Controller.kManipulatorController.povLeft().onTrue(m_climber.runOnce(() -> m_climber.forwardMotor()));
-        //Controller.kManipulatorController.povLeft().onFalse(m_climber.runOnce(() -> m_climber.stopMotor()));
-        //Controller.kManipulatorController.povRight().onTrue(m_climber.runOnce(() -> m_climber.reverseMotor()));
-        //Controller.kManipulatorController.povRight().onFalse(m_climber.runOnce(() -> m_climber.stopMotor()));
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
         Controller.kManipulatorController.back()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
-        //        .onFalse(m_climber.runOnce(() -> m_climber.retractArms()));
     }
 
     public Drivetrain getDrivetrain() {
@@ -218,7 +210,7 @@ public class RobotContainer {
     }
 
     public void updateConstants(){
-        //this.m_elevator.updateConstants();
+        this.m_elevator.updateConstants();
     }
 
     public void reportTelemetry() {
