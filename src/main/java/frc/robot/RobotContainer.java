@@ -33,6 +33,7 @@ import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.RangeSensor;
 import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Commands.AlgaeIntake;
+import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveOffset;
@@ -41,7 +42,6 @@ import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.ElevatorJoystick;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -56,11 +56,12 @@ public class RobotContainer {
     private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
     private final Drivetrain m_swerve;
     private final Limelight m_Limelight;
-    //remember to set this to final, commented out range code bc robot doesnt have canrange yet
+    // remember to set this to final, commented out range code bc robot doesnt have
+    // canrange yet
     private RangeSensor m_range;
     private final AlgaeGrabberSubsystem m_algae;
     private final Climber m_climber;
-    private final SendableChooser<String> autoChooser;
+    private final SendableChooser<Command> autoChooser;
     protected final ElevatorSubsystem m_elevator;
     protected final CoralSubsystem m_coral;
 
@@ -94,9 +95,10 @@ public class RobotContainer {
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
-        this.m_climber = new Climber(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(), NetworkTableInstance.getDefault());
+        this.m_climber = new Climber(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
+                NetworkTableInstance.getDefault());
 
-        //this.m_range = new RangeSensor(0);
+        // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
         this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
@@ -107,11 +109,17 @@ public class RobotContainer {
         autoChooser = new SendableChooser<>(); // Default auto will be `Commands.none()'
 
         configurePathPlanner();
-        autoChooser.setDefaultOption("DO NOTHING!", "NO AUTO");
+
+        autoChooser.setDefaultOption("DO NOTHING!", Commands.none());
+
         m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
         m_competitionTab.add("Drivetrain", this.m_swerve);
 
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
+        // TODO: wait for the commands to be finished.
+        NamedCommands.registerCommand("AlignTagLeft", new CenterOnTag(m_swerve, m_Limelight).andThen());
+        NamedCommands.registerCommand("AlignTagRight", new CenterOnTag(m_swerve, m_Limelight).andThen());
+        NamedCommands.registerCommand("DropCoral", Commands.none());
 
         configureBindings();
     }
@@ -143,24 +151,31 @@ public class RobotContainer {
         Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
         Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
-                () -> (m_Limelight.getzDistanceMeters()-Constants.Offsets.cameraOffsetFromFrontBumber) + 0.02, 0));
-        //Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever()); 
-        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae)); 
-        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); //when disabling robot make sure grabber isnt extended
-        Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor()); //tests the climber motor with dpad, left on right off
+                () -> (m_Limelight.getzDistanceMeters() - Constants.Offsets.cameraOffsetFromFrontBumber) + 0.02, 0));
+        // Controller.kDriveController.a().onTrue(this.m_algae.toggleRetriever());
+        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
+        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
+                                                                                        // sure grabber isnt extended
+        Controller.kDriveController.povLeft().onTrue(this.m_climber.startMotor()); // tests the climber motor with dpad,
+                                                                                   // left on right off
         Controller.kDriveController.povRight().onTrue(this.m_climber.stopMotor());
-        //Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, () -> 0.5, () -> m_range.getRange(), 90, 0.2));
-    
+        // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
+        // -> 0.5, () -> m_range.getRange(), 90, 0.2));
+
         Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
         Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
-        //Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.75)));
-        //Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
-        //Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.75)));
-        //Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
+        // Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() ->
+        // m_elevator.setVoltageTest(0.75)));
+        // Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() ->
+        // m_elevator.setVoltageTest(0.0)));
+        // Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() ->
+        // m_elevator.setVoltageTest(-0.75)));
+        // Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() ->
+        // m_elevator.setVoltageTest(0.0)));
 
-        Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (0.3)));
+        Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(0.3)));
         Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
-        Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest (-0.3)));
+        Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(-0.3)));
         Controller.kDriveController.rightBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
     }
 
@@ -169,19 +184,15 @@ public class RobotContainer {
     }
 
     private void configurePathPlanner() {
-        autoChooser.addOption("Vision Test", "Vision Test");
-        autoChooser.addOption("Drive Straight", "Drive Straight");
-        autoChooser.addOption("SwerveTestAuto25", "SwerveTestAuto25");
-        autoChooser.addOption("StraightForward", "StraightForward");
-        autoChooser.addOption("Starting2Reef2", "Starting2Reef2");
+        // FIXME: can we just change this to:
+        // autoChooser = AutoBuilder.buildAutoChooser()
+        for (String name : AutoBuilder.getAllAutoNames()) {
+            autoChooser.addOption(name, AutoBuilder.buildAuto(name));
+        }
     }
 
     public Command getAutonomousCommand() {
-        if (autoChooser.getSelected().equals("NO AUTO")) {
-            return Commands.none();
-        }
-        System.out.println("getAutoCommand building auto for " + autoChooser.getSelected());
-        return AutoBuilder.buildAuto(autoChooser.getSelected());
+        return autoChooser.getSelected();
     }
 
     public void setTeleDefaultCommand() {
@@ -200,7 +211,7 @@ public class RobotContainer {
         this.m_swerve.removeDefaultCommand();
     }
 
-    public void updateConstants(){
+    public void updateConstants() {
         this.m_elevator.updateConstants();
     }
 
@@ -217,7 +228,7 @@ public class RobotContainer {
                 m_swerve.getFrontLeftSwerveModule().getState(),
                 m_swerve.getFrontRightSwerveModule().getState() };
         publisher.set(states);
-        //m_currentRange.setDouble(m_range.getRange());
+        // m_currentRange.setDouble(m_range.getRange());
         ChassisSpeeds commandedSpeeds = m_swerve.getCommandeChassisSpeeds();
         m_commandedXVel.setDouble(commandedSpeeds.vxMetersPerSecond);
         m_commandedYVel.setDouble(commandedSpeeds.vyMetersPerSecond);
