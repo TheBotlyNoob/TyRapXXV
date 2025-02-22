@@ -1,0 +1,86 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.186619318181818,
+        "y": 7.071321022727273
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 2.3184937194031328,
+        "y": 5.939446621505958
+      },
+      "isLocked": false,
+      "linkedName": "Player1"
+    },
+    {
+      "anchor": {
+        "x": 4.158153409090909,
+        "y": 6.143963068181818
+      },
+      "prevControl": {
+        "x": 2.7693435965090494,
+        "y": 6.215184084211657
+      },
+      "nextControl": {
+        "x": 5.324829545454545,
+        "y": 6.084133522727273
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.112585227272728,
+        "y": 5.50578125
+      },
+      "prevControl": {
+        "x": 5.730969460227274,
+        "y": 5.884710582386363
+      },
+      "nextControl": {
+        "x": 6.376739205719478,
+        "y": 5.243486818417705
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.972982954545454,
+        "y": 4.0
+      },
+      "prevControl": {
+        "x": 6.972982954545454,
+        "y": 4.0
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Reef1"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "reversed": false,
+  "folder": "PlayerReef",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -55.0
+  },
+  "useDefaultConstraints": true
+}

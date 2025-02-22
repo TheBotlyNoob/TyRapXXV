@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Auto step 4"
+            "pathName": "Player2Reef1"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "StopDrive"
+            "pathName": "Reef1Player2"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "PlayerReefPlayer",
   "choreoAuto": false
 }

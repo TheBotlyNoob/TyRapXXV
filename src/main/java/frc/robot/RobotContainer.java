@@ -165,6 +165,7 @@ public class RobotContainer {
         autoChooser.addOption("Drive Straight", "Drive Straight");
         autoChooser.addOption("SwerveTestAuto25", "SwerveTestAuto25");
         autoChooser.addOption("StraightForward", "StraightForward");
+        autoChooser.addOption("Starting2Reef2", "Starting2Reef2");
     }
 
     public Command getAutonomousCommand() {

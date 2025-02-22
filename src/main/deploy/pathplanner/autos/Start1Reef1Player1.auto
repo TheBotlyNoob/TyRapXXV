@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Starting1Reef1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignLeftTop"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef1Player1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Player1Reef1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "AlignRightTop"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "StartReefPlayer",
+  "choreoAuto": false
+}

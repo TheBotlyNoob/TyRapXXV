@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Auto step 4"
+            "pathName": "Starting1Reef3"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "StartReef",
   "choreoAuto": false
 }

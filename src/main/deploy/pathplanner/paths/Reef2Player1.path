@@ -1,0 +1,54 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.294914772727273,
+        "y": 5.455923295454545
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.794914772727273,
+        "y": 6.321948699238983
+      },
+      "isLocked": false,
+      "linkedName": "Reef2"
+    },
+    {
+      "anchor": {
+        "x": 1.186619318181818,
+        "y": 7.071321022727273
+      },
+      "prevControl": {
+        "x": 1.7601957545328641,
+        "y": 6.252168978438281
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Player1"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -55.0
+  },
+  "reversed": false,
+  "folder": "ReefPlayer",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -119.99999999999999
+  },
+  "useDefaultConstraints": true
+}

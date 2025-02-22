@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Tuning square"
+            "pathName": "Player1Reef1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef1Player1"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "PlayerReefPlayer",
   "choreoAuto": false
 }

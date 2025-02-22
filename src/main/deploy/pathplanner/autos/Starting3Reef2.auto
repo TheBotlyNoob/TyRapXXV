@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "SwerveTestPath"
+            "pathName": "Starting3Reef2"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "StartReef",
   "choreoAuto": false
 }
