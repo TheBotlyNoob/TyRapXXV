@@ -360,7 +360,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             desiredVelocityPub.set(targetVelocity);
         }
         m_encoder.set(m_motorLeader.getEncoder().getPosition());
-        m_bottomlimitSwitch.set(bottomLimitSwitch.get());
+        m_bottomlimitSwitch.set(!bottomLimitSwitch.get());
         m_toplimitSwitch.set(topLimitSwitch.get());
     }
 }
