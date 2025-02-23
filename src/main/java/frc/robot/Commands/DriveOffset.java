@@ -13,8 +13,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import frc.robot.Utils.TrapezoidController;
 import frc.robot.Constants.LimelightConstants;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-// Depending on the robot, use different constants
-//import frc.robot.TyRap24Constants.*;
 import frc.robot.Constants.*;
 
 // This Command combines DriveDistance and CenterOnTag, using Limelight and Odometry 
