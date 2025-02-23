@@ -46,9 +46,10 @@ public class Constants {
     public static class MechID {
         public static final int kAlgaeMotorCanId = 41;
         public static final int kClimberCanId = 10;
+        //Elevator
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
-        //Can Id Unkown
+        //Coral Manipulator
         public static final int kCoralWristCanId = 30;
         public static final int kCoralWheelCanId = 31;
     
