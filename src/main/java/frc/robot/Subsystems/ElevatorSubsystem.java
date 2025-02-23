@@ -154,9 +154,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorFeedforward m_feedforward;
     private final ProfiledPIDController m_controller;
 
-    protected DigitalInput bottomLimitSwitch; //make sure limit switches are not unhooked or it freaks out
+    protected DigitalInput bottomLimitSwitch; // make sure limit switches are not unhooked or it freaks out
     protected DigitalInput topLimitSwitch;
-    
+
     protected DoubleEntry m_elevatorKs;
     protected DoubleEntry m_elevatorKg;
     protected DoubleEntry m_elevatorKv;
@@ -191,7 +191,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_elevatorKd = m_table.getDoubleTopic("Kd").getEntry(0.0);
         m_elevatorKMaxVel = m_table.getDoubleTopic("KMaxVel").getEntry(0.0);
         m_elevatorKMaxAccel = m_table.getDoubleTopic("KMaxAccel").getEntry(0.0);
-        
+
         m_elevatorKs.set(0.0);
         m_elevatorKg.set(0.0);
         m_elevatorKv.set(0.0);
@@ -220,11 +220,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         followerConf.inverted(false);
         followerConf.follow(m_motorLeader, false);
         m_motorFollower.configure(followerConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        
+
         m_motorLeader.setVoltage(0);
         m_motorLeader.getEncoder().setPosition(0);
         m_motorFollower.getEncoder().setPosition(0);
-        
+
         m_motorPublisherLeader = new MotorPublisher(m_motorLeader, m_table, "leader");
         m_motorPublisherFollower = new MotorPublisher(m_motorFollower, m_table, "follower");
 
@@ -246,31 +246,29 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void setLevel(ElevatorLevel level) {
         m_level = level;
         m_table_level.set(level.toString());
-        
+
         m_controller.setGoal(this.m_level.toHeight());
     }
 
     public void levelUp() {
         int currentLevel = ElevatorLevel.toInt(m_level);
-        if (currentLevel < ElevatorLevel.toInt(ElevatorLevel.LEVEL4))
-        {
-            setLevel(ElevatorLevel.fromInt(currentLevel+1));
+        if (currentLevel < ElevatorLevel.toInt(ElevatorLevel.LEVEL4)) {
+            setLevel(ElevatorLevel.fromInt(currentLevel + 1));
         }
     }
 
     public void levelDown() {
         int currentLevel = ElevatorLevel.toInt(m_level);
-        if (currentLevel > ElevatorLevel.toInt(ElevatorLevel.GROUND))
-        {
-            setLevel(ElevatorLevel.fromInt(currentLevel-1));
+        if (currentLevel > ElevatorLevel.toInt(ElevatorLevel.GROUND)) {
+            setLevel(ElevatorLevel.fromInt(currentLevel - 1));
         }
     }
 
-    public ElevatorFeedforward getFeedforward(){
+    public ElevatorFeedforward getFeedforward() {
         return m_feedforward;
     }
 
-    public ProfiledPIDController getPID(){
+    public ProfiledPIDController getPID() {
         return m_controller;
     }
 
@@ -278,7 +276,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return m_level;
     }
 
-    public void updateConstants(){
+    public void updateConstants() {
         m_feedforward.setKs(m_elevatorKs.get());
         m_feedforward.setKg(m_elevatorKg.get());
         m_feedforward.setKv(m_elevatorKv.get());
@@ -293,21 +291,20 @@ public class ElevatorSubsystem extends SubsystemBase {
         System.out.println("Setting Elevator voltage " + voltage);
         double currentPosition = m_motorLeader.getEncoder().getPosition();
         outputVoltage = voltage;
-        if (bottomLimitSwitch.get()){
+        if (!bottomLimitSwitch.get()) {
             m_motorLeader.getEncoder().setPosition(0);
-            if (outputVoltage < 0){
+            if (outputVoltage < 0) {
                 outputVoltage = 0;
-                
-            }   
+
+            }
         }
-        if (topLimitSwitch.get()){
-            if (outputVoltage > 0){
+        if (topLimitSwitch.get()) {
+            if (outputVoltage > 0) {
                 outputVoltage = 0;
-            }   
+            }
         }
 
-        if (currentPosition > 14.0 && outputVoltage > 0.0)
-        {
+        if (currentPosition > 14.0 && outputVoltage > 0.0) {
             System.out.println("Cut off output due to max height");
             outputVoltage = 0.0;
         }
@@ -317,7 +314,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void setTestMode(boolean testMode) {
         this.m_testMode = testMode;
     }
- 
+
     @Override
     public void periodic() {
         m_motorPublisherLeader.update();
@@ -329,7 +326,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             double targetAcceleration = (targetVelocity - this.m_lastSpeed)
                     / (Timer.getFPGATimestamp() - this.m_lastTime);
 
-            double actualVelocity = m_motorLeader.getEncoder().getVelocity()/60.;
+            double actualVelocity = m_motorLeader.getEncoder().getVelocity() / 60.;
 
             double pidVal = m_controller.calculate(currentPosition, this.m_level.toHeight());
             double FFVal = m_feedforward.calculate(m_controller.getSetpoint().velocity);
@@ -338,21 +335,20 @@ public class ElevatorSubsystem extends SubsystemBase {
             this.m_lastSpeed = actualVelocity;
             this.m_lastTime = Timer.getFPGATimestamp();
 
-            if (bottomLimitSwitch.get()){
+            if (!bottomLimitSwitch.get()) {
                 m_motorLeader.getEncoder().setPosition(0);
-                if (outputVoltage < 0){
+                if (outputVoltage < 0) {
                     outputVoltage = 0;
-                    
-                }   
+
+                }
             }
-            if (topLimitSwitch.get()){
-                if (outputVoltage > 0){
+            if (topLimitSwitch.get()) {
+                if (outputVoltage > 0) {
                     outputVoltage = 0;
-                }   
+                }
             }
 
-            if (currentPosition > 14.0 && outputVoltage > 0.0)
-            {
+            if (currentPosition > 14.0 && outputVoltage > 0.0) {
                 System.out.println("Cut off output due to max height");
                 outputVoltage = 0.0;
             }
@@ -365,6 +361,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
         m_encoder.set(m_motorLeader.getEncoder().getPosition());
         m_bottomlimitSwitch.set(bottomLimitSwitch.get());
-        m_toplimitSwitch.set(topLimitSwitch.get()); 
+        m_toplimitSwitch.set(topLimitSwitch.get());
     }
 }
