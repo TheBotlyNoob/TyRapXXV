@@ -41,6 +41,7 @@ import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.DriveRange;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.ElevatorJoystick;
+import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
@@ -166,6 +167,9 @@ public class RobotContainer {
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
+        
+        Controller.kManipulatorController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kManipulatorController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
         Controller.kManipulatorController.back()
