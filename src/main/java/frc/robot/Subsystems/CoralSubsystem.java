@@ -22,12 +22,12 @@ public class CoralSubsystem extends SubsystemBase {
     private final NetworkTable m_table;
 
     private final SparkMax m_wristMotor;
-    private final SparkMax m_coralFeederMotor;
+    private final SparkMax m_coralGrabberMotor;
 
     private boolean pointedOut = false;
 
     private final MotorPublisher m_wristMotorPublisher;
-    private final MotorPublisher m_coralFeederMotorPublisher;
+    private final MotorPublisher m_coralGrabberMotorPublisher;
 
     private final StringPublisher m_table_level;
 
@@ -46,10 +46,10 @@ public class CoralSubsystem extends SubsystemBase {
         m_table_level = m_table.getStringTopic("coral").publish();
 
        // m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushless);
-        m_coralFeederMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
+        m_coralGrabberMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
         m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushed);
 
-        m_coralMotorPublisher = new MotorPublisher(m_coralMotor, m_table, "Grabber Motor");
+        m_coralGrabberMotorPublisher = new MotorPublisher(m_coralGrabberMotor, m_table, "Grabber Motor");
         m_wristMotorPublisher = new MotorPublisher(m_wristMotor, m_table, "Wrist Motor");
         
 //        m_coralGrabberEncoderPublisher = m_table.getDoubleTopic("Coral Grabber encoder").publish();
@@ -74,7 +74,7 @@ public class CoralSubsystem extends SubsystemBase {
     public void ejectCoral() {
         if (pointedOut) {
             // TODO: voltage
-            m_coralFeederMotor.set(0.0);
+            m_coralGrabberMotor.set(0.0);
             // TODO: trigger to stop after a bit
         }
     }
@@ -118,7 +118,7 @@ public class CoralSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         m_wristMotorPublisher.update();
-        m_coralMotorPublisher.update();
+        m_coralGrabberMotorPublisher.update();
 //        m_wristMotorPublisher.update();
         m_wristEncoderPub.set(m_wristEncoder.getPosition());
     }
