@@ -32,10 +32,11 @@ public class CoralSubsystem extends SubsystemBase {
     private final StringPublisher m_table_level;
 
     protected final AbsoluteEncoder m_wristEncoder;
-    private final DoublePublisher m_encoderPub;
+    private final DoublePublisher m_wristEncoderPub;
 
-    protected final MotorPublisher m_wristPublisher;
-    protected final DoublePublisher m_encoderPublisher;
+    //protected final MotorPublisher m_wristPublisher;
+    // protected final Encoder m_coralGrabberEncoder;
+    // protected final DoublePublisher m_coralGrabberEncoderPublisher;
 
     
 
@@ -48,13 +49,13 @@ public class CoralSubsystem extends SubsystemBase {
         m_coralMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushed);
         m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushless);
 
-        m_coralMotorPublisher = new MotorPublisher(m_coralMotor, m_table, "coral");
-        m_wristMotorPublisher = new MotorPublisher(m_wristMotor, m_table, "wristMotor");
+        m_coralMotorPublisher = new MotorPublisher(m_coralMotor, m_table, "Grabber Motor");
+        m_wristMotorPublisher = new MotorPublisher(m_wristMotor, m_table, "Wrist Motor");
         
-        m_encoderPublisher = m_table.getDoubleTopic("absolute encoder").publish();
-        m_wristPublisher = new MotorPublisher(m_wristMotor, m_table, "wrist");
+//        m_coralGrabberEncoderPublisher = m_table.getDoubleTopic("Coral Grabber encoder").publish();
+//        m_wristPublisher = new MotorPublisher(m_wristMotor, m_table, "wrist");
         m_wristEncoder = m_wristMotor.getAbsoluteEncoder();
-        m_encoderPub = nt.getDoubleTopic("Encoder Position").publish();
+        m_wristEncoderPub = nt.getDoubleTopic("Wrist Encoder").publish();
     }
 
     // public void pointOut() {
@@ -118,8 +119,8 @@ public class CoralSubsystem extends SubsystemBase {
     public void periodic() {
         m_wristMotorPublisher.update();
         m_coralMotorPublisher.update();
-        m_wristMotorPublisher.update();
-        m_encoderPub.set(m_wristEncoder.getPosition());
+//        m_wristMotorPublisher.update();
+        m_wristEncoderPub.set(m_wristEncoder.getPosition());
     }
 }
 
