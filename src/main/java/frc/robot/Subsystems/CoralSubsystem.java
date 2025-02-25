@@ -22,12 +22,12 @@ public class CoralSubsystem extends SubsystemBase {
     private final NetworkTable m_table;
 
     private final SparkMax m_wristMotor;
-    private final SparkMax m_coralMotor;
+    private final SparkMax m_coralFeederMotor;
 
     private boolean pointedOut = false;
 
     private final MotorPublisher m_wristMotorPublisher;
-    private final MotorPublisher m_coralMotorPublisher;
+    private final MotorPublisher m_coralFeederMotorPublisher;
 
     private final StringPublisher m_table_level;
 
@@ -46,9 +46,11 @@ public class CoralSubsystem extends SubsystemBase {
         m_table_level = m_table.getStringTopic("coral").publish();
 
        // m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushless);
-        m_coralMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushed);
-        m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushless);
+        m_coralFeederMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
+        m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushed);
 
+        m_coralFeederMotorPublisher = new MotorPublisher(m_coralFeederMotor, m_table, "coral");
+        m_wristMotorPublisher = new MotorPublisher(m_wristMotor, m_table, "wristMotor");
         m_coralMotorPublisher = new MotorPublisher(m_coralMotor, m_table, "Grabber Motor");
         m_wristMotorPublisher = new MotorPublisher(m_wristMotor, m_table, "Wrist Motor");
         
@@ -74,7 +76,7 @@ public class CoralSubsystem extends SubsystemBase {
     public void ejectCoral() {
         if (pointedOut) {
             // TODO: voltage
-            m_coralMotor.set(0.0);
+            m_coralFeederMotor.set(0.0);
             // TODO: trigger to stop after a bit
         }
     }
@@ -85,21 +87,21 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public void reverseMotor(){
-        if (m_wristEncoder.getPosition() <= Constants.Coral.kMinEncoderPos){
-            stopMotor();
-        }
-        else {
+        // if (m_wristEncoder.getPosition() <= Constants.Coral.kMinEncoderPos){
+        //     stopMotor();
+        // }
+        // else {
             m_wristMotor.setVoltage(-Constants.Coral.kWristMotorVoltage);
-        }
+       // }
     }
         
     public void forwardMotor(){
-        if (m_wristEncoder.getPosition() >= Constants.Coral.kMaxEncoderPos){
-            stopMotor();
-        }
-        else {
+        // if (m_wristEncoder.getPosition() >= Constants.Coral.kMaxEncoderPos){
+        //     stopMotor();
+        // }
+        // else {
             m_wristMotor.setVoltage(Constants.Coral.kWristMotorVoltage);
-        }
+        //}
     }
         
     public void stopMotor(){
@@ -118,9 +120,14 @@ public class CoralSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         m_wristMotorPublisher.update();
-        m_coralMotorPublisher.update();
-//        m_wristMotorPublisher.update();
-        m_wristEncoderPub.set(m_wristEncoder.getPosition());
+        m_coralFeederMotorPublisher.update();
+        m_wristMotorPublisher.update();
+        m_encoderPub.set(m_wristEncoder.getPosition());
+        m_wristMotor.set(.8);
+
+        m_coralFeederMotor.setVoltage(Constants.Coral.kCoralFeederMotorVoltage);        
+        m_coralFeederMotor.set(.1);
+
     }
 }
 

@@ -43,9 +43,10 @@ public class Constants {
         public static final double kMinEncoderPos = 0.218;
     }
     public static class Coral {
-        public static final double kWristMotorVoltage = 1.0;
-        public static final double kMaxEncoderPos = 0.5;
-        public static final double kMinEncoderPos = 0.218;
+        public static final double kWristMotorVoltage = 4.5;
+        public static final double kCoralFeederMotorVoltage = 1.0;
+        public static final double kMaxEncoderPos = 1;
+        public static final double kMinEncoderPos = 0;
     }
     public static class MechID {
         public static final int kAlgaeMotorCanId = 41;
