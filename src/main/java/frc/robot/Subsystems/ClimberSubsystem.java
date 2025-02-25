@@ -86,6 +86,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void reverseMotor(){
+        System.out.println("reverseMotor called");
         if (m_climbEncoder.getPosition() <= Constants.Climber.kMinEncoderPos){
             stopMotor();
         }
@@ -95,6 +96,8 @@ public class ClimberSubsystem extends SubsystemBase {
     }
     
     public void forwardMotor(){
+        System.out.println("forwardMotor called");
+
         if (m_climbEncoder.getPosition() >= Constants.Climber.kMaxEncoderPos){
             stopMotor();
         }
@@ -108,9 +111,9 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void extendStinger() {
-        if(m_clampPneumatic.get() == kGrabberClose && m_lowerPneumatic.get() == kArmsExtend) {
+       // if(m_clampPneumatic.get() == kGrabberClose && m_lowerPneumatic.get() == kArmsExtend) {
             forwardMotor();
-        }
+        //}
     }
 
     public void retractStinger() {
@@ -121,5 +124,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public void periodic() {
         m_climbMotorPublisher.update();
         m_encoderPub.set(m_climbEncoder.getPosition());
+        System.out.println("Encoder Value being updated: " + m_climbEncoder.getPosition());
+
     }
 }
