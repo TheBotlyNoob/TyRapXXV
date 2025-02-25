@@ -67,6 +67,7 @@ public class RobotContainer {
     protected final ElevatorSubsystem m_elevator;
     protected final CoralSubsystem m_coral;
 
+
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
     private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
@@ -101,7 +102,7 @@ public class RobotContainer {
 
         // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
-        this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
+        this.m_coral = new CoralSubsystem( NetworkTableInstance.getDefault());
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
