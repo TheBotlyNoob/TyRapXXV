@@ -30,13 +30,6 @@ public class CoralSubsystem extends SubsystemBase {
     protected final AbsoluteEncoder m_wristEncoder;
     private final DoublePublisher m_wristEncoderPub;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 625fe72 (network table stuff)
-=======
->>>>>>> 625fe72a97f85b3bd7e40563c8ec568ccf9e0ad6
     private final DigitalInput m_irSensor;
     private final DoublePublisher m_irSensorPub;
 
@@ -45,14 +38,6 @@ public class CoralSubsystem extends SubsystemBase {
     protected DoubleEntry kWristMotorSpeedForward;
     protected DoubleEntry kWristMotorSpeedReverse;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b1e7feb (hold motor position when not pressed)
-=======
->>>>>>> 625fe72 (network table stuff)
-=======
->>>>>>> 625fe72a97f85b3bd7e40563c8ec568ccf9e0ad6
     public CoralSubsystem(NetworkTableInstance nt) {
         m_table = nt.getTable(getName());
 
@@ -76,25 +61,11 @@ public class CoralSubsystem extends SubsystemBase {
         m_irSensorPub = nt.getDoubleTopic("IR Sensor").publish();
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     public void ejectCoral() {
         if (pointedOut) {
             m_coralGrabberMotor.set(0.0);
         }
     }
-=======
-=======
->>>>>>> 625fe72a97f85b3bd7e40563c8ec568ccf9e0ad6
-    // public void ejectCoral() {
-    //     if (pointedOut) {
-    //         m_coralGrabberMotor.set(0.0);
-    //     }
-    // }
-<<<<<<< HEAD
->>>>>>> 625fe72 (network table stuff)
-=======
->>>>>>> 625fe72a97f85b3bd7e40563c8ec568ccf9e0ad6
 
     public void setVoltageTest(double voltage) {
         System.out.println("Setting Coral voltage " + voltage);
@@ -116,26 +87,9 @@ public class CoralSubsystem extends SubsystemBase {
     }
     
     public void stopMotor(){
-<<<<<<< HEAD
-<<<<<<< HEAD
-        holdPosition = m_wristEncoder.getPosition();
-        m_wristMotor.setVoltage(0.0);
-<<<<<<< HEAD
-        m_wristMotor.set(0.0);
-=======
-        holdPosition = m_wristEncoder.getPosition();
-
->>>>>>> b1e7feb (hold motor position when not pressed)
-=======
         holdPosition = m_wristEncoder.getPosition();
         m_wristMotor.setVoltage(0.0);
         m_wristMotor.set(0.0);
->>>>>>> 625fe72 (network table stuff)
-=======
-        holdPosition = m_wristEncoder.getPosition();
-        m_wristMotor.setVoltage(0.0);
-        m_wristMotor.set(0.0);
->>>>>>> 625fe72a97f85b3bd7e40563c8ec568ccf9e0ad6
     }
     
     public void extendManipulator() {
