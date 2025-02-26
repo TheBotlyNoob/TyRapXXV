@@ -44,10 +44,15 @@ public class Constants {
     }
     public static class Coral {
         public static final double kWristMotorVoltage = 4.5;
+        // down -4.4
+        // up +6
         public static final double kCoralFeederMotorVoltage = 1.0;
-        public static final double kMaxEncoderPos = 1;
-        public static final double kMinEncoderPos = 0;
+        public static final double kMaxEncoderPos = .255;
+        public static final double kMinEncoderPos = .067;
+        public static final double kLimitEncoderPos = .037; //HARD STOP
+
     }
+
     public static class MechID {
         public static final int kAlgaeMotorCanId = 41;
         public static final int kClimberCanId = 10;
@@ -141,7 +146,6 @@ public class Constants {
         public static final double minAngVelocityDPS = 0;
         public static final double maxAngVelocityDPS = 20;
         public static final double xDisThreshold = 0.03;
-        public static final double yDisThreshold = 0.03;
         public static final double rotThreshold = 1.0;
         public static final double azimuthFieldOfViewDeg = 29.0;
         public static final double xOffset = 0.0;
@@ -166,7 +170,9 @@ public class Constants {
         public static final double driveOffsetAngleError = 0.015;
         public static final double driveOffsetRangeMThreshold = 0.02;
     }
-
+    public static final class SensorID {
+        public static final int kIRSensorPort = 7; 
+    }
     public class Elevator {
         public static class Heights {
             public static final double kGround = 0.0;

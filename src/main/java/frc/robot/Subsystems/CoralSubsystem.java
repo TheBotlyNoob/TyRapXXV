@@ -31,6 +31,9 @@ public class CoralSubsystem extends SubsystemBase {
     private final DoublePublisher m_wristEncoderPub;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 625fe72 (network table stuff)
     private final DigitalInput m_irSensor;
     private final DoublePublisher m_irSensorPub;
 
@@ -39,8 +42,11 @@ public class CoralSubsystem extends SubsystemBase {
     protected DoubleEntry kWristMotorSpeedForward;
     protected DoubleEntry kWristMotorSpeedReverse;
 
+<<<<<<< HEAD
 =======
 >>>>>>> b1e7feb (hold motor position when not pressed)
+=======
+>>>>>>> 625fe72 (network table stuff)
     public CoralSubsystem(NetworkTableInstance nt) {
         m_table = nt.getTable(getName());
 
@@ -64,11 +70,19 @@ public class CoralSubsystem extends SubsystemBase {
         m_irSensorPub = nt.getDoubleTopic("IR Sensor").publish();
     }
 
+<<<<<<< HEAD
     public void ejectCoral() {
         if (pointedOut) {
             m_coralGrabberMotor.set(0.0);
         }
     }
+=======
+    // public void ejectCoral() {
+    //     if (pointedOut) {
+    //         m_coralGrabberMotor.set(0.0);
+    //     }
+    // }
+>>>>>>> 625fe72 (network table stuff)
 
     public void setVoltageTest(double voltage) {
         System.out.println("Setting Coral voltage " + voltage);
@@ -90,6 +104,7 @@ public class CoralSubsystem extends SubsystemBase {
     }
     
     public void stopMotor(){
+<<<<<<< HEAD
         holdPosition = m_wristEncoder.getPosition();
         m_wristMotor.setVoltage(0.0);
 <<<<<<< HEAD
@@ -98,6 +113,11 @@ public class CoralSubsystem extends SubsystemBase {
         holdPosition = m_wristEncoder.getPosition();
 
 >>>>>>> b1e7feb (hold motor position when not pressed)
+=======
+        holdPosition = m_wristEncoder.getPosition();
+        m_wristMotor.setVoltage(0.0);
+        m_wristMotor.set(0.0);
+>>>>>>> 625fe72 (network table stuff)
     }
     
     public void extendManipulator() {
