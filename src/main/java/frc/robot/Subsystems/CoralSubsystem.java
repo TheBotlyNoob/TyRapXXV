@@ -30,6 +30,7 @@ public class CoralSubsystem extends SubsystemBase {
     protected final AbsoluteEncoder m_wristEncoder;
     private final DoublePublisher m_wristEncoderPub;
 
+<<<<<<< HEAD
     private final DigitalInput m_irSensor;
     private final DoublePublisher m_irSensorPub;
 
@@ -38,6 +39,8 @@ public class CoralSubsystem extends SubsystemBase {
     protected DoubleEntry kWristMotorSpeedForward;
     protected DoubleEntry kWristMotorSpeedReverse;
 
+=======
+>>>>>>> b1e7feb (hold motor position when not pressed)
     public CoralSubsystem(NetworkTableInstance nt) {
         m_table = nt.getTable(getName());
 
@@ -89,7 +92,12 @@ public class CoralSubsystem extends SubsystemBase {
     public void stopMotor(){
         holdPosition = m_wristEncoder.getPosition();
         m_wristMotor.setVoltage(0.0);
+<<<<<<< HEAD
         m_wristMotor.set(0.0);
+=======
+        holdPosition = m_wristEncoder.getPosition();
+
+>>>>>>> b1e7feb (hold motor position when not pressed)
     }
     
     public void extendManipulator() {
