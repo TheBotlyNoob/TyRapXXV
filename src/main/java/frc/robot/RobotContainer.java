@@ -147,8 +147,8 @@ public class RobotContainer {
         // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
         // -> 0.5, () -> m_range.getRange(), 90, 0.2));
 
-        Controller.kDriveController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
-        Controller.kDriveController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        Controller.kManipulatorController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kManipulatorController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
