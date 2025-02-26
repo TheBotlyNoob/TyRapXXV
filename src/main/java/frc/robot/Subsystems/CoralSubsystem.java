@@ -65,7 +65,7 @@ public class CoralSubsystem extends SubsystemBase {
         m_coralGrabberMotorPublisher = new MotorPublisher(m_coralGrabberMotor, m_table, "Grabber Motor");
         m_wristMotorPublisher = new MotorPublisher(m_wristMotor, m_table, "Wrist Motor");
         
-        m_wristEncoder = m_wristMotor.getAbsoluteEncoder();
+        m_wristEncoder = m_coralGrabberMotor.getAbsoluteEncoder();
         m_wristEncoderPub = nt.getDoubleTopic("Wrist Encoder").publish();
 
         m_irSensor = new DigitalInput(Constants.SensorID.kIRSensorPort);
@@ -73,7 +73,7 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public void ejectCoral() {
-        m_coralGrabberMotor.set(0.3);
+        m_coralGrabberMotor.set(0.5);
     }
 
     // public void setVoltageTest(double voltage) {
@@ -121,7 +121,6 @@ public class CoralSubsystem extends SubsystemBase {
 
         boolean irDetected = !m_irSensor.get();
         m_irSensorPub.set(irDetected ? 1.0 : 0.0);
-
         if (irDetected) {
             m_coralGrabberMotor.set(0.0);
         } else {
