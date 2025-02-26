@@ -12,7 +12,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Utils.MotorPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
-
+/*
+ * 
+ * different speeds up vs down 
+ * IR sensor 
+ * holde break logic
+ */
 public class CoralSubsystem extends SubsystemBase {
     private final NetworkTable m_table;
 
@@ -48,8 +53,14 @@ public class CoralSubsystem extends SubsystemBase {
 
         kWristMotorVoltageForward = m_table.getDoubleTopic("wrist motor voltage forward").getEntry(0.0);
         kWristMotorVoltageReverse = m_table.getDoubleTopic("wrist motor voltage reverse").getEntry(0.0);
-        kWristMotorSpeedForward = m_table.getDoubleTopic("wrist motor speed forward").getEntry(0.0);
-        kWristMotorSpeedReverse = m_table.getDoubleTopic("wrist motor speed reverse").getEntry(0.0);
+
+        // kWristMotorSpeedForward = m_table.getDoubleTopic("wrist motor speed forward").getEntry(0.0);
+        // kWristMotorSpeedReverse = m_table.getDoubleTopic("wrist motor speed reverse").getEntry(0.0);
+
+        kWristMotorVoltageForward.set(0.0);
+        kWristMotorVoltageReverse.set(0.0);
+        // kWristMotorSpeedForward.set(0.0);
+        // kWristMotorSpeedReverse.set(0.0);
 
         m_coralGrabberMotorPublisher = new MotorPublisher(m_coralGrabberMotor, m_table, "Grabber Motor");
         m_wristMotorPublisher = new MotorPublisher(m_wristMotor, m_table, "Wrist Motor");
@@ -61,35 +72,35 @@ public class CoralSubsystem extends SubsystemBase {
         m_irSensorPub = nt.getDoubleTopic("IR Sensor").publish();
     }
 
-    public void ejectCoral() {
-        if (pointedOut) {
-            m_coralGrabberMotor.set(0.0);
-        }
-    }
+    // public void ejectCoral() {
+    //     if (pointedOut) {
+    //         m_coralGrabberMotor.set(0.0);
+    //     }
+    // }
 
-    public void setVoltageTest(double voltage) {
-        System.out.println("Setting Coral voltage " + voltage);
-        m_wristMotor.setVoltage(voltage);
-    }
+    // public void setVoltageTest(double voltage) {
+    //     System.out.println("Setting Coral voltage " + voltage);
+    //     m_wristMotor.setVoltage(voltage);
+    // }
 
     public void reverseMotor(){
         double voltage = kWristMotorVoltageReverse.get();
-        double speed = kWristMotorSpeedReverse.get();
+        //double speed = kWristMotorSpeedReverse.get();
         m_wristMotor.setVoltage(-voltage);
-        m_wristMotor.set(-speed);
+      //  m_wristMotor.set(-speed);
     }
     
     public void forwardMotor(){
         double voltage = kWristMotorVoltageForward.get();
-        double speed = kWristMotorSpeedForward.get();
+     //   double speed = kWristMotorSpeedForward.get();
         m_wristMotor.setVoltage(voltage);
-        m_wristMotor.set(speed);
+     //   m_wristMotor.set(speed);
     }
     
     public void stopMotor(){
         holdPosition = m_wristEncoder.getPosition();
         m_wristMotor.setVoltage(0.0);
-        m_wristMotor.set(0.0);
+       // m_wristMotor.set(0.0);
     }
     
     public void extendManipulator() {
@@ -112,7 +123,7 @@ public class CoralSubsystem extends SubsystemBase {
         if (irDetected) {
             m_coralGrabberMotor.set(0.0);
         } else {
-            m_coralGrabberMotor.set(0.5);
+            m_coralGrabberMotor.set(0.1);
         }
     }
 }

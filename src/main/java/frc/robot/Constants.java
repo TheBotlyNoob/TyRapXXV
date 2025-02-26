@@ -60,8 +60,8 @@ public class Constants {
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
         //Coral Manipulator
-        public static final int kCoralWristCanId = 30;
-        public static final int kCoralWheelCanId = 31;
+        public static final int kCoralWristCanId = 13;
+        public static final int kCoralWheelCanId = 14;
     
     }
 
