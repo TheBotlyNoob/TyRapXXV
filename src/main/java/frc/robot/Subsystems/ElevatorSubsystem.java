@@ -312,7 +312,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             }
         }
 
-        if (currentPosition > 14.0 && outputVoltage > 0.0) {
+        if (currentPosition > 22.0 && outputVoltage > 0.0) {
             System.out.println("Cut off output due to max height");
             outputVoltage = 0.0;
         }
@@ -358,7 +358,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 }
             }
 
-            if (currentPosition > 15.0 && outputVoltage > 0.0) {
+            if (currentPosition > 18.0 && outputVoltage > 0.0) {
                 System.out.println("Cut off output due to max height");
                 outputVoltage = 0.4;
             }

@@ -144,6 +144,7 @@ public class RobotContainer {
         Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
+
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
@@ -156,9 +157,9 @@ public class RobotContainer {
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
         
-        Controller.kManipulatorController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kManipulatorController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kManipulatorController.rightTrigger().whileTrue(new EjectCoral(m_coral)); 
+        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral)); 
 
 
         Controller.kManipulatorController.leftBumper()
