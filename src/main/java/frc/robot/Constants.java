@@ -165,27 +165,28 @@ public class Constants {
     public class Elevator {
         public static class Heights {
             public static final double kGround = 0.0;
-            public static final double kLevel1 = 2.0;
-            public static final double kLevel2 = 4.0;
-            public static final double kLevel3 = 6.0;
-            public static final double kLevel4 = 8.0;
+            public static final double kLevel1 = 3.5;
+            public static final double kLevel2 = 7.0;
+            public static final double kLevel3 = 10.5;
+            public static final double kLevel4 = 14.0;
         }
 
         public static class PID {
-            public static final double kP = 1.3; // not tuned
+            public static final double kP = 0.0; // not tuned
             public static final double kI = 0.0; // not tuned
-            public static final double kD = 0.7; // not tuned
+            public static final double kD = 0.0; // not tuned
         }
 
         public static class FF {
-            public static final double kS = 1.1; // static friction (V)
-            public static final double kG = 1.2; // gravity (V)
-            public static final double kV = 1.3; // volts per velocity (V/(m/s))
+            public static final double kS = 0.0; // static friction (V)
+            public static final double kG = 0.8; // gravity (V)
+            public static final double kV = 1.6; // volts per velocity (V/(m/s))
             public static final double kA = 0.0; // volts per acceleration (V/(m/s^2))
         }
 
-        public static final double kMaxVelocity = 4.0;
-        public static final double kMaxAcceleration = 4.0;
+        public static final double kMaxVelocity = 2.5;
+        public static final double kMaxAcceleration = 2.0;
+        public static final double kDecelProp = 0.4;
 
         public static final double kElevatorGearRatio = 0;
         public static final double kElevatorDrumRadius = 0;

@@ -8,15 +8,10 @@ import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -38,7 +33,6 @@ import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveOffset;
-import frc.robot.Commands.DriveRange;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.ElevatorJoystick;
 import frc.robot.Commands.MoveStinger;
@@ -158,10 +152,8 @@ public class RobotContainer {
         Controller.kDriveController.povDown().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.5)));
         Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
 
-        //Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(0.3)));
-        //Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
-        //Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(-0.3)));
-        //Controller.kDriveController.rightBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
+        Controller.kManipulatorController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kManipulatorController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
