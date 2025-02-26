@@ -128,16 +128,16 @@ public class CenterOnTag extends Command {
             } else {
                 desiredXVel = Math.copySign(MathUtil.clamp(calculatedXVel, minXVel, maxXVel), xError);
             }
-            if (Math.abs(yError) < LimelightConstants.yDisThreshold) {
-                desiredYVel = 0;
-            } else {
-                desiredYVel = Math.copySign(MathUtil.clamp(calculatedYVel, minYVel, maxYVel), yError);
-            }
-            if (Math.abs(ll.getYawAngleDegrees()) < LimelightConstants.rotThreshold) {
-                desiredAngVel = 0;
-            } else {
-                desiredAngVel = Math.copySign(MathUtil.clamp(calculatedAngVel, minAngVel, maxAngVel), rotAngleDegrees);
-            }
+            // if (Math.abs(yError) < LimelightConstants.yDisThreshold) {
+            //     desiredYVel = 0;
+            // } else {
+            //     desiredYVel = Math.copySign(MathUtil.clamp(calculatedYVel, minYVel, maxYVel), yError);
+            // }
+            // if (Math.abs(ll.getYawAngleDegrees()) < LimelightConstants.rotThreshold) {
+            //     desiredAngVel = 0;
+            // } else {
+            //     desiredAngVel = Math.copySign(MathUtil.clamp(calculatedAngVel, minAngVel, maxAngVel), rotAngleDegrees);
+            // }
 
             // Commanded X Velocity ramped
             if ((Math.abs(desiredXVel) - Math.abs(commandedXVel))>0) {
@@ -151,29 +151,29 @@ public class CenterOnTag extends Command {
                 commandedXVel = Math.max(desiredXVel, commandedXVel - deltaVel);
             }
 
-            // Commanded Y Velocity ramped
-            if ((Math.abs(desiredYVel) - Math.abs(commandedYVel)) > 0) {
-                deltaVel = maxAcc;
-            } else {
-                deltaVel = maxDcc;
-            }
-            if (desiredYVel > commandedYVel) {
-                commandedYVel = Math.min(desiredYVel, commandedYVel + deltaVel);
-            } else if (desiredYVel < commandedYVel) {
-                commandedYVel = Math.max(desiredYVel, commandedYVel - deltaVel);
-            }
+            // // Commanded Y Velocity ramped
+            // if ((Math.abs(desiredYVel) - Math.abs(commandedYVel)) > 0) {
+            //     deltaVel = maxAcc;
+            // } else {
+            //     deltaVel = maxDcc;
+            // }
+            // if (desiredYVel > commandedYVel) {
+            //     commandedYVel = Math.min(desiredYVel, commandedYVel + deltaVel);
+            // } else if (desiredYVel < commandedYVel) {
+            //     commandedYVel = Math.max(desiredYVel, commandedYVel - deltaVel);
+            // }
 
-            // Commanded angular Velocity ramped
-            if ((Math.abs(desiredAngVel) - Math.abs(commandedAngVel)) > 0) {
-                deltaVel = maxAngAcc;
-            } else {
-                deltaVel = maxAngDcc;
-            }
-            if (desiredAngVel > commandedAngVel) {
-                commandedAngVel = Math.min(desiredAngVel, commandedAngVel + deltaVel);
-            } else if (desiredAngVel < commandedAngVel) {
-                commandedAngVel = Math.max(desiredAngVel, commandedAngVel - deltaVel);
-            }
+            // // Commanded angular Velocity ramped
+            // if ((Math.abs(desiredAngVel) - Math.abs(commandedAngVel)) > 0) {
+            //     deltaVel = maxAngAcc;
+            // } else {
+            //     deltaVel = maxAngDcc;
+            // }
+            // if (desiredAngVel > commandedAngVel) {
+            //     commandedAngVel = Math.min(desiredAngVel, commandedAngVel + deltaVel);
+            // } else if (desiredAngVel < commandedAngVel) {
+            //     commandedAngVel = Math.max(desiredAngVel, commandedAngVel - deltaVel);
+            // }
 
             ySpeed = commandedXVel;
             xSpeed = commandedYVel;
@@ -196,24 +196,25 @@ public class CenterOnTag extends Command {
         }
 
     }
-
-    @Override
-    public boolean isFinished() {
-        if (Math.abs(xError) < LimelightConstants.xDisThreshold && Math
-                .abs(yError) < LimelightConstants.yDisThreshold
-                && Math.abs(ll.getFilteredYawDegrees()) < LimelightConstants.rotThreshold) {
-            // Set FieldRelative back to true so the drivetrain works for teleop
-            dt.setFieldRelative(true);
-            dt.drive(0, 0, 0);
-            System.out.println("COT command complete");
-            return true;
-        } else if (llLost == true) {
-            System.out.println("COT command aborted because limelight lost");
-            // Set FieldRelative back to true so the drivetrain works for teleop
-            dt.setFieldRelative(true);
-            dt.drive(0, 0, 0);
-            return true;
-        }
-        return false;
-    }
 }
+
+//   @Override
+//     public boolean isFinished() {
+//         // if (Math.abs(xError) < LimelightConstants.xDisThreshold && Math
+//         //         //.abs(yError) < LimelightConstants.yDisThreshold
+//         //         && Math.abs(ll.getFilteredYawDegrees()) < LimelightConstants.rotThreshold) {
+//         //     // Set FieldRelative back to true so the drivetrain works for teleop
+//         //     dt.setFieldRelative(true);
+//         //     dt.drive(0, 0, 0);
+//         //     System.out.println("COT command complete");
+//         //     return true;
+//         // } else if (llLost == true) {
+//         //     System.out.println("COT command aborted because limelight lost");
+//         //     // Set FieldRelative back to true so the drivetrain works for teleop
+//         //     dt.setFieldRelative(true);
+//         //     dt.drive(0, 0, 0);
+//         //     return true;
+//         // }
+//         // return false;
+//     }
+// }

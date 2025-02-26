@@ -34,7 +34,9 @@ import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
+import frc.robot.Commands.EjectCoral;
 import frc.robot.Commands.ElevatorJoystick;
+import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
@@ -60,6 +62,7 @@ public class RobotContainer {
     private final SendableChooser<String> autoChooser;
     protected final ElevatorSubsystem m_elevator;
     protected final CoralSubsystem m_coral;
+
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
@@ -95,7 +98,7 @@ public class RobotContainer {
 
         // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
-        this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
+        this.m_coral = new CoralSubsystem( NetworkTableInstance.getDefault());
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -152,6 +155,12 @@ public class RobotContainer {
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
+        
+        Controller.kManipulatorController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kManipulatorController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
+        Controller.kManipulatorController.rightTrigger().whileTrue(new EjectCoral(m_coral)); 
+
+
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
         Controller.kManipulatorController.back()
