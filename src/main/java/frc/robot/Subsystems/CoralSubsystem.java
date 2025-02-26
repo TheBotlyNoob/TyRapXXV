@@ -72,11 +72,9 @@ public class CoralSubsystem extends SubsystemBase {
         m_irSensorPub = nt.getDoubleTopic("IR Sensor").publish();
     }
 
-    // public void ejectCoral() {
-    //     if (pointedOut) {
-    //         m_coralGrabberMotor.set(0.0);
-    //     }
-    // }
+    public void ejectCoral() {
+        m_coralGrabberMotor.set(0.3);
+    }
 
     // public void setVoltageTest(double voltage) {
     //     System.out.println("Setting Coral voltage " + voltage);
@@ -97,10 +95,14 @@ public class CoralSubsystem extends SubsystemBase {
      //   m_wristMotor.set(speed);
     }
     
-    public void stopMotor(){
+    public void stopMotorWrist(){
         holdPosition = m_wristEncoder.getPosition();
         m_wristMotor.setVoltage(0.0);
        // m_wristMotor.set(0.0);
+    }
+
+    public void stopMotorGrabber(){
+        m_coralGrabberMotor.set(0.0);
     }
     
     public void extendManipulator() {
