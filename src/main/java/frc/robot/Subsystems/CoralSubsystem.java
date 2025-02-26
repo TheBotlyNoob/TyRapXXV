@@ -86,14 +86,14 @@ public class CoralSubsystem extends SubsystemBase {
     public void reverseMotor(){
         double voltage = kWristMotorVoltageReverse.get();
         //double speed = kWristMotorSpeedReverse.get();
-        m_wristMotor.setVoltage(-voltage);
+        m_wristMotor.setVoltage(voltage);
       //  m_wristMotor.set(-speed);
     }
     
     public void forwardMotor(){
         double voltage = kWristMotorVoltageForward.get();
      //   double speed = kWristMotorSpeedForward.get();
-        m_wristMotor.setVoltage(voltage);
+        m_wristMotor.setVoltage(-voltage);
      //   m_wristMotor.set(speed);
     }
     
