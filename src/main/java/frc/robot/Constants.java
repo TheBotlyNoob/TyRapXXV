@@ -48,7 +48,7 @@ public class Constants {
         // up +6
         public static final double kCoralFeederMotorVoltage = 1.0;
         public static final double kMaxEncoderPos = .255;
-        public static final double kMinEncoderPos = .067;
+        public static final double kMinEncoderPos = .07;
         public static final double kLimitEncoderPos = .037; //HARD STOP
 
     }
