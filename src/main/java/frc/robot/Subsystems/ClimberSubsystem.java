@@ -124,7 +124,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public void periodic() {
         m_climbMotorPublisher.update();
         m_encoderPub.set(m_climbEncoder.getPosition());
-        System.out.println("Encoder Value being updated: " + m_climbEncoder.getPosition());
+       // System.out.println("Encoder Value being updated: " + m_climbEncoder.getPosition());
 
     }
 }

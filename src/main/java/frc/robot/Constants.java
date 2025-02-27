@@ -42,6 +42,16 @@ public class Constants {
         public static final double kMaxEncoderPos = 0.44;
         public static final double kMinEncoderPos = 0.218;
     }
+    public static class Coral {
+        public static final double kWristMotorVoltage = 4.5;
+        // down -4.4
+        // up +6
+        public static final double kCoralFeederMotorVoltage = .5;
+        public static final double kMaxEncoderPos = .255;
+        public static final double kMinEncoderPos = .062;
+        public static final double kLimitEncoderPos = .037; //HARD STOP
+
+    }
 
     public static class MechID {
         public static final int kAlgaeMotorCanId = 41;
@@ -50,8 +60,8 @@ public class Constants {
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
         //Coral Manipulator
-        public static final int kCoralWristCanId = 30;
-        public static final int kCoralWheelCanId = 31;
+        public static final int kCoralWristCanId = 13;
+        public static final int kCoralWheelCanId = 14;
     
     }
 
@@ -136,7 +146,6 @@ public class Constants {
         public static final double minAngVelocityDPS = 0;
         public static final double maxAngVelocityDPS = 20;
         public static final double xDisThreshold = 0.03;
-        public static final double yDisThreshold = 0.03;
         public static final double rotThreshold = 1.0;
         public static final double azimuthFieldOfViewDeg = 29.0;
         public static final double xOffset = 0.0;
@@ -161,31 +170,34 @@ public class Constants {
         public static final double driveOffsetAngleError = 0.015;
         public static final double driveOffsetRangeMThreshold = 0.02;
     }
-
+    public static final class SensorID {
+        public static final int kIRSensorPort = 7; 
+    }
     public class Elevator {
         public static class Heights {
             public static final double kGround = 0.0;
-            public static final double kLevel1 = 2.0;
-            public static final double kLevel2 = 4.0;
-            public static final double kLevel3 = 6.0;
-            public static final double kLevel4 = 8.0;
+            public static final double kLevel1 = 3.5;
+            public static final double kLevel2 = 7.0;
+            public static final double kLevel3 = 10.5;
+            public static final double kLevel4 = 14.0;
         }
 
         public static class PID {
-            public static final double kP = 1.3; // not tuned
+            public static final double kP = 0.0; // not tuned
             public static final double kI = 0.0; // not tuned
-            public static final double kD = 0.7; // not tuned
+            public static final double kD = 0.0; // not tuned
         }
 
         public static class FF {
-            public static final double kS = 1.1; // static friction (V)
-            public static final double kG = 1.2; // gravity (V)
-            public static final double kV = 1.3; // volts per velocity (V/(m/s))
+            public static final double kS = 0.0; // static friction (V)
+            public static final double kG = 0.8; // gravity (V)
+            public static final double kV = 1.6; // volts per velocity (V/(m/s))
             public static final double kA = 0.0; // volts per acceleration (V/(m/s^2))
         }
 
-        public static final double kMaxVelocity = 4.0;
-        public static final double kMaxAcceleration = 4.0;
+        public static final double kMaxVelocity = 2.5;
+        public static final double kMaxAcceleration = 2.0;
+        public static final double kDecelProp = 0.4;
 
         public static final double kElevatorGearRatio = 0;
         public static final double kElevatorDrumRadius = 0;
