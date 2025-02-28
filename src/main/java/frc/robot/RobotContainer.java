@@ -138,8 +138,6 @@ public class RobotContainer {
         Controller.kDriveController.leftBumper()
                 .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelUsingFlag()));
 
-        Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
-
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
         Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
@@ -152,9 +150,6 @@ public class RobotContainer {
                                                                                         // sure grabber isnt extended
         // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
         // -> 0.5, () -> m_range.getRange(), 90, 0.2));
-
-        Controller.kManipulatorController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
-        Controller.kManipulatorController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
