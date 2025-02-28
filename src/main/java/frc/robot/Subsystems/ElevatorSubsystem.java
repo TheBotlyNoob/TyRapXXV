@@ -311,24 +311,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void setVoltageTest(double voltage) {
         System.out.println("Setting Elevator voltage " + voltage);
-        double currentPosition = encoder.getPosition();
         outputVoltage = voltage;
-        if (!bottomLimitSwitch.get()) {
-            encoder.setPosition(0);
-            if (outputVoltage < 0) {
-                outputVoltage = 0;
-            }
-        }
-        if (topLimitSwitch.get()) {
-            if (outputVoltage > 0) {
-                outputVoltage = 0;
-            }
-        }
-
-        if (currentPosition > 22.0 && outputVoltage > 0.0) {
-            System.out.println("Cut off output due to max height");
-            outputVoltage = 0.0;
-        }
+        handleLimits();
         m_motorLeader.setVoltage(outputVoltage);
     }
 
@@ -348,14 +332,21 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.m_testMode = testMode;
     }
 
+    public boolean isAtBottom(){ //bottom limit states are swapped
+        return !bottomLimitSwitch.get();
+    }
+    public boolean isAtTop(){
+        return topLimitSwitch.get();
+    }
+
     public void handleLimits(){
-        if (!bottomLimitSwitch.get()) { //bottom limit flags are swapped
+        if (isAtBottom()) { 
             encoder.setPosition(0);
             if (outputVoltage < 0 || targetVelocity <= 0.0) {
                 outputVoltage = 0;
             }
         }
-        if (topLimitSwitch.get()) {
+        if (isAtTop()) {
             if (outputVoltage > 0) {
                 outputVoltage = 0;
             }
@@ -406,7 +397,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             m_motorLeader.setVoltage(outputVoltage);
         }
         m_encoder.set(encoder.getPosition());
-        m_bottomlimitSwitch.set(!bottomLimitSwitch.get());
-        m_toplimitSwitch.set(topLimitSwitch.get());
+        m_bottomlimitSwitch.set(isAtBottom());
+        m_toplimitSwitch.set(isAtTop());
     }
 }
