@@ -64,7 +64,6 @@ public class RobotContainer {
     protected final ElevatorSubsystem m_elevator;
     protected final CoralSubsystem m_coral;
 
-
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
     private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
@@ -95,11 +94,12 @@ public class RobotContainer {
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
-        this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(), NetworkTableInstance.getDefault());
+        this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
+                NetworkTableInstance.getDefault());
 
         // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
-        this.m_coral = new CoralSubsystem( NetworkTableInstance.getDefault());
+        this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -114,7 +114,7 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
 
-        //configureBindings();
+        // configureBindings();
     }
 
     /**
@@ -158,11 +158,10 @@ public class RobotContainer {
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
-        
+
         Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
         Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral)); 
-
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
 
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
@@ -176,7 +175,7 @@ public class RobotContainer {
         Controller.kManipulatorController.b()
                 .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)));
         Controller.kManipulatorController.y()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));                
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));
     }
 
     public void configureTestBindings() {
@@ -205,11 +204,10 @@ public class RobotContainer {
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
-        
+
         Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
         Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral)); 
-
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
 
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
@@ -261,7 +259,7 @@ public class RobotContainer {
         this.m_swerve.removeDefaultCommand();
     }
 
-    public void updateConstants(){
+    public void updateConstants() {
         this.m_elevator.updateConstants();
     }
 
