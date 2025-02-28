@@ -249,9 +249,10 @@ public class ElevatorSubsystem extends SubsystemBase {
                 Constants.Elevator.PID.kP,
                 Constants.Elevator.PID.kI,
                 Constants.Elevator.PID.kD);
-                
+
         m_trapController = new TrapezoidController(0.0, 0.1, .05, Constants.Elevator.kMaxVelocity,
-            Constants.Elevator.kMaxAcceleration, Constants.Elevator.kMaxAcceleration, Constants.Elevator.kDecelProp);
+                Constants.Elevator.kMaxAcceleration, Constants.Elevator.kMaxAcceleration,
+                Constants.Elevator.kDecelProp);
 
         setLevel(ElevatorLevel.GROUND);
     }
@@ -287,12 +288,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     public ElevatorLevel getLevel() {
         return m_level;
     }
-    
-    public double getCurrentPosition(){
+
+    public double getCurrentPosition() {
         return currentPosition;
     }
 
-    public double getCurrentVelocity(){
+    public double getCurrentVelocity() {
         return currentVelocity;
     }
 
@@ -316,15 +317,17 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_motorLeader.setVoltage(outputVoltage);
     }
 
-    public void manualUp(){
+    public void manualUp() {
         m_manualMode = true;
         m_manualSpeed = Constants.Elevator.kManualSpeed;
     }
-    public void manualDown(){
+
+    public void manualDown() {
         m_manualMode = true;
         m_manualSpeed = -Constants.Elevator.kManualSpeed;
     }
-    public void stopManualMode(){
+
+    public void stopManualMode() {
         m_manualMode = false;
     }
 
@@ -332,15 +335,16 @@ public class ElevatorSubsystem extends SubsystemBase {
         this.m_testMode = testMode;
     }
 
-    public boolean isAtBottom(){ //bottom limit states are swapped
+    public boolean isAtBottom() { // bottom limit states are swapped
         return !bottomLimitSwitch.get();
     }
-    public boolean isAtTop(){
+
+    public boolean isAtTop() {
         return topLimitSwitch.get();
     }
 
-    public void handleLimits(){
-        if (isAtBottom()) { 
+    public void handleLimits() {
+        if (isAtBottom()) {
             encoder.setPosition(0);
             if (outputVoltage < 0 || targetVelocity <= 0.0) {
                 outputVoltage = 0;
@@ -374,7 +378,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
             if (m_manualMode) {
                 desiredPosition = currentPosition;
-                targetVelocity = m_manualSpeed;  
+                targetVelocity = m_manualSpeed;
             }
 
             double targetAcceleration = (targetVelocity - this.m_lastSpeed);
