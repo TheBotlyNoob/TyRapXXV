@@ -26,6 +26,7 @@ import frc.robot.Subsystems.AlgaeGrabberSubsystem;
 import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
+import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.RangeSensor;
 import frc.robot.Subsystems.CoralSubsystem;
@@ -113,7 +114,7 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
 
-        configureBindings();
+        //configureBindings();
     }
 
     /**
@@ -130,7 +131,55 @@ public class RobotContainer {
      * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
      * joysticks}.
      */
-    private void configureBindings() {
+    public void configureBindings() {
+        Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
+        Controller.kDriveController.rightBumper()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelUsingFlag()));
+        Controller.kDriveController.leftBumper()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelUsingFlag()));
+
+        Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
+
+        Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
+                .onFalse(m_swerve.setDriveMultCommand(1));
+        Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
+        Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
+        Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
+                () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
+
+        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
+        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
+                                                                                        // sure grabber isnt extended
+        // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
+        // -> 0.5, () -> m_range.getRange(), 90, 0.2));
+
+        Controller.kManipulatorController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kManipulatorController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+
+        Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
+        Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
+        
+        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral)); 
+
+
+        Controller.kManipulatorController.leftBumper()
+                .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
+        Controller.kManipulatorController.back()
+                .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
+
+        Controller.kManipulatorController.x()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)));
+        Controller.kManipulatorController.a()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL2)));
+        Controller.kManipulatorController.b()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)));
+        Controller.kManipulatorController.y()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));                
+    }
+
+    public void configureTestBindings() {
         Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
         Controller.kDriveController.rightBumper()
                 .onTrue(this.m_swerve.setFieldRelativeCommand(false))
@@ -166,6 +215,15 @@ public class RobotContainer {
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
         Controller.kManipulatorController.back()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
+
+        Controller.kManipulatorController.x()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL1)));
+        Controller.kManipulatorController.a()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL2)));
+        Controller.kManipulatorController.b()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL3)));
+        Controller.kManipulatorController.y()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL4)));
     }
 
     public Drivetrain getDrivetrain() {

@@ -138,6 +138,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     private ElevatorLevel m_level = ElevatorLevel.GROUND;
+    private ElevatorLevel m_levelFlag = ElevatorLevel.GROUND;
 
     private final NetworkTable m_table;
     private final StringPublisher m_table_level;
@@ -255,6 +256,17 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void setLevel(ElevatorLevel level) {
         m_level = level;
         m_table_level.set(level.toString());
+    }
+
+    public void setLevelFlag(ElevatorLevel level) {
+        m_levelFlag = level;
+        System.out.println("Setting elevator level flag to: " + m_levelFlag);
+    }
+
+    public void setLevelUsingFlag() {
+        m_level = m_levelFlag;
+        m_table_level.set(m_level.toString());
+        System.out.println("Moving elevator using the flag to: " + m_level);
     }
 
     public void levelUp() {
