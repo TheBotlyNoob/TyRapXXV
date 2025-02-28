@@ -163,7 +163,9 @@ public class RobotContainer {
         
         Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
         Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral)); 
+        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
         
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
