@@ -6,7 +6,7 @@ This repository contains the source code for our 2025 robot, including all subsy
 ##Controller Bindings 
 https://docs.google.com/spreadsheets/d/10Bk8kJeCZEpjuQmLOMcRfuR12O42bP0hZRbtEoB95dA/edit?usp=sharing
 
-## Branching Strategy
+##Branching Strategy
 
 To maintain a clean and efficient workflow, follow these guidelines for branch naming and merging:
 
