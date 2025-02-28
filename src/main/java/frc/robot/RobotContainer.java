@@ -148,8 +148,6 @@ public class RobotContainer {
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
-        // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
-        // -> 0.5, () -> m_range.getRange(), 90, 0.2));
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
@@ -191,8 +189,6 @@ public class RobotContainer {
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
-        // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
-        // -> 0.5, () -> m_range.getRange(), 90, 0.2));
 
         Controller.kManipulatorController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
         Controller.kManipulatorController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
