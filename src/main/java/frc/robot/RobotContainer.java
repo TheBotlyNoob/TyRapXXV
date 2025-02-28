@@ -142,7 +142,8 @@ public class RobotContainer {
                 .onTrue(this.m_swerve.setFieldRelativeCommand(false))
                 .onFalse(this.m_swerve.setFieldRelativeCommand(true));
 
-        Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
+        Controller.kManipulatorController.rightTrigger().and(m_climber::isCoralMode)
+                .whileTrue(new ElevatorJoystick(m_elevator));
 
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
@@ -151,21 +152,27 @@ public class RobotContainer {
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
 
-        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
-        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
-                                                                                        // sure grabber isnt extended
+        Controller.kDriveController.leftTrigger().and(m_climber::isCoralMode).whileTrue(new EjectAlgae(m_algae));
+        Controller.kDriveController.rightTrigger().and(m_climber::isCoralMode).whileTrue(new AlgaeIntake(m_algae));
+
+        // when disabling robot, make
+        // sure grabber isnt extended
         // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
         // -> 0.5, () -> m_range.getRange(), 90, 0.2));
 
-        Controller.kManipulatorController.povUp().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
-        Controller.kManipulatorController.povDown().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        Controller.kManipulatorController.povUp().and(m_climber::isCoralMode)
+                .onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kManipulatorController.povDown().and(m_climber::isCoralMode)
+                .onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
 
-        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
+        Controller.kDriveController.povUp().and(m_climber::isCoralMode)
+                .whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kDriveController.povDown().and(m_climber::isCoralMode)
+                .whileTrue(new MoveCoralManipulator(m_coral, false));
+        Controller.kDriveController.x().and(m_climber::isCoralMode).whileTrue(new EjectCoral(m_coral));
 
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));

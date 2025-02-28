@@ -54,6 +54,14 @@ public class ClimberSubsystem extends SubsystemBase {
         m_toMakeSafe = toMakeSafe;
     }
 
+    public boolean isClimbMode() {
+        return isClimbMode;
+    }
+
+    public boolean isCoralMode() {
+        return !isClimbMode;
+    }
+
     public void toggleClimbMode() {
         System.out.println("Toggling climb current=" + isClimbMode);
         if (isClimbMode) {
