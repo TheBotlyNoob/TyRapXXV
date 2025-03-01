@@ -9,6 +9,19 @@
           "data": {
             "pathName": "Starting2Reef2"
           }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "DriveOffset"
+                }
+              }
+            ]
+          }
         }
       ]
     }
