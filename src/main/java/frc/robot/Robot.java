@@ -35,7 +35,6 @@ public class Robot extends TimedRobot {
         m_container.setTeleDefaultCommand();
         m_container.updateConstants();
         m_container.configureBindings();
-
     }
 
     @Override
