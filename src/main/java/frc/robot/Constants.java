@@ -29,10 +29,18 @@ public class Constants {
 
         // Limelight
         public static final String kFrontLimelightName = "limelight-c";
+    }
+    public static class Climber {
+        // TODO
+        public static final int kLowerSolenoidCANID1 = 4;
+        public static final int kLowerSolenoidCANID2 = 5;
 
-        public static final int kAlgaeGrabberSolenoidCANID1 = 0;
-        public static final int kAlgaeGrabberSolenoidCANID2 = 1;
+        public static final int kClampSolenoidCANID1 = 2;
+        public static final int kClampSolenoidCANID2 = 3;
 
+        public static final double kClimbMotorVoltage = 1.0;
+        public static final double kMaxEncoderPos = 0.5;
+        public static final double kMinEncoderPos = 0.218;
     }
 
     public static class MechID {
@@ -41,7 +49,8 @@ public class Constants {
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
         //Can Id Unkown
-        public static final int kCoralCanId = 2;
+        public static final int kCoralWristCanId = 13;
+        public static final int kCoralWheelCanId = 14;
     
     }
 
@@ -189,6 +198,10 @@ public class Constants {
         public static final double kMotorCurrentThreshold = 1.0;
         public static final double kIntakeSpeed = 0.60;
         public static final double kEjectSpeed = 0.90;
+
+        public static final int kSolenoidCANID1 = 0;
+        public static final int kSolenoidCANID2 = 1;
+
     }
 }
 // public static class ElevatorConstants {
