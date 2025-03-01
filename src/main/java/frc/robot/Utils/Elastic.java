@@ -13,7 +13,6 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.PubSubOption;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.StringTopic;
-import frc.robot.Utils.Elastic.Notification.NotificationLevel;
 
 public final class Elastic {
     private static final StringTopic notificationTopic = NetworkTableInstance.getDefault()

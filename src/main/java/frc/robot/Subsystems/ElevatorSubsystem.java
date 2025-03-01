@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    public enum ElevatorLevel {
+    public enum ElevatorLevel{ 
         /**
          * The ground level of the elevator, where the human player can load coral.
          */
@@ -138,6 +138,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final StringPublisher m_table_level;
     private final DoublePublisher m_encoder;
     protected final DoublePublisher desiredVelocityPub;
+    protected final DoublePublisher desiredPositionPub;
     private final BooleanPublisher m_bottomlimitSwitch;
     private final BooleanPublisher m_toplimitSwitch;
     private final SparkFlex m_motorLeader;
@@ -184,6 +185,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_table_level = m_table.getStringTopic("level").publish();
         m_encoder = m_table.getDoubleTopic("Encoder Position").publish();
         desiredVelocityPub = m_table.getDoubleTopic("Desired Vel").publish();
+        desiredPositionPub = m_table.getDoubleTopic("Desired Pos").publish();
         m_bottomlimitSwitch = m_table.getBooleanTopic("Bottom Limit Switch").publish();
         m_toplimitSwitch = m_table.getBooleanTopic("Top Limit Switch").publish();
         outputVoltagePreClampPub = m_table.getDoubleTopic("Output V pre lamp").publish();
@@ -220,7 +222,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SparkBaseConfig motorConf = new SparkFlexConfig();
         motorConf.smartCurrentLimit(60);
         motorConf.idleMode(IdleMode.kBrake);
-        motorConf.inverted(false);
+        motorConf.inverted(true);
         m_motorLeader.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         SparkBaseConfig followerConf = new SparkFlexConfig();
@@ -235,6 +237,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_motorFollower.getEncoder().setPosition(0);
 
         encoder = m_motorLeader.getEncoder();
+        encoder.setPosition(0);
 
         m_motorPublisherLeader = new MotorPublisher(m_motorLeader, m_table, "leader");
         m_motorPublisherFollower = new MotorPublisher(m_motorFollower, m_table, "follower");
@@ -250,8 +253,8 @@ public class ElevatorSubsystem extends SubsystemBase {
                 Constants.Elevator.PID.kI,
                 Constants.Elevator.PID.kD);
 
-        m_trapController = new TrapezoidController(0.0, 0.1, .05, Constants.Elevator.kMaxVelocity,
-                Constants.Elevator.kMaxAcceleration, Constants.Elevator.kMaxAcceleration,
+        m_trapController = new TrapezoidController(0.0, 0.05, .1, Constants.Elevator.kMaxVelocity,
+                Constants.Elevator.kMaxAcceleration, 7.5,
                 Constants.Elevator.kDecelProp);
 
         setLevel(ElevatorLevel.GROUND);
@@ -297,6 +300,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         return currentVelocity;
     }
 
+    public void resetEncoder() {
+        encoder.setPosition(0);
+        setLevel(ElevatorLevel.GROUND);
+    }
+
     public void updateConstants() {
         m_feedforward.setKs(m_elevatorKs.get());
         m_feedforward.setKg(m_elevatorKg.get());
@@ -311,8 +319,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void setVoltageTest(double voltage) {
-        System.out.println("Setting Elevator voltage " + voltage);
         outputVoltage = voltage;
+        if (voltage > 0.0) {
+            targetVelocity = 0.1;
+        } else if (voltage < 0.0)
+        {
+            targetVelocity = -0.1;
+        } else 
+        {
+            targetVelocity = 0.0;
+        }
         handleLimits();
         m_motorLeader.setVoltage(outputVoltage);
     }
@@ -336,7 +352,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public boolean isAtBottom() { // bottom limit states are swapped
-        return !bottomLimitSwitch.get();
+        return (!bottomLimitSwitch.get());
     }
 
     public boolean isAtTop() {
@@ -345,7 +361,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void handleLimits() {
         if (isAtBottom()) {
-            encoder.setPosition(0);
             if (outputVoltage < 0 || targetVelocity <= 0.0) {
                 outputVoltage = 0;
             }
@@ -373,13 +388,18 @@ public class ElevatorSubsystem extends SubsystemBase {
             targetVelocity = m_trapController.calculate(currentDelta, currentVelocity);
 
             if (desiredPosition != this.m_lastDesiredPosition) {
-                m_trapController.reinit(currentVelocity);
+                if (Math.abs(currentVelocity) < 0.001) {
+                    System.out.println("Reinit trap controller");
+                    m_trapController.reinit(currentVelocity);
+                }
             }
 
             if (m_manualMode) {
                 desiredPosition = currentPosition;
                 targetVelocity = m_manualSpeed;
             }
+            // Enforce a velocity limit for safety until tuning complete
+            targetVelocity = MathUtil.clamp(targetVelocity, -1, 1.2);
 
             double targetAcceleration = (targetVelocity - this.m_lastSpeed);
 
@@ -394,9 +414,17 @@ public class ElevatorSubsystem extends SubsystemBase {
 
             this.m_lastDesiredPosition = desiredPosition;
             outputVoltagePreClampPub.set(outputVoltage);
-            outputVoltage = MathUtil.clamp(outputVoltage, -6.0, 6.0);
+            if (currentPosition < 1.0) {
+                outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 6.0);
+            } else if (currentPosition > Constants.Elevator.kElevatorMaxPos - 1.5) {
+                outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 1.0);
+            }
+            else {
+                outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 4.0);
+            }
             outputVoltagePostClampPub.set(outputVoltage);
             desiredVelocityPub.set(targetVelocity);
+            desiredPositionPub.set(desiredPosition);
 
             m_motorLeader.setVoltage(outputVoltage);
         }

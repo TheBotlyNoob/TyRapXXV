@@ -42,7 +42,7 @@ public class TrapezoidController {
 
     // Start Calculations
     public void reinit(double currentSpeed) {
-        this.commandedVel = currentSpeed;
+        this.commandedVel = MathUtil.clamp(currentSpeed, -this.maxVel, this.maxVel);
     }
 
     public double calculate(double currentDistance, double currentVel) {
