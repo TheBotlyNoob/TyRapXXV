@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public class ClimberSubsystem extends SubsystemBase {
     
     protected final NetworkTable table;
-    //protected final AbsoluteEncoder m_climbEncoder;
     protected final DutyCycleEncoder m_climbEncoder;
     private final DoublePublisher m_encoderPub;
     protected boolean isClimbMode;
@@ -28,12 +27,16 @@ public class ClimberSubsystem extends SubsystemBase {
 
     protected final DoubleSolenoid m_clampPneumatic;
     protected final DoubleSolenoid m_lowerPneumatic;
+    protected final DoubleSolenoid m_rampPneumatic;
     
     private final Value kArmsExtend = Value.kForward; //grabber arms extends and lower to start climb
     private final Value kArmsRetract = Value.kReverse; 
-    
+
     private final Value kGrabberClose = Value.kReverse; //grabber clamps to cage
-    private final Value kGrabberOpen = Value.kForward
+    private final Value kGrabberOpen = Value.kForward;
+
+    private final Value kRampUp = Value.kForward; //
+    private final Value kRampDown = Value.kReverse;
     ; //unclamps
 
     public ClimberSubsystem(AbsoluteEncoder climbArmEncoder, NetworkTableInstance nt) {
@@ -45,21 +48,25 @@ public class ClimberSubsystem extends SubsystemBase {
         m_climbEncoder = new DutyCycleEncoder(9);
         m_encoderPub = nt.getDoubleTopic("Encoder Position").publish();
         isClimbMode = false;
+        
         m_clampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kClampSolenoidCANID1, Constants.Climber.kClampSolenoidCANID2);
         m_lowerPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kLowerSolenoidCANID1, Constants.Climber.kLowerSolenoidCANID2);
+        m_rampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kRampSolenoidCANID1,Constants.Climber.kRampSolenoidCANID2);
+        
         m_lowerPneumatic.set(kArmsRetract);
         m_clampPneumatic.set(kGrabberOpen);
+        m_rampPneumatic.set(kRampDown);
     }
     public void toggleClimbMode(){
         System.out.println("Toggling climb current=" + isClimbMode);
         if (isClimbMode){
             retractArms();
-            moveArmsIn();
+            rampDown();
             isClimbMode = false;
         }
         else {
             extendArms();
-            moveArmsOut();
+            rampUp();
             isClimbMode = true;
         }
 
@@ -73,21 +80,23 @@ public class ClimberSubsystem extends SubsystemBase {
         m_lowerPneumatic.set(kArmsExtend);
     }
 
-    public void moveArmsIn(){
-        //if(m_lowerPneumatic.get() == kArmsExtend) {
-        m_clampPneumatic.set(kGrabberClose);
-    }
-
-    public void moveArmsOut() {
-        m_clampPneumatic.set(kGrabberOpen);
-    }
-    
     public void retractArms() {
-        // TODO: unclamp before raising
-        //m_clampPneumatic.set(kGrabberOpen);
         m_lowerPneumatic.set(kArmsRetract);
     }
 
+    public void toggleRamp() {
+        System.out.println("Toggling ramp current=" + m_rampPneumatic.get());
+        m_rampPneumatic.toggle();
+    }
+
+    public void rampUp() {
+        m_rampPneumatic.set(kRampUp);
+    }
+
+    public void rampDown() {
+        m_rampPneumatic.set(kRampDown);
+    }
+    
     public void reverseMotor(){
         System.out.println("reverseMotor called");
         if (m_climbEncoder.get() <= Constants.Climber.kMinEncoderPos){
@@ -114,9 +123,7 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void extendStinger() {
-       // if(m_clampPneumatic.get() == kGrabberClose && m_lowerPneumatic.get() == kArmsExtend) {
-            forwardMotor();
-        //}
+        forwardMotor();
     }
 
     public void retractStinger() {
@@ -128,7 +135,5 @@ public class ClimberSubsystem extends SubsystemBase {
         m_climbMotorPublisher.update();
         m_encoderPub.set(m_climbEncoder.get());
         m_encoderPublisher.set(m_climbEncoder.get());
-       // System.out.println("Encoder Value being updated: " + m_climbEncoder.getPosition());
-
     }
 }
