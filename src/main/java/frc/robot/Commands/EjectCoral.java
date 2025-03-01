@@ -12,9 +12,4 @@ public class EjectCoral extends Command {
     public void execute() {
         co.ejectCoral();
     }
-
-    @Override
-    public void end(boolean interupted) {
-        co.stopMotorGrabber();
-    }
 }

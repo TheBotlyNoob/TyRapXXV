@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Seconds;
+
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -20,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.*;
@@ -38,6 +41,7 @@ import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.EjectCoral;
 import frc.robot.Commands.GoToFlagLevel;
+import frc.robot.Commands.GoToLevel;
 import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
@@ -135,11 +139,17 @@ public class RobotContainer {
 
         Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
             new DriveOffset(m_swerve, m_Limelight, false),
-            new GoToFlagLevel(m_elevator)
+            new DriveDistance(m_swerve, () -> 0.1,0),
+            new GoToFlagLevel(m_elevator),
+            new WaitCommand(1),
+            new GoToLevel(m_elevator, ElevatorLevel.GROUND)
         ));
         Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
             new DriveOffset(m_swerve, m_Limelight, true),
-            new GoToFlagLevel(m_elevator)
+            new DriveDistance(m_swerve, () -> 0.1,0),
+            new GoToFlagLevel(m_elevator),
+            new WaitCommand(1),
+            new GoToLevel(m_elevator, ElevatorLevel.GROUND)
         ));
 
         Controller.kDriveController.back()
