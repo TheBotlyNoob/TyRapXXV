@@ -25,7 +25,8 @@ public class Robot extends TimedRobot {
 
         m_container.clearDefaultCommand();
         m_container.setAutoDefaultCommand();
-        m_container.getAutonomousCommand().schedule();
+        //m_container.getAutonomousCommand().schedule();
+        m_container.startAutonomous();
     }
 
     @Override

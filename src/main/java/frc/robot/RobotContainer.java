@@ -4,14 +4,20 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.util.Optional;
+
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FileVersionException;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
@@ -22,6 +28,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.*;
@@ -43,6 +50,7 @@ import frc.robot.Commands.ElevatorJoystick;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.StopDrive;
+import org.json.simple.parser.ParseException;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -62,7 +70,7 @@ public class RobotContainer {
     private RangeSensor m_range;
     private final AlgaeGrabberSubsystem m_algae;
     private final ClimberSubsystem m_climber;
-    private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<String> autoChooser;
     protected final ElevatorSubsystem m_elevator;
     protected final CoralSubsystem m_coral;
 
@@ -109,17 +117,10 @@ public class RobotContainer {
         autoChooser = new SendableChooser<>(); // Default auto will be `Commands.none()'
 
         configurePathPlanner();
-
-        autoChooser.setDefaultOption("DO NOTHING!", Commands.none());
-
+        autoChooser.setDefaultOption("DO NOTHING!", "NO AUTO");
         m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
-        m_competitionTab.add("Drivetrain", this.m_swerve);
 
-        NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
-        // TODO: wait for the commands to be finished.
-        NamedCommands.registerCommand("AlignTagLeft", new CenterOnTag(m_swerve, m_Limelight).andThen());
-        NamedCommands.registerCommand("AlignTagRight", new CenterOnTag(m_swerve, m_Limelight).andThen());
-        NamedCommands.registerCommand("DropCoral", Commands.none());
+        m_competitionTab.add("Drivetrain", this.m_swerve);
 
         configureBindings();
     }
@@ -184,15 +185,36 @@ public class RobotContainer {
     }
 
     private void configurePathPlanner() {
-        // FIXME: can we just change this to:
-        // autoChooser = AutoBuilder.buildAutoChooser()
-        for (String name : AutoBuilder.getAllAutoNames()) {
-            autoChooser.addOption(name, AutoBuilder.buildAuto(name));
-        }
+        autoChooser.addOption("Starting2Reef2", "Starting2Reef2");
+    }
+
+    public void startAutonomous() {
+        SequentialCommandGroup start = new SequentialCommandGroup(getAutonomousCommand(),
+                new DriveOffset(m_swerve, m_Limelight, false));
+        start.schedule();
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
+        if (autoChooser.getSelected().equals("NO AUTO")) {
+            return Commands.none();
+        }
+        System.out.println("getAutoCommand building auto for " + autoChooser.getSelected());
+        PathPlannerPath path;
+        try {
+            path = PathPlannerPath.fromPathFile(autoChooser.getSelected());
+            Optional<Pose2d> pose = path.getStartingHolonomicPose();
+            if (pose.isPresent()) {
+                m_swerve.resetStartingPose(pose.get());
+                System.out.println(pose.get());
+            } else {
+                System.out.println("Error getting PathPlanner pose");
+            }
+            return AutoBuilder.followPath(path);
+        } catch (FileVersionException | IOException | ParseException e) {
+            System.err.println("Error loading PathPlanner path");
+            e.printStackTrace();
+        }
+        return new StopDrive(m_swerve);
     }
 
     public void setTeleDefaultCommand() {

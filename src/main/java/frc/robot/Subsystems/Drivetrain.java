@@ -156,36 +156,39 @@ public class Drivetrain extends SubsystemBase {
 
             // Configure AutoBuilder last
             AutoBuilder.configure(
-                this::getRoboPose2d, // Robot pose supplier
-                this::resetOdo, // Method to reset odometry (will be called if your auto has a starting pose)
-                this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                this::driveChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new PPHolonomicDriveController( // HolonomicPathFollowerConfig
-                        new PIDConstants(DriveTrainConstants.drivePID[0], // Translation PID constants
-                            DriveTrainConstants.drivePID[1],
-                            DriveTrainConstants.drivePID[2]), 
-                        new PIDConstants(DriveTrainConstants.turnPID[0], // Rotation PID constants
-                            DriveTrainConstants.turnPID[1],
-                            DriveTrainConstants.turnPID[2]) 
-                ),
-                ppConfig,
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red
-                    // alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this // Reference to this subsystem to set requirements
+                    this::getRoboPose2d, // Robot pose supplier
+                    this::resetOdo, // Method to reset odometry (will be called if your auto has a starting pose)
+                    this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                    this::driveChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                    new PPHolonomicDriveController( // HolonomicPathFollowerConfig
+                            new PIDConstants(DriveTrainConstants.drivePID[0], // Translation PID constants
+                                    DriveTrainConstants.drivePID[1],
+                                    DriveTrainConstants.drivePID[2]),
+                            new PIDConstants(DriveTrainConstants.turnPID[0], // Rotation PID constants
+                                    DriveTrainConstants.turnPID[1],
+                                    DriveTrainConstants.turnPID[2])),
+                    ppConfig,
+                    () -> {
+                        // Boolean supplier that controls when the path will be mirrored for the red
+                        // alliance
+                        // This will flip the path being followed to the red side of the field.
+                        // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                        var alliance = DriverStation.getAlliance();
+                        if (alliance.isPresent()) {
+                            return alliance.get() == DriverStation.Alliance.Red;
+                        }
+                        return false;
+                    },
+                    this // Reference to this subsystem to set requirements
             );
         } catch (Exception e) {
             // Handle exception as needed
             e.printStackTrace();
         }
+    }
+    
+    public void resetStartingPose(Pose2d newPose) {
+        m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(), newPose);
     }
 
     public Pigeon2 getGyro() {
