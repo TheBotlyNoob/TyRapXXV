@@ -38,6 +38,9 @@ public class Constants {
         public static final int kClampSolenoidCANID1 = 2;
         public static final int kClampSolenoidCANID2 = 3;
 
+        public static final int kRampSolenoidCANID1 = 6;
+        public static final int kRampSolenoidCANID2 = 7;
+
         public static final double kClimbMotorVoltage = 6;
         public static final double kMaxEncoderPos = 0.44;
         public static final double kMinEncoderPos = 0.218;
