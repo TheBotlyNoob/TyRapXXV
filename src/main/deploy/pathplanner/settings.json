@@ -3,14 +3,16 @@
   "robotLength": 0.965,
   "holonomicMode": true,
   "pathFolders": [
+    "Simple",
     "PlayerReef",
     "ReefPlayer",
-    "StartReef"
+    "StartingReef"
   ],
   "autoFolders": [
-    "StartReefPlayer",
+    "MultiStepAutos",
+    "Simple",
     "PlayerReefPlayer",
-    "StartReef"
+    "StartingReef"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

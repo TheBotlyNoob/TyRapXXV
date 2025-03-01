@@ -12,7 +12,7 @@
         "y": 7.230866477272728
       },
       "isLocked": false,
-      "linkedName": "StartEdge"
+      "linkedName": "Start1"
     },
     {
       "anchor": {
@@ -45,7 +45,7 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "StartReef",
+  "folder": "StartingReef",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

@@ -27,6 +27,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "StartReef",
+  "folder": "StartingReef",
   "choreoAuto": false
 }

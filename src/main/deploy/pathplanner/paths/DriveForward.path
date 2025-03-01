@@ -3,45 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.01,
-        "y": 4.0
+        "x": 7.7,
+        "y": 7.230866477272728
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.0100000000000007,
-        "y": 4.0
+        "x": 7.45,
+        "y": 7.230866477272728
       },
       "isLocked": false,
-      "linkedName": "Reef4"
+      "linkedName": "Start1"
     },
     {
       "anchor": {
-        "x": 2.413125,
-        "y": 5.8547869318181816
+        "x": 6.830539772727272,
+        "y": 7.230866477272728
       },
       "prevControl": {
-        "x": 2.719115509637147,
-        "y": 5.365202116398748
-      },
-      "nextControl": {
-        "x": 2.163835227272727,
-        "y": 6.2536505681818175
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 1.186619318181818,
-        "y": 7.071321022727273
-      },
-      "prevControl": {
-        "x": 1.6153977272727271,
-        "y": 6.443110795454545
+        "x": 7.080539772727272,
+        "y": 7.230866477272728
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Player1"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -58,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": 179.62305952040288
   },
   "reversed": false,
-  "folder": "ReefPlayer",
+  "folder": "Simple",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

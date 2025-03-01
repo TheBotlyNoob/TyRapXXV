@@ -3,77 +3,77 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.296306818181818,
-        "y": 6.911775568181818
+        "x": 2.8,
+        "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6752272727272728,
+        "x": 1.9999999999999998,
+        "y": 4.0
+      },
+      "isLocked": false,
+      "linkedName": "Reef6"
+    },
+    {
+      "anchor": {
+        "x": 2.3433238636363636,
+        "y": 5.077002840909091
+      },
+      "prevControl": {
+        "x": 2.2631331521554414,
+        "y": 4.622588809183867
+      },
+      "nextControl": {
+        "x": 2.4031534090909092,
+        "y": 5.416036931818183
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.3433238636363636,
+        "y": 5.95450284090909
+      },
+      "prevControl": {
+        "x": 2.3964565819704173,
+        "y": 5.595856992147584
+      },
+      "nextControl": {
+        "x": 2.3034375,
+        "y": 6.223735795459532
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.1438920454545456,
+        "y": 6.582713068181818
+      },
+      "prevControl": {
+        "x": 2.2934659090909095,
         "y": 6.353366477272727
       },
-      "isLocked": false,
-      "linkedName": "Player1"
-    },
-    {
-      "anchor": {
-        "x": 2.562698863636364,
-        "y": 6.592684659090909
-      },
-      "prevControl": {
-        "x": 2.2260516978136446,
-        "y": 6.596781002676224
-      },
       "nextControl": {
-        "x": 2.899346029459083,
-        "y": 6.588588315505595
+        "x": 2.0073251003178147,
+        "y": 6.792115717391471
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.467272727272728,
-        "y": 6.373309659090909
+        "x": 1.296306818181818,
+        "y": 6.911775568181818
       },
       "prevControl": {
-        "x": 3.7194034090909094,
-        "y": 6.612627840909091
-      },
-      "nextControl": {
-        "x": 5.212968002139258,
-        "y": 6.13468717113362
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 6.361875,
-        "y": 5.575582386363636
-      },
-      "prevControl": {
-        "x": 5.953039772732259,
-        "y": 5.864758522727272
-      },
-      "nextControl": {
-        "x": 6.665791896310211,
-        "y": 5.3606167767757436
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 6.18,
-        "y": 4.0
-      },
-      "prevControl": {
-        "x": 7.18,
-        "y": 4.0
+        "x": 1.578178600408552,
+        "y": 6.4988006314310205
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef3"
+      "linkedName": "Player1"
     }
   ],
   "rotationTargets": [],
@@ -90,13 +90,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -55.0
   },
   "reversed": false,
-  "folder": "PlayerReef",
+  "folder": "ReefPlayer",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

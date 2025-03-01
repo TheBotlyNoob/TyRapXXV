@@ -12,7 +12,7 @@
         "y": 7.220894886363636
       },
       "isLocked": false,
-      "linkedName": "StartEdge"
+      "linkedName": "Start1"
     },
     {
       "anchor": {
@@ -32,32 +32,32 @@
     },
     {
       "anchor": {
-        "x": 3.739346590909091,
-        "y": 6.463053977272727
+        "x": 3.6196875,
+        "y": 6.702372159090909
       },
       "prevControl": {
-        "x": 3.9140653491428967,
-        "y": 6.64186492638166
+        "x": 3.794406258233806,
+        "y": 6.881183108199842
       },
       "nextControl": {
-        "x": 3.5646278326752863,
-        "y": 6.284243028163794
+        "x": 3.4449687417661954,
+        "y": 6.523561209981976
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.739346590909091,
-        "y": 5.316321022727273
+        "x": 3.6196875,
+        "y": 5.465894886363635
       },
       "prevControl": {
-        "x": 3.410284090909091,
-        "y": 6.004360795454545
+        "x": 3.290625,
+        "y": 6.153934659090908
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef3"
+      "linkedName": "Reef1"
     }
   ],
   "rotationTargets": [],
@@ -77,7 +77,7 @@
     "rotation": -59.99999999999999
   },
   "reversed": false,
-  "folder": "StartReef",
+  "folder": "StartingReef",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

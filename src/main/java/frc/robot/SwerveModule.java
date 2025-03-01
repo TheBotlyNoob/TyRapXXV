@@ -9,6 +9,7 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -155,6 +156,10 @@ public class SwerveModule {
         turningConfig.inverted(DriveTrainConstants.kInvertTurn); //m_turningMotor.setInverted(true);
         turningConfig.smartCurrentLimit(40); //m_turningMotor.setSmartCurrentLimit(40);
         turningConfig.idleMode(IdleMode.kBrake); //m_turningMotor.setIdleMode(IdleMode.kBrake);
+        LimitSwitchConfig limitConfig = new LimitSwitchConfig();
+        limitConfig.forwardLimitSwitchEnabled(false);
+        limitConfig.reverseLimitSwitchEnabled(false);
+        turningConfig.apply(limitConfig);
         m_turningMotor.configure(turningConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         /*

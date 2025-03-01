@@ -3,77 +3,61 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.296306818181818,
-        "y": 6.911775568181818
+        "x": 7.7,
+        "y": 0.8
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.6752272727272728,
-        "y": 6.353366477272727
+        "x": 7.1000000000000005,
+        "y": 0.8000000000000002
       },
       "isLocked": false,
-      "linkedName": "Player1"
+      "linkedName": "Start7"
     },
     {
       "anchor": {
-        "x": 2.562698863636364,
-        "y": 6.592684659090909
+        "x": 6.621136363636364,
+        "y": 0.9986221590909088
       },
       "prevControl": {
-        "x": 2.2260516978136446,
-        "y": 6.596781002676224
+        "x": 6.828153600544325,
+        "y": 0.8584655908431339
       },
       "nextControl": {
-        "x": 2.899346029459083,
-        "y": 6.588588315505595
+        "x": 6.414119126728403,
+        "y": 1.1387787273386833
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.467272727272728,
-        "y": 6.373309659090909
+        "x": 6.002897727272727,
+        "y": 1.6268323863636351
       },
       "prevControl": {
-        "x": 3.7194034090909094,
-        "y": 6.612627840909091
+        "x": 6.242215909090908,
+        "y": 1.3476278409090903
       },
       "nextControl": {
-        "x": 5.212968002139258,
-        "y": 6.13468717113362
+        "x": 5.74258117789034,
+        "y": 1.9305350273097541
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.361875,
-        "y": 5.575582386363636
+        "x": 5.3348011363636365,
+        "y": 2.5741335227272724
       },
       "prevControl": {
-        "x": 5.953039772732259,
-        "y": 5.864758522727272
-      },
-      "nextControl": {
-        "x": 6.665791896310211,
-        "y": 5.3606167767757436
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 6.18,
-        "y": 4.0
-      },
-      "prevControl": {
-        "x": 7.18,
-        "y": 4.0
+        "x": 5.6528005003655455,
+        "y": 2.06533454032422
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef3"
+      "linkedName": "Reef4"
     }
   ],
   "rotationTargets": [],
@@ -90,13 +74,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 120.96375653207359
   },
   "reversed": false,
-  "folder": "PlayerReef",
+  "folder": "StartingReef",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -55.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

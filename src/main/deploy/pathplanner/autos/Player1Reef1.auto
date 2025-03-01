@@ -9,17 +9,11 @@
           "data": {
             "pathName": "Player1Reef1"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Reef1Player1"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "PlayerReefPlayer",
+  "folder": "Simple",
   "choreoAuto": false
 }

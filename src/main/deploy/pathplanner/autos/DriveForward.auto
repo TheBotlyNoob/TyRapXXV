@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Starting2Reef3"
+            "pathName": "DriveForward"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "StartingReef",
+  "folder": "Simple",
   "choreoAuto": false
 }

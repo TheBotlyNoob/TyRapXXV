@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Player2Reef6"
+            "pathName": "Player2Reef4"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Reef6Player2"
+            "pathName": "Reef4Player2"
           }
         }
       ]

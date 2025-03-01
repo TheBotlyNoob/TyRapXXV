@@ -7,13 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Starting1Reef1"
+            "pathName": "Starting2Reef2"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "AlignLeftTop"
+            "pathName": "Reef2Player1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Player1Reef1"
           }
         },
         {
@@ -29,15 +35,21 @@
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "AlignRightTop"
+            "pathName": "Reef1Player1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Player1Reef6"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "StartReefPlayer",
+  "folder": "MultiStepAutos",
   "choreoAuto": false
 }

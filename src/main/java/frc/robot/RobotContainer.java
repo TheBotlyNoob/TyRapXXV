@@ -186,20 +186,47 @@ public class RobotContainer {
 
     private void configurePathPlanner() {
         autoChooser.addOption("Starting2Reef2", "Starting2Reef2");
+        autoChooser.addOption("DriveForward", "DriveForward");
+        autoChooser.addOption("OnePieceAuto", "OnePieceAuto");
+        autoChooser.addOption("Player1Reef1", "Player1Reef1");
+        // For multi-step, create name to be name of multi-step, then have object be the name of the first step
+        // MultiStep example below
+        // autoChooser.addOption("MultiStepRight", "Starting2Reef2");
     }
 
     public void startAutonomous() {
-        SequentialCommandGroup start = new SequentialCommandGroup(getAutonomousCommand(),
-                new DriveOffset(m_swerve, m_Limelight, false));
+        String auto = autoChooser.getSelected();
+        SequentialCommandGroup start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
+                .getSelected()));
+        if (auto.equals("Player1Reef1")) { // For testing
+            start = new SequentialCommandGroup(getAutonomousCommand(autoChooser.getSelected()),
+                    new DriveOffset(m_swerve, m_Limelight, false)); // Add Elevator to L4 and score piece
+        }else if(auto.equals("OnePieceAuto")){ // Permanent choice
+            start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
+                    .getSelected()),
+                new DriveOffset(m_swerve, m_Limelight, false)); // Add Elevator to L4 and score piece
+        } /*else if (auto.equals("Starting2Reef2")) {
+            // MultiStep example/template below
+            start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
+                    .getSelected()),
+                    new DriveOffset(m_swerve, m_Limelight, false), // Add Elevator to L4 and score piece
+                    getAutonomousCommand("Reef2Player1"), new CenterOnTag(m_swerve, m_Limelight), // Collect coral here
+                    getAutonomousCommand("Player1Reef1"), new DriveOffset(m_swerve, m_Limelight, false), // Add Elevator to L4 and score piece
+                    getAutonomousCommand("Reef1Player1"), new CenterOnTag(m_swerve, m_Limelight), // Collect coral here
+                    getAutonomousCommand("Player1Reef1"), new DriveOffset(m_swerve, m_Limelight, true), // Add Elevator to L4 and score piece
+                    getAutonomousCommand("Reef1Player1"), new CenterOnTag(m_swerve, m_Limelight), // Collect coral here
+                    getAutonomousCommand("Player1Reef6"), new DriveOffset(m_swerve, m_Limelight, false) // Add Elevator to L4 and score piece
+                    );
+        }*/
         start.schedule();
     }
 
-    public Command getAutonomousCommand() {
+    public Command getAutonomousCommand(String pathName) {
         if (autoChooser.getSelected().equals("NO AUTO")) {
             return Commands.none();
         }
-        System.out.println("getAutoCommand building auto for " + autoChooser.getSelected());
         PathPlannerPath path;
+        System.out.println("getAutoCommand building auto for " + autoChooser.getSelected());
         try {
             path = PathPlannerPath.fromPathFile(autoChooser.getSelected());
             Optional<Pose2d> pose = path.getStartingHolonomicPose();

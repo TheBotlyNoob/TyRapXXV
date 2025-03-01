@@ -3,29 +3,45 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.186619318181818,
-        "y": 7.071321022727273
+        "x": 1.296306818181818,
+        "y": 6.911775568181818
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.7601957545328641,
-        "y": 6.252168978438281
+        "x": 1.6978103236275501,
+        "y": 6.338369137179523
       },
       "isLocked": false,
       "linkedName": "Player1"
     },
     {
       "anchor": {
-        "x": 2.213693181818182,
-        "y": 6.1539346590909085
+        "x": 2.1040056818181814,
+        "y": 6.243678977274447
       },
       "prevControl": {
-        "x": 2.2436079545454546,
-        "y": 6.802088068181818
+        "x": 2.0042897727272724,
+        "y": 6.602656250001719
       },
       "nextControl": {
-        "x": 2.2021669901660816,
-        "y": 5.904200506628736
+        "x": 2.1709166477647055,
+        "y": 6.002799499866961
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.167936759453235,
+        "y": 5.553014806097425
+      },
+      "prevControl": {
+        "x": 2.1798923944003303,
+        "y": 5.802728768047918
+      },
+      "nextControl": {
+        "x": 2.1559811245061398,
+        "y": 5.303300844146933
       },
       "isLocked": false,
       "linkedName": null
@@ -40,37 +56,46 @@
         "y": 5.255177881032084
       },
       "nextControl": {
-        "x": 2.0541477272727273,
-        "y": 4.349076704545454
+        "x": 2.070132775404896,
+        "y": 4.489745128108539
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.01,
+        "x": 2.1040056818181814,
+        "y": 4.169588068183538
+      },
+      "prevControl": {
+        "x": 2.0506924150187444,
+        "y": 4.413837317073216
+      },
+      "nextControl": {
+        "x": 2.1573189486176183,
+        "y": 3.92533881929386
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.8,
         "y": 4.0
       },
       "prevControl": {
-        "x": 2.010000000000001,
+        "x": 2.1999999999999997,
         "y": 4.0
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "Reef4"
+      "linkedName": "Reef6"
     }
   ],
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [
-    {
-      "name": "DriveOffset",
-      "waypointRelativePos": 3.0,
-      "endWaypointRelativePos": null,
-      "command": null
-    }
-  ],
+  "eventMarkers": [],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
