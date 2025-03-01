@@ -273,11 +273,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void setLevelUsingFlag() {
-        m_level = m_levelFlag;
-        m_table_level.set(m_level.toString());
+        //m_level = m_levelFlag;
+        //m_table_level.set(m_level.toString());
+        this.setLevel(m_levelFlag);
         System.out.println("Moving elevator using the flag to: " + m_level);
     }
-
+  
     public void levelUp() {
         int currentLevel = ElevatorLevel.toInt(m_level);
         if (currentLevel < ElevatorLevel.toInt(ElevatorLevel.LEVEL4)) {
@@ -290,6 +291,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         if (currentLevel > ElevatorLevel.toInt(ElevatorLevel.GROUND)) {
             setLevel(ElevatorLevel.fromInt(currentLevel - 1));
         }
+    }
+
+    public double getDesiredPosition() {
+        return this.desiredPosition;
     }
 
     public ElevatorFeedforward getFeedforward() {

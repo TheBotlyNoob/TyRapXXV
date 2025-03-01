@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.*;
@@ -36,6 +37,7 @@ import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.EjectCoral;
+import frc.robot.Commands.GoToFlagLevel;
 import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
@@ -112,8 +114,6 @@ public class RobotContainer {
         m_competitionTab.add("Drivetrain", this.m_swerve);
 
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
-
-        // configureBindings();
     }
 
     /**
@@ -132,6 +132,15 @@ public class RobotContainer {
      */
     public void configureBindings() {
         Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
+
+        Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
+            new DriveOffset(m_swerve, m_Limelight, false),
+            new GoToFlagLevel(m_elevator)
+        ));
+        Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
+            new DriveOffset(m_swerve, m_Limelight, true),
+            new GoToFlagLevel(m_elevator)
+        ));
 
         Controller.kDriveController.back()
                 .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
@@ -167,6 +176,15 @@ public class RobotContainer {
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
         Controller.kManipulatorController.back()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
+        
+        Controller.kManipulatorController.x()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)));
+        Controller.kManipulatorController.a()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL2)));
+        Controller.kManipulatorController.b()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)));
+        Controller.kManipulatorController.y()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));
     }
 
     public void configureTestBindings() {

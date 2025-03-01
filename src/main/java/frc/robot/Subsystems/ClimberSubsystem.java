@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
@@ -16,7 +17,8 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 public class ClimberSubsystem extends SubsystemBase {
     
     protected final NetworkTable table;
-    protected final AbsoluteEncoder m_climbEncoder;
+    //protected final AbsoluteEncoder m_climbEncoder;
+    protected final DutyCycleEncoder m_climbEncoder;
     private final DoublePublisher m_encoderPub;
     protected boolean isClimbMode;
 
@@ -39,7 +41,8 @@ public class ClimberSubsystem extends SubsystemBase {
         m_climbingMotor = new SparkMax(Constants.MechID.kClimberCanId, MotorType.kBrushless);
         m_climbMotorPublisher = new MotorPublisher(m_climbingMotor, table, "climbingMotor");
         m_encoderPublisher = table.getDoubleTopic("absolute encoder").publish();
-        m_climbEncoder = climbArmEncoder;
+        //m_climbEncoder = climbArmEncoder;
+        m_climbEncoder = new DutyCycleEncoder(9);
         m_encoderPub = nt.getDoubleTopic("Encoder Position").publish();
         isClimbMode = false;
         m_clampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kClampSolenoidCANID1, Constants.Climber.kClampSolenoidCANID2);
@@ -87,7 +90,7 @@ public class ClimberSubsystem extends SubsystemBase {
 
     public void reverseMotor(){
         System.out.println("reverseMotor called");
-        if (m_climbEncoder.getPosition() <= Constants.Climber.kMinEncoderPos){
+        if (m_climbEncoder.get() <= Constants.Climber.kMinEncoderPos){
             stopMotor();
         }
         else {
@@ -98,7 +101,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public void forwardMotor(){
         System.out.println("forwardMotor called");
 
-        if (m_climbEncoder.getPosition() >= Constants.Climber.kMaxEncoderPos){
+        if (m_climbEncoder.get() >= Constants.Climber.kMaxEncoderPos){
             stopMotor();
         }
         else {
@@ -123,7 +126,8 @@ public class ClimberSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         m_climbMotorPublisher.update();
-        m_encoderPub.set(m_climbEncoder.getPosition());
+        m_encoderPub.set(m_climbEncoder.get());
+        m_encoderPublisher.set(m_climbEncoder.get());
        // System.out.println("Encoder Value being updated: " + m_climbEncoder.getPosition());
 
     }
