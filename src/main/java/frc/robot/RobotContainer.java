@@ -8,15 +8,10 @@ import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -38,7 +33,6 @@ import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveOffset;
-import frc.robot.Commands.DriveRange;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.EjectCoral;
 import frc.robot.Commands.ElevatorJoystick;
@@ -150,30 +144,29 @@ public class RobotContainer {
         Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
+
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
         // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
         // -> 0.5, () -> m_range.getRange(), 90, 0.2));
 
-        Controller.kDriveController.povUp().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.5)));
-        Controller.kDriveController.povUp().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
-        Controller.kDriveController.povDown().whileTrue(m_elevator.runOnce(() -> m_elevator.setVoltageTest(-0.5)));
-        Controller.kDriveController.povDown().onFalse(m_elevator.runOnce(() -> m_elevator.setVoltageTest(0.0)));
-
-        //Controller.kDriveController.leftBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(0.3)));
-        //Controller.kDriveController.leftBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
-        //Controller.kDriveController.rightBumper().whileTrue(m_coral.runOnce(() -> m_coral.setVoltageTest(-0.3)));
-        //Controller.kDriveController.rightBumper().onFalse(m_coral.runOnce(() -> m_coral.setVoltageTest(0.0)));
+        Controller.kManipulatorController.povUp()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
+                .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
+        Controller.kManipulatorController.povDown()
+                .onTrue(m_elevator.runOnce(() -> m_elevator.manualDown()))
+                .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
         
-        Controller.kManipulatorController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kManipulatorController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kManipulatorController.rightTrigger().whileTrue(new EjectCoral(m_coral)); 
-
-
+        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
+        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
+        
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
         Controller.kManipulatorController.back()
