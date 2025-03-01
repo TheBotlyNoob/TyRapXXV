@@ -2,7 +2,7 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
@@ -12,13 +12,9 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
@@ -40,7 +36,6 @@ public class ElevatorSubsystem extends SubsystemBase {
          * AKA the trough level
          */
         LEVEL1,
-
         LEVEL2,
         LEVEL3,
         LEVEL4;
@@ -156,6 +151,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final ElevatorFeedforward m_feedforward;
     private final PIDController m_pidController;
     protected TrapezoidController m_trapController;
+    protected RelativeEncoder encoder;
 
     protected DigitalInput bottomLimitSwitch; // make sure limit switches are not unhooked or it freaks out
     protected DigitalInput topLimitSwitch;
@@ -172,9 +168,15 @@ public class ElevatorSubsystem extends SubsystemBase {
     protected DoubleEntry m_elevatorKProportion;
 
     protected double outputVoltage = 0;
+    protected double desiredPosition = 0;
+    protected double currentPosition = 0;
+    protected double currentVelocity = 0;
+    protected double targetVelocity = 0;
     protected double m_lastSpeed = 0.0;
     protected double m_lastTime = 0.0;
     protected boolean m_testMode = false;
+    protected boolean m_manualMode = false;
+    protected double m_manualSpeed = 0.0;
     protected double m_lastDesiredPosition = 0.0;
 
     public ElevatorSubsystem(NetworkTableInstance nt) {
@@ -232,6 +234,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_motorLeader.getEncoder().setPosition(0);
         m_motorFollower.getEncoder().setPosition(0);
 
+        encoder = m_motorLeader.getEncoder();
+
         m_motorPublisherLeader = new MotorPublisher(m_motorLeader, m_table, "leader");
         m_motorPublisherFollower = new MotorPublisher(m_motorFollower, m_table, "follower");
 
@@ -245,9 +249,10 @@ public class ElevatorSubsystem extends SubsystemBase {
                 Constants.Elevator.PID.kP,
                 Constants.Elevator.PID.kI,
                 Constants.Elevator.PID.kD);
-                
+
         m_trapController = new TrapezoidController(0.0, 0.1, .05, Constants.Elevator.kMaxVelocity,
-            Constants.Elevator.kMaxAcceleration, Constants.Elevator.kMaxAcceleration, Constants.Elevator.kDecelProp);
+                Constants.Elevator.kMaxAcceleration, Constants.Elevator.kMaxAcceleration,
+                Constants.Elevator.kDecelProp);
 
         setLevel(ElevatorLevel.GROUND);
     }
@@ -255,6 +260,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void setLevel(ElevatorLevel level) {
         m_level = level;
         m_table_level.set(level.toString());
+        desiredPosition = this.m_level.toHeight();
     }
 
     public void levelUp() {
@@ -283,6 +289,14 @@ public class ElevatorSubsystem extends SubsystemBase {
         return m_level;
     }
 
+    public double getCurrentPosition() {
+        return currentPosition;
+    }
+
+    public double getCurrentVelocity() {
+        return currentVelocity;
+    }
+
     public void updateConstants() {
         m_feedforward.setKs(m_elevatorKs.get());
         m_feedforward.setKg(m_elevatorKg.get());
@@ -298,29 +312,53 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void setVoltageTest(double voltage) {
         System.out.println("Setting Elevator voltage " + voltage);
-        double currentPosition = m_motorLeader.getEncoder().getPosition();
         outputVoltage = voltage;
-        if (!bottomLimitSwitch.get()) {
-            m_motorLeader.getEncoder().setPosition(0);
-            if (outputVoltage < 0) {
-                outputVoltage = 0;
-            }
-        }
-        if (topLimitSwitch.get()) {
-            if (outputVoltage > 0) {
-                outputVoltage = 0;
-            }
-        }
-
-        if (currentPosition > 22.0 && outputVoltage > 0.0) {
-            System.out.println("Cut off output due to max height");
-            outputVoltage = 0.0;
-        }
+        handleLimits();
         m_motorLeader.setVoltage(outputVoltage);
+    }
+
+    public void manualUp() {
+        m_manualMode = true;
+        m_manualSpeed = Constants.Elevator.kManualSpeed;
+    }
+
+    public void manualDown() {
+        m_manualMode = true;
+        m_manualSpeed = -Constants.Elevator.kManualSpeed;
+    }
+
+    public void stopManualMode() {
+        m_manualMode = false;
     }
 
     public void setTestMode(boolean testMode) {
         this.m_testMode = testMode;
+    }
+
+    public boolean isAtBottom() { // bottom limit states are swapped
+        return !bottomLimitSwitch.get();
+    }
+
+    public boolean isAtTop() {
+        return topLimitSwitch.get();
+    }
+
+    public void handleLimits() {
+        if (isAtBottom()) {
+            encoder.setPosition(0);
+            if (outputVoltage < 0 || targetVelocity <= 0.0) {
+                outputVoltage = 0;
+            }
+        }
+        if (isAtTop()) {
+            if (outputVoltage > 0) {
+                outputVoltage = 0;
+            }
+        }
+        if (currentPosition > Constants.Elevator.kElevatorMaxPos && outputVoltage > 0.0) {
+            System.out.println("Cut off output due to max height");
+            outputVoltage = 0.4;
+        }
     }
 
     @Override
@@ -329,48 +367,41 @@ public class ElevatorSubsystem extends SubsystemBase {
         m_motorPublisherFollower.update();
 
         if (!this.m_testMode) {
-            double currentPosition = m_motorLeader.getEncoder().getPosition();
-            double desiredPosition = this.m_level.toHeight();
+            currentPosition = encoder.getPosition();
             double currentDelta = desiredPosition - currentPosition;
-            double currentVelocity = m_motorLeader.getEncoder().getVelocity() / 60.;
+            currentVelocity = encoder.getVelocity() / 60;
+            targetVelocity = m_trapController.calculate(currentDelta, currentVelocity);
+
             if (desiredPosition != this.m_lastDesiredPosition) {
                 m_trapController.reinit(currentVelocity);
             }
-            double targetVelocity = m_trapController.calculate(currentDelta, currentVelocity);
+
+            if (m_manualMode) {
+                desiredPosition = currentPosition;
+                targetVelocity = m_manualSpeed;
+            }
+
             double targetAcceleration = (targetVelocity - this.m_lastSpeed);
 
             double pidVal = m_pidController.calculate(currentPosition, desiredPosition);
             double FFVal = m_feedforward.calculate(targetVelocity, targetAcceleration);
 
-            outputVoltage = (pidVal + FFVal);
+            outputVoltage = pidVal + FFVal;
             this.m_lastSpeed = currentVelocity;
             this.m_lastTime = Timer.getFPGATimestamp();
 
-            if (!bottomLimitSwitch.get()) {
-                m_motorLeader.getEncoder().setPosition(0);
-                if (outputVoltage < 0 || targetVelocity <= 0.0) {
-                    outputVoltage = 0;
-                }
-            }
-            if (topLimitSwitch.get()) {
-                if (outputVoltage > 0) {
-                    outputVoltage = 0;
-                }
-            }
+            handleLimits();
 
-            if (currentPosition > 18.0 && outputVoltage > 0.0) {
-                System.out.println("Cut off output due to max height");
-                outputVoltage = 0.4;
-            }
             this.m_lastDesiredPosition = desiredPosition;
             outputVoltagePreClampPub.set(outputVoltage);
             outputVoltage = MathUtil.clamp(outputVoltage, -6.0, 6.0);
             outputVoltagePostClampPub.set(outputVoltage);
-            m_motorLeader.setVoltage(outputVoltage);
             desiredVelocityPub.set(targetVelocity);
+
+            m_motorLeader.setVoltage(outputVoltage);
         }
-        m_encoder.set(m_motorLeader.getEncoder().getPosition());
-        m_bottomlimitSwitch.set(!bottomLimitSwitch.get());
-        m_toplimitSwitch.set(topLimitSwitch.get());
+        m_encoder.set(encoder.getPosition());
+        m_bottomlimitSwitch.set(isAtBottom());
+        m_toplimitSwitch.set(isAtTop());
     }
 }
