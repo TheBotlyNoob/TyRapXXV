@@ -136,14 +136,14 @@ public class RobotContainer {
                 .onTrue(this.m_swerve.setFieldRelativeCommand(false))
                 .onFalse(this.m_swerve.setFieldRelativeCommand(true));
 
-        Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
+        //Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
 
         Controller.kDriveController.leftBumper().onTrue(m_swerve.setDriveMultCommand(0.5))
                 .onFalse(m_swerve.setDriveMultCommand(1));
         Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
         Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
-        Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
-                () -> m_Limelight.getzDistanceMeters() - 0.1, 0));
+        /*Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
+                () -> m_Limelight.getzDistanceMeters() - 0.1, 0));*/
 
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
@@ -210,6 +210,7 @@ public class RobotContainer {
 
     public void updateConstants(){
         this.m_elevator.updateConstants();
+        this.m_elevator.resetEncoder();
     }
 
     public void reportTelemetry() {

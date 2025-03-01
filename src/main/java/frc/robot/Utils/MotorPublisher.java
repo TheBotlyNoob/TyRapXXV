@@ -36,7 +36,7 @@ public class MotorPublisher {
         table_motor_current.set(motor.getOutputCurrent());
         //table_motor_voltage.set(motor.getAppliedOutput());
         table_motor_position.set(encoder.getPosition());
-        table_motor_velocity.set(encoder.getVelocity());
+        table_motor_velocity.set(encoder.getVelocity()/60.0); // Divide by 60 to get rotations per second
         table_motor_voltage.set(motor.getBusVoltage()* motor.getAppliedOutput());
     }
 }

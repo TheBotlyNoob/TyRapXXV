@@ -44,6 +44,7 @@ public class Constants {
     }
     public static class Coral {
         public static final double kWristMotorVoltage = 4.5;
+        public static final double kWristMotorVoltageReverse = 6.0;
         // down -4.4
         // up +6
         public static final double kCoralFeederMotorVoltage = .5;
@@ -67,7 +68,7 @@ public class Constants {
 
     public static class Deadbands {
         public static final double kLeftJoystickDeadband = 0.06;
-        public static final double kRightJoyStickDeadband = 0.04;
+        public static final double kRightJoyStickDeadband = 0.06;
     }
 
     public static class DriveTrainConstants {
@@ -177,9 +178,9 @@ public class Constants {
         public static class Heights {
             public static final double kGround = 0.0;
             public static final double kLevel1 = 3.5;
-            public static final double kLevel2 = 7.0;
-            public static final double kLevel3 = 10.5;
-            public static final double kLevel4 = 14.0;
+            public static final double kLevel2 = 5.3;
+            public static final double kLevel3 = 12.85;
+            public static final double kLevel4 = 23.92;
         }
 
         public static class PID {
@@ -189,8 +190,8 @@ public class Constants {
         }
 
         public static class FF { // not tuned
-            public static final double kS = 0.0; // static friction (V)
-            public static final double kG = 0.8; // gravity (V)
+            public static final double kS = 0.1; // static friction (V)
+            public static final double kG = 0.55; // gravity (V)
             public static final double kV = 1.6; // volts per velocity (V/(m/s))
             public static final double kA = 0.0; // volts per acceleration (V/(m/s^2))
         }
@@ -202,11 +203,11 @@ public class Constants {
         public static final double kElevatorGearRatio = 0;
         public static final double kElevatorDrumRadius = 0;
 
-        public static final double kManualSpeed = 3.5;
-        public static final double kElevatorMaxPos = 18.0;
+        public static final double kManualSpeed = 0.5;
+        public static final double kElevatorMaxPos = 27.65;
 
 
-        public static final int kBottomLimitSwitch = 9;
+        public static final int kBottomLimitSwitch = 4;
         public static final int kTopLimitSwitch = 8;
     }
 
