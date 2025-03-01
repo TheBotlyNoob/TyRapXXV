@@ -110,8 +110,8 @@ public class Constants {
         /**
          * Rate limiters make joystick inputs more gentle; 1/3 sec from 0 to 1.
          */
-        public static final double kRateLimitXSpeed = 100.0;
-        public static final double kRateLimitYSpeed = 100.0;
+        public static final double kRateLimitXSpeed = 150.0;
+        public static final double kRateLimitYSpeed = 150.0;
         public static final double kRateLimitRot = 70.0;
         public static final double kMaxNecessarySpeed = DriveTrainConstants.kMaxPossibleSpeed * 0.8;
 
