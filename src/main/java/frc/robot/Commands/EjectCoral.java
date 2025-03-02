@@ -9,7 +9,11 @@ public class EjectCoral extends Command {
     }
 
     @Override
-    public void execute() {
+    public void initialize() {
         co.ejectCoral();
+    }
+
+    public boolean isFinished() {
+        return true;
     }
 }

@@ -41,7 +41,7 @@ public class Constants {
         public static final int kRampSolenoidCANID1 = 6;
         public static final int kRampSolenoidCANID2 = 7;
 
-        public static final double kClimbMotorVoltage = 6;
+        public static final double kClimbMotorVoltage = 12;
         public static final double kMaxEncoderPos = 0.44;
         public static final double kMinEncoderPos = 0.218;
     }
@@ -182,9 +182,9 @@ public class Constants {
         public static class Heights {
             public static final double kGround = 0.0;
             public static final double kLevel1 = 3.5;
-            public static final double kLevel2 = 5.3;
+            public static final double kLevel2 = 5.5;
             public static final double kLevel3 = 12.85;
-            public static final double kLevel4 = 23.92;
+            public static final double kLevel4 = 24.92;
         }
 
         public static class PID {

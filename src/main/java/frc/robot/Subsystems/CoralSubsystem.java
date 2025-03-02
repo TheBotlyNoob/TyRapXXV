@@ -143,6 +143,16 @@ public class CoralSubsystem extends SubsystemBase {
         reverseMotor();
     }
 
+    public void reinit()  {
+        boolean irDetected = !m_irSensor.get();
+        if (irDetected) {
+            state = CoralState.HOLDING;
+            m_coralGrabberMotor.set(0.0);
+        } else {
+            state = CoralState.WAITING;
+        }
+    }
+
     @Override
     public void periodic() {
         m_wristMotorPublisher.update();

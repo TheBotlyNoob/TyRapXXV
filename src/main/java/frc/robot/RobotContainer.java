@@ -139,17 +139,22 @@ public class RobotContainer {
 
         Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
             new DriveOffset(m_swerve, m_Limelight, false),
-            new DriveDistance(m_swerve, () -> 0.1,0),
+            new DriveDistance(m_swerve, () -> 0.14,0),
+            new StopDrive(m_swerve),
             new GoToFlagLevel(m_elevator),
+            new EjectCoral(m_coral),
             new WaitCommand(1),
-            new GoToLevel(m_elevator, ElevatorLevel.GROUND)
+            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+            //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
         ));
         Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
             new DriveOffset(m_swerve, m_Limelight, true),
-            new DriveDistance(m_swerve, () -> 0.1,0),
+            new DriveDistance(m_swerve, () -> 0.14,0),
+            new StopDrive(m_swerve),
             new GoToFlagLevel(m_elevator),
+            new EjectCoral(m_coral),
             new WaitCommand(1),
-            new GoToLevel(m_elevator, ElevatorLevel.GROUND)
+            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
         ));
 
         Controller.kDriveController.back()
@@ -286,6 +291,7 @@ public class RobotContainer {
     public void updateConstants() {
         this.m_elevator.updateConstants();
         this.m_elevator.resetEncoder();
+        this.m_coral.reinit();
     }
 
     public void reportTelemetry() {

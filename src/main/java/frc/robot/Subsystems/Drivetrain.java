@@ -375,7 +375,7 @@ public class Drivetrain extends SubsystemBase {
         m_backRight.setDesiredState(swerveModuleStates[3]);
 
         // Parameters for robot configuration
-
+        this.driveChassisSpeeds(new ChassisSpeeds());
     }
 
     /** Updates the field relative position of the robot. */
