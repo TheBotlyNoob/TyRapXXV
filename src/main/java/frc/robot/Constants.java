@@ -89,12 +89,12 @@ public class Constants {
 
         // ITS TUNED. NO TOUCH!
         public static final double[] turnPID = { 1.5, 0.2, 0.0 };
-        public static final double[] drivePID = { 3, 0.1, 0.0 };
-        public static final double[] turnFeedForward = { 0.0, 0.3 };
-        public static final double[] driveFeedForward = { 0.0, 2.675 };
+        public static final double[] drivePID = { 2, 0.0, 0.0 };
+        public static final double[] turnFeedForward = { 0.3, 0.2 };
+        public static final double[] driveFeedForward = { 0.17, 2.255 };
 
         public static final boolean kInvertTurn = true;
-        public static final double kMaxPossibleSpeed = 3.5; // meters per second
+        public static final double kMaxPossibleSpeed = 5.3; // meters per second
 
         public static final boolean sparkFlex = true;
     };

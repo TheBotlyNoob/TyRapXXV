@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
        // m_container.getDrivetrain().setFieldRelative(true);
        //m_container.clearDefaultCommand();
         //m_container.setTeleDefaultCommand();
-        //m_container.updateConstants();
+        m_container.updateConstants();
         m_container.configureTestBindings();
     }
     @Override
