@@ -135,71 +135,82 @@ public class RobotContainer {
      * joysticks}.
      */
     public void configureBindings() {
-        Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
-        Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
-            new DriveOffset(m_swerve, m_Limelight, false),
-            new DriveDistance(m_swerve, () -> 0.14,0),
-            new StopDrive(m_swerve),
-            new GoToFlagLevel(m_elevator),
-            new EjectCoral(m_coral),
-            new WaitCommand(1),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-            //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
-        ));
-        Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
-            new DriveOffset(m_swerve, m_Limelight, true),
-            new DriveDistance(m_swerve, () -> 0.14,0),
-            new StopDrive(m_swerve),
-            new GoToFlagLevel(m_elevator),
-            new EjectCoral(m_coral),
-            new WaitCommand(1),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-        ));
+        // DRIVE CONTROLLERS BINDINGS 
 
-        Controller.kDriveController.back()
-                .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
+            //Bumper Buttons for Scoring Sequence
+            Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
+                new DriveOffset(m_swerve, m_Limelight, false),
+                new DriveDistance(m_swerve, () -> 0.14,0),
+                new StopDrive(m_swerve),
+                new GoToFlagLevel(m_elevator),
+                new EjectCoral(m_coral),
+                new WaitCommand(1),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
+            ));
+            Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
+                new DriveOffset(m_swerve, m_Limelight, true),
+                new DriveDistance(m_swerve, () -> 0.14,0),
+                new StopDrive(m_swerve),
+                new GoToFlagLevel(m_elevator),
+                new EjectCoral(m_coral),
+                new WaitCommand(1),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+            ));
 
-        //Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
+            //Toggle  Robot Oriented Drive
+            Controller.kDriveController.back()
+                    .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
 
-        Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
-        Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
+            //reset Field Orient Command 
+            Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
-        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
-        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
-                                                                                        // sure grabber isnt extended
-        // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
-        // -> 0.5, () -> m_range.getRange(), 90, 0.2));
+            //Trigger Buttons for Algae Intake and Eject
+            Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
+            Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
+                                                                                            // sure grabber isnt extended
 
-        Controller.kManipulatorController.povUp()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
-                .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
-        Controller.kManipulatorController.povDown()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.manualDown()))
-                .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
+        //MANIPULATOR CONTROLLER BINDINGS:
 
-        Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
-        Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
+            //D-Pad for Elevator Manual Control
+            Controller.kManipulatorController.povUp()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
+                    .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
+            Controller.kManipulatorController.povDown()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.manualDown()))
+                    .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
 
-        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
-        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
-        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
-        
-        Controller.kManipulatorController.leftBumper()
-                .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
-        Controller.kManipulatorController.back()
-                .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
-        
-        Controller.kManipulatorController.x()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)));
-        Controller.kManipulatorController.a()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL2)));
-        Controller.kManipulatorController.b()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)));
-        Controller.kManipulatorController.y()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));
+            //D-Pad for Stinger Control
+            Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
+            Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
+
+            //Bumper Buttons 
+            Controller.kManipulatorController.leftBumper()
+                    .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
+
+            //Triger Buttons 
+            Controller.kManipulatorController.rightTrigger().whileTrue(new EjectCoral(m_coral));
+
+            //Back Button for Climber Mode Toggle
+            Controller.kManipulatorController.back()
+                    .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
+            
+            //X, A, B, Y for Elevator Level Flags
+            Controller.kManipulatorController.x()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)));
+            Controller.kManipulatorController.a()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL2)));
+            Controller.kManipulatorController.b()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)));
+            Controller.kManipulatorController.y()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));
+
+        //TEMPORARY BINDINGS FOR TESTING:
+            Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+            Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
+            Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+            Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
     }
 
     public void configureTestBindings() {
