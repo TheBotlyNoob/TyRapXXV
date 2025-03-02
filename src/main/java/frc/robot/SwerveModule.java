@@ -300,4 +300,12 @@ public class SwerveModule {
         this.goToPosition(state.angle.getRadians());
         m_desiredState = state;
     }
+    
+    public PIDController getDrivePidController() {
+        return m_drivePIDController;
+    }
+
+    public SimpleMotorFeedforward getDriveFeedForward() {
+        return m_driveFeedforward;
+    }
 }

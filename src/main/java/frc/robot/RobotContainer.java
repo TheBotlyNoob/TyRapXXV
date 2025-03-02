@@ -4,13 +4,12 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Seconds;
-
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
@@ -37,6 +36,7 @@ import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
+import frc.robot.Commands.DriveFixedVelocity;
 import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.EjectCoral;
@@ -78,6 +78,11 @@ public class RobotContainer {
     private GenericEntry m_commandedYVel = m_competitionTab.add("CommandedVY", 0).getEntry();
     private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
+    protected GenericEntry m_driveP = m_competitionTab.add("Drive P Val", DriveTrainConstants.drivePID[0]).getEntry();
+    protected GenericEntry m_driveFFStatic = m_competitionTab.add("Drive FF Static", DriveTrainConstants.driveFeedForward[0]).getEntry();
+    protected GenericEntry m_driveFFVel = m_competitionTab.add("Drive FF Vel", DriveTrainConstants.driveFeedForward[1]).getEntry();
+    protected GenericEntry m_driveAccel = m_competitionTab.add("Drive FF Accel", 0.0).getEntry();
+    private GenericEntry m_fixedSpeed = m_competitionTab.add("Fixed Speed", 0).getEntry();
     private SwerveModuleSB[] mSwerveModuleTelem;
 
     Command m_driveCommand;
@@ -98,6 +103,7 @@ public class RobotContainer {
 
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
+        CameraServer.startAutomaticCapture();
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
         this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
                 NetworkTableInstance.getDefault());
@@ -232,10 +238,10 @@ public class RobotContainer {
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
 
 
-        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
-        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kDriveController.povUp().whileTrue(new DriveFixedVelocity(m_swerve, 0, () -> m_fixedSpeed.getDouble(0.5)));
+        Controller.kDriveController.povRight().whileTrue(new DriveFixedVelocity(m_swerve, 90, () -> m_fixedSpeed.getDouble(0.5)));
+        Controller.kDriveController.povDown().whileTrue(new DriveFixedVelocity(m_swerve, 180, () -> m_fixedSpeed.getDouble(0.5)));
+        Controller.kDriveController.povLeft().whileTrue(new DriveFixedVelocity(m_swerve, 270, () -> m_fixedSpeed.getDouble(0.5)));
         Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
         
         Controller.kManipulatorController.leftBumper()
@@ -292,6 +298,31 @@ public class RobotContainer {
         this.m_elevator.updateConstants();
         this.m_elevator.resetEncoder();
         this.m_coral.reinit();
+        this.setPIDConstants();
+    }
+
+    public void setPIDConstants() {
+        // Configure the drive train tuning constants from the dashboard
+        double driveP = m_driveP.getDouble(Constants.DriveTrainConstants.drivePID[0]);
+        double driveFFStatic = m_driveFFStatic.getDouble(Constants.DriveTrainConstants.driveFeedForward[0]);
+        double driveFFVel = m_driveFFVel.getDouble(Constants.DriveTrainConstants.driveFeedForward[1]);
+        double driveFFAccel = m_driveAccel.getDouble(0.0);
+        m_swerve.getFrontLeftSwerveModule().getDrivePidController().setP(driveP);
+        m_swerve.getFrontLeftSwerveModule().getDriveFeedForward().setKs(driveFFStatic);
+        m_swerve.getFrontLeftSwerveModule().getDriveFeedForward().setKv(driveFFVel);
+        m_swerve.getFrontLeftSwerveModule().getDriveFeedForward().setKa(driveFFAccel);
+        m_swerve.getFrontRightSwerveModule().getDrivePidController().setP(driveP);
+        m_swerve.getFrontRightSwerveModule().getDriveFeedForward().setKs(driveFFStatic);
+        m_swerve.getFrontRightSwerveModule().getDriveFeedForward().setKv(driveFFVel);
+        m_swerve.getFrontRightSwerveModule().getDriveFeedForward().setKa(driveFFAccel);
+        m_swerve.getBackLeftSwerveModule().getDrivePidController().setP(driveP);
+        m_swerve.getBackLeftSwerveModule().getDriveFeedForward().setKs(driveFFStatic);
+        m_swerve.getBackLeftSwerveModule().getDriveFeedForward().setKv(driveFFVel);
+        m_swerve.getBackLeftSwerveModule().getDriveFeedForward().setKa(driveFFAccel);
+        m_swerve.getBackRightSwerveModule().getDrivePidController().setP(driveP);
+        m_swerve.getBackRightSwerveModule().getDriveFeedForward().setKs(driveFFStatic);
+        m_swerve.getBackRightSwerveModule().getDriveFeedForward().setKv(driveFFVel);
+        m_swerve.getBackRightSwerveModule().getDriveFeedForward().setKa(driveFFAccel);
     }
 
     public void reportTelemetry() {
