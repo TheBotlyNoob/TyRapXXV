@@ -66,6 +66,7 @@ public class DriveDistance extends Command {
     protected double threshold;
     protected boolean useDashboardEntries = false;
     protected DoubleSupplier distanceSupplier;
+    protected double endTime;
 
     // Constructors
     public DriveDistance(Drivetrain dt, DoubleSupplier distanceSupplier, double desiredAngle) {
@@ -83,6 +84,7 @@ public class DriveDistance extends Command {
 
     @Override
     public void initialize() {
+        endTime = Timer.getFPGATimestamp() + 2.0;
         try {
             // Make sure dashboard values are used in code
             if (this.useDashboardEntries) {
@@ -152,7 +154,7 @@ public class DriveDistance extends Command {
 
     @Override
     public boolean isFinished() {
-        if (rangeM <= threshold) {
+        if (rangeM <= threshold || Timer.getFPGATimestamp() > endTime) {
             return true;
         }
         return false;

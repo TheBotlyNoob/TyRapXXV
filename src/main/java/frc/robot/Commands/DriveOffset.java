@@ -149,10 +149,10 @@ public class DriveOffset extends Command {
                 .plus(new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(),
                         new Rotation2d(Math.toRadians(rotAngleDegrees))));
         // Print outs for testing
-        System.out.println("currentPose = " + currentPose);
-        System.out.println("tagPose = " + tagPose);
-        System.out.println("desiredPoseRobotRelative = " + desiredPoseRobotRelative);
-        System.out.println("desiredPoseField = " + desiredPoseField);
+        //System.out.println("currentPose = " + currentPose);
+        //System.out.println("tagPose = " + tagPose);
+        //System.out.println("desiredPoseRobotRelative = " + desiredPoseRobotRelative);
+        //System.out.println("desiredPoseField = " + desiredPoseField);
 
         return desiredPoseField;
     }
@@ -186,6 +186,9 @@ public class DriveOffset extends Command {
         
         // Calculate angle error
         angleError = desiredPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
+        if (angleError > Math.PI) {
+                angleError -= 2*Math.PI;
+        }
         if (Math.abs(angleError) > LimelightConstants.driveOffsetAngleError) {
                 if (remainingTime > 0) {
                         // Calculate angular speed
@@ -194,7 +197,7 @@ public class DriveOffset extends Command {
                 } else {
                         // Give robot a chance to turn to desired angle even after we've reached the correct distance
                         calcVel.omegaRadiansPerSecond = Math.toRadians(
-                                Math.copySign(Math.toRadians(10.0), angleError));
+                                Math.copySign(Math.toRadians(8.0), angleError));
                 }
         }
         omegaDps.setDouble(Math.toDegrees(calcVel.omegaRadiansPerSecond));

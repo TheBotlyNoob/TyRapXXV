@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -57,6 +58,7 @@ import frc.robot.Commands.GoToLevel;
 import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
+import frc.robot.Commands.StationaryWait;
 import frc.robot.Commands.StopDrive;
 import org.json.simple.parser.ParseException;
 
@@ -162,22 +164,25 @@ public class RobotContainer {
             //Bumper Buttons for Scoring Sequence
             Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, false),
-                new DriveDistance(m_swerve, () -> 0.14,0),
                 new StopDrive(m_swerve),
-                //new GoToFlagLevel(m_elevator),
+                new StationaryWait(m_swerve, 0.06),
+                new DriveDistance(m_swerve, () -> 0.15,0),
+                new StopDrive(m_swerve),
+                new GoToFlagLevel(m_elevator),
                 new EjectCoral(m_coral),
-                new WaitCommand(1)
-                //m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
+                new WaitCommand(1),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
             ));
             Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, true),
-                new DriveDistance(m_swerve, () -> 0.14,0),
                 new StopDrive(m_swerve),
-                //new GoToFlagLevel(m_elevator),
+                new StationaryWait(m_swerve, 0.06),
+                new DriveDistance(m_swerve, () -> 0.15,0),
+                new StopDrive(m_swerve),
+                new GoToFlagLevel(m_elevator),
                 new EjectCoral(m_coral),
-                new WaitCommand(1)
-                //m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                new WaitCommand(1),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
             ));
 
             //Toggle  Robot Oriented Drive
@@ -299,22 +304,98 @@ public class RobotContainer {
         autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
         autoChooser.addOption("OnePieceAuto", "OnePieceAuto"); // Permanent choice
         autoChooser.addOption("Player1Reef1", "Player1Reef1"); // Testing
-        autoChooser.addOption("Reef2Player1", "Reef2Player1"); // Testing
+        autoChooser.addOption("Reef2Player1", "Reef2Player1");
+        autoChooser.addOption("Starting1Reef2", "Starting1Reef2");
+        autoChooser.addOption("Starting7Reef4", "Starting7Reef4"); // Testing
         // For multi-step, create name to be name of multi-step, then have object be the name of the first step
         // MultiStep example below
         // autoChooser.addOption("MultiStepRight", "Starting2Reef2"); // Permanent choice
         // autoChooser.addOption("MultiStepLeft", "Starting7Reef4"); // Permanent choice
     }
 
+    public SequentialCommandGroup buildStarting1Reef2Auto() {
+        return new SequentialCommandGroup(
+                    getAutonomousCommand(autoChooser.getSelected(), true), 
+                    new StopDrive(m_swerve),
+                    new StationaryWait(m_swerve, 0.5),
+                    new DriveOffset(m_swerve, m_Limelight, false, 19),
+                    new ParallelCommandGroup(new SequentialCommandGroup(
+                    new DriveDistance(m_swerve, () -> 0.18, 0),
+                    new StopDrive(m_swerve)),
+                    new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
+                    new EjectCoral(m_coral),
+                    new StationaryWait(m_swerve, .7),
+                    m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
+                    new StationaryWait(m_swerve, 1.0),
+                    getAutonomousCommand("Reef2Player1", false), 
+                    new StopDrive(m_swerve),
+                    new StationaryWait(m_swerve, .2),
+                    new DriveDistance(m_swerve, () -> .02, 180),
+                    new StopDrive(m_swerve),
+                    new StationaryWait(m_swerve, 1.2),
+                    getAutonomousCommand("Player1Reef1", false),
+                    new StopDrive(m_swerve),
+                    new StationaryWait(m_swerve, .4),
+                    new DriveOffset(m_swerve, m_Limelight, true, 18),
+                    new ParallelCommandGroup(new SequentialCommandGroup(
+                    new DriveDistance(m_swerve, () -> 0.14, 0),
+                    new StopDrive(m_swerve)),
+                    new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
+                    new EjectCoral(m_coral),
+                    new StationaryWait(m_swerve, .7),
+                    m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                    ); // Add Elevator to L4 and score piece
+    }
+
+    public SequentialCommandGroup buildStarting7Reef4Auto() {
+        return new SequentialCommandGroup(
+                    getAutonomousCommand(autoChooser.getSelected(), true), 
+                    new StopDrive(m_swerve),
+                    new StationaryWait(m_swerve, 0.5),
+                    new DriveOffset(m_swerve, m_Limelight, false, 19), // Temporary id for testing
+                    new ParallelCommandGroup(new SequentialCommandGroup(
+                    new DriveDistance(m_swerve, () -> 0.18, 0),
+                    new StopDrive(m_swerve)),
+                    new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
+                    new EjectCoral(m_coral),
+                    new StationaryWait(m_swerve, .7),
+                    m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
+                    new StationaryWait(m_swerve, 1.0),
+                    getAutonomousCommand("Reef4Player2", false), 
+                    new StopDrive(m_swerve),
+                    new StationaryWait(m_swerve, .2),
+                    new DriveDistance(m_swerve, () -> .02, 180),
+                    new StopDrive(m_swerve),
+                    new StationaryWait(m_swerve, 1.2),
+                    getAutonomousCommand("Player2Reef5", false),
+                    new StopDrive(m_swerve),
+                    new StationaryWait(m_swerve, .4),
+                    new DriveOffset(m_swerve, m_Limelight, true, 18), // Temporary ID for testing
+                    new ParallelCommandGroup(new SequentialCommandGroup(
+                    new DriveDistance(m_swerve, () -> 0.14, 0),
+                    new StopDrive(m_swerve)),
+                    new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
+                    new EjectCoral(m_coral),
+                    new StationaryWait(m_swerve, .7),
+                    m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                    ); 
+    }
+
     public void startAutonomous() {
+        m_coral.reinit();
         String auto = autoChooser.getSelected();
-        SequentialCommandGroup start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
-                .getSelected()));
-        /*if (auto.equals("Player1Reef1")) { // For testing
-            start = new SequentialCommandGroup(getAutonomousCommand(autoChooser.getSelected()), new WaitCommand(1),
-                    new DriveOffset(m_swerve, m_Limelight, true, 19), getAutonomousCommand("Reef1Player1"), 
-                    new StopDrive(m_swerve)); // Add Elevator to L4 and score piece
-        }/*else if(auto.equals("OnePieceAuto")){ // Permanent choice
+        /*SequentialCommandGroup start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
+                .getSelected())); */
+        SequentialCommandGroup start;
+        if (auto.equals("Starting1Reef2")) { // For testing
+            start = buildStarting1Reef2Auto();
+            start.schedule();
+        } else if (auto.equals("Starting7Reef4")) {
+            start = buildStarting7Reef4Auto();
+            start.schedule();
+        }
+        
+        /*else if(auto.equals("OnePieceAuto")){ // Permanent choice
             start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
                     .getSelected()),
                 new DriveOffset(m_swerve, m_Limelight, false)); // Add Elevator to L4 and score piece
@@ -331,23 +412,21 @@ public class RobotContainer {
                     getAutonomousCommand("Player1Reef6"), new DriveOffset(m_swerve, m_Limelight, false, 18) // Add Elevator to L4 and score piece
                     );
         }*/
-        start.schedule();
     }
 
-    public Command getAutonomousCommand(String pathName) {
-        if (autoChooser.getSelected().equals("NO AUTO")) {
-            return Commands.none();
-        }
+    public Command getAutonomousCommand(String pathName, boolean resetOdometry) {
         PathPlannerPath path;
-        System.out.println("getAutoCommand building auto for " + autoChooser.getSelected());
+        System.out.println("getAutoCommand building auto for " + pathName);
         try {
-            path = PathPlannerPath.fromPathFile(autoChooser.getSelected());
-            Optional<Pose2d> pose = path.getStartingHolonomicPose();
-            if (pose.isPresent()) {
-                m_swerve.resetStartingPose(pose.get());
-                System.out.println(pose.get());
-            } else {
-                System.out.println("Error getting PathPlanner pose");
+            path = PathPlannerPath.fromPathFile(pathName);
+            if (resetOdometry) {
+                Optional<Pose2d> pose = path.getStartingHolonomicPose();
+                if (pose.isPresent()) {
+                    m_swerve.resetStartingPose(pose.get());
+                    System.out.println(pose.get());
+                } else {
+                    System.out.println("Error getting PathPlanner pose");
+                }
             }
             return AutoBuilder.followPath(path);
         } catch (FileVersionException | IOException | ParseException e) {
