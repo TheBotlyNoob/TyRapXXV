@@ -38,17 +38,32 @@ public class Constants {
         public static final int kClampSolenoidCANID1 = 2;
         public static final int kClampSolenoidCANID2 = 3;
 
-        public static final double kClimbMotorVoltage = 1.0;
-        public static final double kMaxEncoderPos = 0.5;
+        public static final int kRampSolenoidCANID1 = 6;
+        public static final int kRampSolenoidCANID2 = 7;
+
+        public static final double kClimbMotorVoltage = 12;
+        public static final double kMaxEncoderPos = 0.44;
         public static final double kMinEncoderPos = 0.218;
+    }
+    public static class Coral {
+        public static final double kWristMotorVoltage = 4.5;
+        public static final double kWristMotorVoltageReverse = 6.0;
+        // down -4.4
+        // up +6
+        public static final double kCoralFeederMotorVoltage = .5;
+        public static final double kMaxEncoderPos = .255;
+        public static final double kMinEncoderPos = .062;
+        public static final double kLimitEncoderPos = .037; //HARD STOP
+
     }
 
     public static class MechID {
         public static final int kAlgaeMotorCanId = 41;
         public static final int kClimberCanId = 10;
+        //Elevator
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
-        //Can Id Unkown
+        //Coral Manipulator
         public static final int kCoralWristCanId = 13;
         public static final int kCoralWheelCanId = 14;
     
@@ -56,7 +71,7 @@ public class Constants {
 
     public static class Deadbands {
         public static final double kLeftJoystickDeadband = 0.06;
-        public static final double kRightJoyStickDeadband = 0.04;
+        public static final double kRightJoyStickDeadband = 0.06;
     }
 
     public static class DriveTrainConstants {
@@ -92,14 +107,14 @@ public class Constants {
     }
 
     public static class Controller {
-        public static final int kDriveControllerID = 1;
-        public static final int kManipControllerID = 0;
+        public static final int kDriveControllerID = 0;
+        public static final int kManipControllerID = 1;
 
         /**
          * Rate limiters make joystick inputs more gentle; 1/3 sec from 0 to 1.
          */
-        public static final double kRateLimitXSpeed = 100.0;
-        public static final double kRateLimitYSpeed = 100.0;
+        public static final double kRateLimitXSpeed = 150.0;
+        public static final double kRateLimitYSpeed = 150.0;
         public static final double kRateLimitRot = 70.0;
         public static final double kMaxNecessarySpeed = DriveTrainConstants.kMaxPossibleSpeed * 0.8;
 
@@ -122,7 +137,7 @@ public class Constants {
         public static final double kBackRightOffset = 1.101;
 
         // Camera Positioning
-        public static final double cameraOffsetForwardM = 0.10;
+        public static final double cameraOffsetForwardM = 0.08;
         public static final double cameraOffsetFromFrontBumber = 0.38;
     }
 
@@ -135,7 +150,6 @@ public class Constants {
         public static final double minAngVelocityDPS = 0;
         public static final double maxAngVelocityDPS = 20;
         public static final double xDisThreshold = 0.03;
-        public static final double yDisThreshold = 0.03;
         public static final double rotThreshold = 1.0;
         public static final double azimuthFieldOfViewDeg = 29.0;
         public static final double xOffset = 0.0;
@@ -152,45 +166,52 @@ public class Constants {
         public static final double threshold = .02;
         // For DriveOffset
         public static final double driveOffsetXOffset = 0.7;
-        public static final double driveOffsetYOffset = 0.3;
-        public static final double driveOffsetMaxAccMSS = 2;
-        public static final double driveOffsetMaxDccMSS = 2;
+        public static final double driveOffsetYOffset = 0.16;
+        public static final double driveOffsetMaxAccMSS = 1.2;
+        public static final double driveOffsetMaxDccMSS = 3;
         public static final double driveOffsetMinVel = 0.1;
         public static final double driveOffsetMaxVel = 1.5;
         public static final double driveOffsetAngleError = 0.015;
         public static final double driveOffsetRangeMThreshold = 0.02;
+        public static final double driveOffsetKp = 2.0;
     }
-
+    public static final class SensorID {
+        public static final int kIRSensorPort = 7; 
+    }
     public class Elevator {
         public static class Heights {
             public static final double kGround = 0.0;
-            public static final double kLevel1 = 2.0;
-            public static final double kLevel2 = 4.0;
-            public static final double kLevel3 = 6.0;
-            public static final double kLevel4 = 8.0;
+            public static final double kLevel1 = 3.5;
+            public static final double kLevel2 = 5.5;
+            public static final double kLevel3 = 12.85;
+            public static final double kLevel4 = 24.92;
         }
 
         public static class PID {
-            public static final double kP = 1.3; // not tuned
+            public static final double kP = 0.0; // not tuned
             public static final double kI = 0.0; // not tuned
-            public static final double kD = 0.7; // not tuned
+            public static final double kD = 0.0; // not tuned
         }
 
-        public static class FF {
-            public static final double kS = 1.1; // static friction (V)
-            public static final double kG = 1.2; // gravity (V)
-            public static final double kV = 1.3; // volts per velocity (V/(m/s))
+        public static class FF { // not tuned
+            public static final double kS = 0.1; // static friction (V)
+            public static final double kG = 0.55; // gravity (V)
+            public static final double kV = 1.6; // volts per velocity (V/(m/s))
             public static final double kA = 0.0; // volts per acceleration (V/(m/s^2))
         }
 
-        public static final double kMaxVelocity = 4.0;
-        public static final double kMaxAcceleration = 4.0;
+        public static final double kMaxVelocity = 2.5;
+        public static final double kMaxAcceleration = 2.0;
+        public static final double kDecelProp = 0.4;
 
         public static final double kElevatorGearRatio = 0;
         public static final double kElevatorDrumRadius = 0;
 
+        public static final double kManualSpeed = 0.5;
+        public static final double kElevatorMaxPos = 27.65;
 
-        public static final int kBottomLimitSwitch = 9;
+
+        public static final int kBottomLimitSwitch = 4;
         public static final int kTopLimitSwitch = 8;
     }
 
@@ -204,32 +225,3 @@ public class Constants {
 
     }
 }
-// public static class ElevatorConstants {
-// //sim
-// public static final double maxHeightM = 2.0;
-// public static final double minHeightM = 0.8;
-// public static final double maxVelocityMps = 2.0;
-
-// public static final double kMaxVelocity = 4.0;
-// public static final double kMaxAcceleration = 4.0;
-// public static final double kMaxVoltage = 3;
-// //elevator pid not tuned
-// public static final double kp = 1.3;
-// public static final double ki = 0.0;
-// public static final double kd = 0.7;
-// //elevator ff not tuned
-// public static final double ks = 1.1; //static friction (V)
-// public static final double kg = 1.2; //gravity (V)
-// public static final double kv = 1.3; //volts per velocity (V/(m/s))
-// public static final double ka = 0.0; //volts per acceleration (V/(m/s^2))
-// //fake values
-// public static final double kMamotor2xElevatorHeight = 1.75; //determine units
-// public static final double kMinElevatorHeight = 0.0;
-// public static double[] HEIGHT_STAGE = {0, 1, 2, 3};
-// public static final double kElevatorGearing = 10;
-// public static final double kElevatorDrumRadius = Units.inchesToMeters(2.0);
-// public static final double kCarriageMass = 4.0; // kg
-// //demoboard IDs
-// public static final int leadCANID = 13;
-// public static final int followCANID = 14;
-// }

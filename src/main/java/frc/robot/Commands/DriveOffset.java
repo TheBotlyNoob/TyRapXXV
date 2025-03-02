@@ -13,8 +13,6 @@ import edu.wpi.first.math.geometry.Transform2d;
 import frc.robot.Utils.TrapezoidController;
 import frc.robot.Constants.LimelightConstants;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-// Depending on the robot, use different constants
-//import frc.robot.TyRap24Constants.*;
 import frc.robot.Constants.*;
 import frc.robot.LimelightHelpers;
 
@@ -53,7 +51,7 @@ public class DriveOffset extends Command {
             .add("CurrentLinearSpeed", 0)
             .getEntry();
     private static GenericEntry decelKpEntry = Shuffleboard.getTab("DriveOffset")
-            .add("DecelKp", 5.0)
+            .add("DecelKp", LimelightConstants.driveOffsetKp)
             .getEntry();
 
     // Variables created for DriveOffset

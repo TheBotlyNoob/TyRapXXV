@@ -35,6 +35,7 @@ public class Robot extends TimedRobot {
         m_container.clearDefaultCommand();
         m_container.setTeleDefaultCommand();
         m_container.updateConstants();
+        m_container.configureBindings();
     }
 
     @Override
@@ -58,6 +59,18 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("BackRight", m_container.getDrivetrain().getBackRightSwerveModule().getRawTurningPositionRadians());
         SmartDashboard.putNumber("FrontLeft", m_container.getDrivetrain().getFrontLeftSwerveModule().getRawTurningPositionRadians());
         SmartDashboard.putNumber("FrontRight", m_container.getDrivetrain().getFrontRightSwerveModule().getRawTurningPositionRadians());
+    }
+
+    @Override
+    public void testInit() {
+       // m_container.getDrivetrain().setFieldRelative(true);
+       //m_container.clearDefaultCommand();
+        //m_container.setTeleDefaultCommand();
+        //m_container.updateConstants();
+        m_container.configureTestBindings();
+    }
+    @Override
+    public void testPeriodic() {
     }
 
 }

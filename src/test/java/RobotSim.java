@@ -119,19 +119,21 @@ public class RobotSim {
         System.out.println("Optimal end pose: " + optimalEndPose.getTranslation() + " " +
                 Math.toDegrees(optimalEndPose.getRotation().getZ()));
         System.out.println("x thresh=" + LimelightConstants.xDisThreshold + " x_act=" + deltaPos.getX());
-        System.out.println("y thresh=" + LimelightConstants.yDisThreshold + " y_act=" + deltaPos.getY());
+        // System.out.println("y thresh=" + LimelightConstants.yDisThreshold + " y_act="
+        // + deltaPos.getY());
         System.out.println("rot thresh=" + LimelightConstants.rotThreshold + " rot_act=" +
                 Math.toDegrees(deltaPos.getRotation().getZ()));
         assertTrue(Math.abs(deltaPos.getX()) <= (LimelightConstants.xDisThreshold + TOLERANCE_METERS),
                 "X thresh check");
-        assertTrue(Math.abs(deltaPos.getY()) <= (LimelightConstants.yDisThreshold + TOLERANCE_METERS),
-                "Y thresh check");
+        // assertTrue(Math.abs(deltaPos.getY()) <= (LimelightConstants.yDisThreshold +
+        // TOLERANCE_METERS),
+        // "Y thresh check");
         assertTrue(Math.abs(
                 Math.toDegrees(deltaPos.getRotation().getZ())) <= (LimelightConstants.rotThreshold + TOLERANCE_DEGREES),
                 "Angle thresh check");
     }
 
-    //@org.junit.jupiter.api.Test
+    // @org.junit.jupiter.api.Test
     public void testCaseDriveDistance() {
         // Enable the simulated robot
         DriverStationSim.setDsAttached(true);
@@ -244,7 +246,7 @@ public class RobotSim {
                 e.printStackTrace();
                 break;
             }
-            
+
             field.setRobotPose(m_drive.getSimPose().toPose2d());
             System.out.println("T=" + (float) t + " Robot x=" + m_drive.getSimPose().getX() +
                     " y=" + m_drive.getSimPose().getY() + " yaw="

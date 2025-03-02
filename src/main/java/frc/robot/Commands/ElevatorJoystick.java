@@ -12,6 +12,7 @@ public class ElevatorJoystick extends Command {
 
     public ElevatorJoystick(ElevatorSubsystem el) {
         this.el = el;
+        System.out.println("ElevatorJoystick command initialized");
     }
 
     @Override
@@ -27,6 +28,9 @@ public class ElevatorJoystick extends Command {
 
     @Override
     public void end(boolean interrupted) {
+        if (interrupted) {
+            System.out.println("ElevatorJoystick command interrupted");
+        }
         this.el.setTestMode(false);
     }
 }

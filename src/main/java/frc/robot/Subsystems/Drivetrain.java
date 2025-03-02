@@ -34,14 +34,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-//import frc.robot.TyRap24Constants.*;
 import frc.robot.Constants.*;
-//import frc.robot.SparkJrConstants.*;
 import frc.robot.SwerveModule;
 
-/** Represents a swerve drive style drivetrain. */
 public class Drivetrain extends SubsystemBase {
-    
+
     public static final double kMaxAngularSpeed = 1.5 * Math.PI; // per second
 
     protected final Translation2d m_frontLeftLocation = new Translation2d(
@@ -55,7 +52,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYLeft);
     protected final Translation2d m_backRightLocation = new Translation2d(
             DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXBackward,
-            DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYRight); 
+            DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYRight);
 
     protected final SwerveModule m_frontLeft = new SwerveModule("FrontLeft",
             ID.kFrontLeftDrive,
@@ -67,9 +64,9 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            true //Pass inverstion value
-            
-            );
+            true // Pass inverstion value
+
+    );
     protected final SwerveModule m_frontRight = new SwerveModule("FrontRight",
             ID.kFrontRightDrive,
             ID.kFrontRightTurn,
@@ -80,8 +77,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            false
-            );
+            false);
     protected final SwerveModule m_backLeft = new SwerveModule("BackLeft",
             ID.kBackLeftDrive,
             ID.kBackLeftTurn,
@@ -92,8 +88,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            false
-            );
+            false);
     protected final SwerveModule m_backRight = new SwerveModule("BackRight",
             ID.kBackRightDrive,
             ID.kBackRightTurn,
@@ -104,15 +99,15 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            true
-            );
+            true);
 
     protected final Pigeon2 m_gyro;
 
     protected boolean fieldRelative = true;
     protected final ShuffleboardTab m_driveTab = Shuffleboard.getTab("drive subsystem");
     protected final SimpleWidget m_fieldRelativeWidget = m_driveTab.add("drive field relative", fieldRelative);
-    protected final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0).getEntry();
+    protected final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0)
+            .getEntry();
 
     /**
      * The order that you initialize these is important! Later uses of functions
@@ -259,9 +254,9 @@ public class Drivetrain extends SubsystemBase {
         m_fieldRelativeWidget.getEntry().setBoolean(fieldRelative);
     }
 
-    public Command setFieldRelativeCommand(boolean isFieldRelative) {
+    public Command toggleFieldRelativeCommand() {
         return runOnce(() -> {
-            this.setFieldRelative(isFieldRelative);
+            this.setFieldRelative(!this.fieldRelative);
         });
     }
 
@@ -318,14 +313,14 @@ public class Drivetrain extends SubsystemBase {
         rotSpeed = rotSpeed * driveMultiplier;
 
         ChassisSpeeds chassisSpeeds = fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
-                getGyroYawRotation2d())
-            : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
+                        getGyroYawRotation2d())
+                : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
         driveChassisSpeeds(chassisSpeeds);
 
         SmartDashboard.putNumber("desired X speed", xSpeed);
         SmartDashboard.putNumber("desired Y speed", ySpeed);
-        SmartDashboard.putNumber("dsired rot speed" , rotSpeed);
+        SmartDashboard.putNumber("dsired rot speed", rotSpeed);
     }
 
     public void driveChassisSpeeds(ChassisSpeeds chassisSpeeds) {
@@ -358,8 +353,8 @@ public class Drivetrain extends SubsystemBase {
             // Pass
         }
 
-       commandedChassisSpeeds = m_kinematics.toChassisSpeeds(
-        swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3]);
+        commandedChassisSpeeds = m_kinematics.toChassisSpeeds(
+                swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3]);
 
     }
 
@@ -383,8 +378,8 @@ public class Drivetrain extends SubsystemBase {
         m_backLeft.setDesiredState(swerveModuleStates[2]);
         m_backRight.setDesiredState(swerveModuleStates[3]);
 
-        // Parameters for robot configuration 
-
+        // Parameters for robot configuration
+        this.driveChassisSpeeds(new ChassisSpeeds());
     }
 
     /** Updates the field relative position of the robot. */
@@ -402,7 +397,7 @@ public class Drivetrain extends SubsystemBase {
         // Converting module speeds to chassis speeds
         m_chassisSpeeds = m_kinematics.toChassisSpeeds(
                 frontLeftState, frontRightState, backLeftState, backRightState);
-        
+
         field.setRobotPose(getRoboPose2d());
     }
 
