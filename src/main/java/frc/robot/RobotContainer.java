@@ -175,13 +175,12 @@ public class RobotContainer {
 
         //Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
 
-        // Test commands for centering on tag
-        Controller.kDriveController.a().onTrue(new DriveOffset(m_swerve, m_Limelight, false));
-        Controller.kDriveController.b().onTrue(new DriveOffset(m_swerve, m_Limelight, true));
-        Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
-            () -> (m_Limelight.getzDistanceMeters() - Constants.Offsets.cameraOffsetFromFrontBumber) + 0.02, 0));
-        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
-        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make sure algae is up
+        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
+        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
+
 
         Controller.kManipulatorController.povUp()
                 .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
@@ -192,12 +191,6 @@ public class RobotContainer {
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
-
-        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
-        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
-        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
         
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
@@ -229,10 +222,20 @@ public class RobotContainer {
         /*Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> m_Limelight.getzDistanceMeters() - 0.1, 0));*/
 
+        // Test commands for centering on tag
+        Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
+                () -> (m_Limelight.getzDistanceMeters() - Constants.Offsets.cameraOffsetFromFrontBumber) + 0.02, 0));
+
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
+        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
+        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
 
+        
         Controller.kManipulatorController.povUp()
                 .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
                 .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
@@ -242,13 +245,6 @@ public class RobotContainer {
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
-
-
-        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
-        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
-        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
         
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
@@ -270,13 +266,14 @@ public class RobotContainer {
     }
 
     private void configurePathPlanner() {
-        autoChooser.addOption("Starting2Reef2", "Starting2Reef2");
-        autoChooser.addOption("DriveForward", "DriveForward");
-        autoChooser.addOption("OnePieceAuto", "OnePieceAuto");
-        autoChooser.addOption("Player1Reef1", "Player1Reef1");
+        autoChooser.addOption("Starting2Reef2", "Starting2Reef2"); // Testing
+        autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
+        autoChooser.addOption("OnePieceAuto", "OnePieceAuto"); // Permanent choice
+        autoChooser.addOption("Player1Reef1", "Player1Reef1"); // Testing
         // For multi-step, create name to be name of multi-step, then have object be the name of the first step
         // MultiStep example below
-        // autoChooser.addOption("MultiStepRight", "Starting2Reef2");
+        // autoChooser.addOption("MultiStepRight", "Starting2Reef2"); // Permanent choice
+        // autoChooser.addOption("MultiStepLeft", "Starting7Reef4"); // Permanent choice
     }
 
     public void startAutonomous() {
@@ -291,16 +288,16 @@ public class RobotContainer {
                     .getSelected()),
                 new DriveOffset(m_swerve, m_Limelight, false)); // Add Elevator to L4 and score piece
         } /*else if (auto.equals("Starting2Reef2")) {
-            // MultiStep example/template below
+            // MultiStepRight example/template below
             start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
                     .getSelected()),
-                    new DriveOffset(m_swerve, m_Limelight, false), // Add Elevator to L4 and score piece
+                    new DriveOffset(m_swerve, m_Limelight, false, id?), // Add Elevator to L4 and score piece
                     getAutonomousCommand("Reef2Player1"), new CenterOnTag(m_swerve, m_Limelight), // Collect coral here
-                    getAutonomousCommand("Player1Reef1"), new DriveOffset(m_swerve, m_Limelight, false), // Add Elevator to L4 and score piece
+                    getAutonomousCommand("Player1Reef1"), new DriveOffset(m_swerve, m_Limelight, false, 19), // Add Elevator to L4 and score piece
                     getAutonomousCommand("Reef1Player1"), new CenterOnTag(m_swerve, m_Limelight), // Collect coral here
-                    getAutonomousCommand("Player1Reef1"), new DriveOffset(m_swerve, m_Limelight, true), // Add Elevator to L4 and score piece
+                    getAutonomousCommand("Player1Reef1"), new DriveOffset(m_swerve, m_Limelight, true, 19), // Add Elevator to L4 and score piece
                     getAutonomousCommand("Reef1Player1"), new CenterOnTag(m_swerve, m_Limelight), // Collect coral here
-                    getAutonomousCommand("Player1Reef6"), new DriveOffset(m_swerve, m_Limelight, false) // Add Elevator to L4 and score piece
+                    getAutonomousCommand("Player1Reef6"), new DriveOffset(m_swerve, m_Limelight, false, 18) // Add Elevator to L4 and score piece
                     );
         }*/
         start.schedule();

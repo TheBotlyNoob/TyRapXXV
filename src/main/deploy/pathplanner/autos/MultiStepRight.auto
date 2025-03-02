@@ -11,21 +11,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "RightTopScore"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Reef2Player1"
           }
         },
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "Player1Reef1"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Reef1Player1"
+            "name": "CenterOnTag"
           }
         },
         {
@@ -35,15 +35,57 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "RightTopScore"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Reef1Player1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CenterOnTag"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Player1Reef1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "LeftTopScore"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef1Player1"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "CenterOnTag"
           }
         },
         {
           "type": "path",
           "data": {
             "pathName": "Player1Reef6"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RightTopScore"
           }
         }
       ]
