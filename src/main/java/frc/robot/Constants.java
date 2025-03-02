@@ -38,7 +38,10 @@ public class Constants {
         public static final int kClampSolenoidCANID1 = 2;
         public static final int kClampSolenoidCANID2 = 3;
 
-        public static final double kClimbMotorVoltage = 6;
+        public static final int kRampSolenoidCANID1 = 6;
+        public static final int kRampSolenoidCANID2 = 7;
+
+        public static final double kClimbMotorVoltage = 12;
         public static final double kMaxEncoderPos = 0.44;
         public static final double kMinEncoderPos = 0.218;
     }
@@ -134,7 +137,7 @@ public class Constants {
         public static final double kBackRightOffset = 1.101;
 
         // Camera Positioning
-        public static final double cameraOffsetForwardM = 0.10;
+        public static final double cameraOffsetForwardM = 0.08;
         public static final double cameraOffsetFromFrontBumber = 0.38;
     }
 
@@ -163,13 +166,14 @@ public class Constants {
         public static final double threshold = .02;
         // For DriveOffset
         public static final double driveOffsetXOffset = 0.7;
-        public static final double driveOffsetYOffset = 0.3;
-        public static final double driveOffsetMaxAccMSS = 2;
-        public static final double driveOffsetMaxDccMSS = 2;
+        public static final double driveOffsetYOffset = 0.16;
+        public static final double driveOffsetMaxAccMSS = 1.2;
+        public static final double driveOffsetMaxDccMSS = 3;
         public static final double driveOffsetMinVel = 0.1;
         public static final double driveOffsetMaxVel = 1.5;
         public static final double driveOffsetAngleError = 0.015;
         public static final double driveOffsetRangeMThreshold = 0.02;
+        public static final double driveOffsetKp = 2.0;
     }
     public static final class SensorID {
         public static final int kIRSensorPort = 7; 
@@ -178,9 +182,9 @@ public class Constants {
         public static class Heights {
             public static final double kGround = 0.0;
             public static final double kLevel1 = 3.5;
-            public static final double kLevel2 = 5.3;
+            public static final double kLevel2 = 5.5;
             public static final double kLevel3 = 12.85;
-            public static final double kLevel4 = 23.92;
+            public static final double kLevel4 = 24.92;
         }
 
         public static class PID {

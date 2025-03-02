@@ -11,7 +11,7 @@ public class StopDrive extends Command {
     }
 
     @Override
-    public void schedule() {
+    public void initialize() {
         System.out.println("Stopped Driving.");
         dt.stopDriving();
     }
