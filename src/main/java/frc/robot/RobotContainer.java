@@ -19,6 +19,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
@@ -47,6 +48,7 @@ import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveLeftOrRight;
+import frc.robot.Commands.DriveFixedVelocity;
 import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.EjectCoral;
@@ -89,6 +91,11 @@ public class RobotContainer {
     private GenericEntry m_commandedYVel = m_competitionTab.add("CommandedVY", 0).getEntry();
     private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
+    protected GenericEntry m_driveP = m_competitionTab.add("Drive P Val", DriveTrainConstants.drivePID[0]).getEntry();
+    protected GenericEntry m_driveFFStatic = m_competitionTab.add("Drive FF Static", DriveTrainConstants.driveFeedForward[0]).getEntry();
+    protected GenericEntry m_driveFFVel = m_competitionTab.add("Drive FF Vel", DriveTrainConstants.driveFeedForward[1]).getEntry();
+    protected GenericEntry m_driveAccel = m_competitionTab.add("Drive FF Accel", 0.0).getEntry();
+    private GenericEntry m_fixedSpeed = m_competitionTab.add("Fixed Speed", 0).getEntry();
     private SwerveModuleSB[] mSwerveModuleTelem;
 
     Command m_driveCommand;
@@ -109,6 +116,7 @@ public class RobotContainer {
 
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(2);
+        CameraServer.startAutomaticCapture();
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
         this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
                 NetworkTableInstance.getDefault());
@@ -148,62 +156,82 @@ public class RobotContainer {
      * joysticks}.
      */
     public void configureBindings() {
-        Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
-        Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
-            new DriveOffset(m_swerve, m_Limelight, false),
-            new DriveDistance(m_swerve, () -> 0.14,0),
-            new StopDrive(m_swerve),
-            new GoToFlagLevel(m_elevator),
-            new EjectCoral(m_coral),
-            new WaitCommand(1),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-            //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
-        ));
-        Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
-            new DriveOffset(m_swerve, m_Limelight, true),
-            new DriveDistance(m_swerve, () -> 0.14,0),
-            new StopDrive(m_swerve),
-            new GoToFlagLevel(m_elevator),
-            new EjectCoral(m_coral),
-            new WaitCommand(1),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-        ));
+        // DRIVE CONTROLLERS BINDINGS 
 
-        Controller.kDriveController.back()
-                .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
+            //Bumper Buttons for Scoring Sequence
+            Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
+                new DriveOffset(m_swerve, m_Limelight, false),
+                new DriveDistance(m_swerve, () -> 0.14,0),
+                new StopDrive(m_swerve),
+                //new GoToFlagLevel(m_elevator),
+                new EjectCoral(m_coral),
+                new WaitCommand(1)
+                //m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
+            ));
+            Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
+                new DriveOffset(m_swerve, m_Limelight, true),
+                new DriveDistance(m_swerve, () -> 0.14,0),
+                new StopDrive(m_swerve),
+                //new GoToFlagLevel(m_elevator),
+                new EjectCoral(m_coral),
+                new WaitCommand(1)
+                //m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+            ));
 
-        //Controller.kManipulatorController.rightTrigger().whileTrue(new ElevatorJoystick(m_elevator));
+            //Toggle  Robot Oriented Drive
+            Controller.kDriveController.back()
+                    .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
 
-        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
-        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+            //reset Field Orient Command 
+            Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
+            //Trigger Buttons for Algae Intake and Eject
+            Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
+            Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
+                                                                                            // sure grabber isnt extended
 
-        Controller.kManipulatorController.povUp()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
-                .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
-        Controller.kManipulatorController.povDown()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.manualDown()))
-                .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
+        //MANIPULATOR CONTROLLER BINDINGS:
 
-        Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
-        Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
-        
-        Controller.kManipulatorController.leftBumper()
-                .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
-        Controller.kManipulatorController.back()
-                .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
-        
-        Controller.kManipulatorController.x()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)));
-        Controller.kManipulatorController.a()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL2)));
-        Controller.kManipulatorController.b()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)));
-        Controller.kManipulatorController.y()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));
+            //D-Pad for Elevator Manual Control
+            Controller.kManipulatorController.povUp()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
+                    .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
+            Controller.kManipulatorController.povDown()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.manualDown()))
+                    .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
+
+            //D-Pad for Stinger Control
+            Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
+            Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
+
+            //Bumper Buttons 
+            Controller.kManipulatorController.leftBumper()
+                    .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
+
+            //Triger Buttons 
+            Controller.kManipulatorController.rightTrigger().whileTrue(new EjectCoral(m_coral));
+
+            //Back Button for Climber Mode Toggle
+            Controller.kManipulatorController.back()
+                    .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
+            
+            //X, A, B, Y for Elevator Level Flags
+            Controller.kManipulatorController.x()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)));
+            Controller.kManipulatorController.a()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL2)));
+            Controller.kManipulatorController.b()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)));
+            Controller.kManipulatorController.y()
+                    .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));
+
+        //TEMPORARY BINDINGS FOR TESTING:
+            Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
+            Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
+            Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+            Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
     }
 
     public void configureTestBindings() {
@@ -228,11 +256,6 @@ public class RobotContainer {
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
         Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
-        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
-        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
-        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
 
         
         Controller.kManipulatorController.povUp()
@@ -244,6 +267,13 @@ public class RobotContainer {
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
+
+
+        Controller.kDriveController.povUp().whileTrue(new DriveFixedVelocity(m_swerve, 0, () -> m_fixedSpeed.getDouble(0.5)));
+        Controller.kDriveController.povRight().whileTrue(new DriveFixedVelocity(m_swerve, 90, () -> m_fixedSpeed.getDouble(0.5)));
+        Controller.kDriveController.povDown().whileTrue(new DriveFixedVelocity(m_swerve, 180, () -> m_fixedSpeed.getDouble(0.5)));
+        Controller.kDriveController.povLeft().whileTrue(new DriveFixedVelocity(m_swerve, 270, () -> m_fixedSpeed.getDouble(0.5)));
+        Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
         
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
@@ -269,6 +299,7 @@ public class RobotContainer {
         autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
         autoChooser.addOption("OnePieceAuto", "OnePieceAuto"); // Permanent choice
         autoChooser.addOption("Player1Reef1", "Player1Reef1"); // Testing
+        autoChooser.addOption("Reef2Player1", "Reef2Player1"); // Testing
         // For multi-step, create name to be name of multi-step, then have object be the name of the first step
         // MultiStep example below
         // autoChooser.addOption("MultiStepRight", "Starting2Reef2"); // Permanent choice
@@ -279,10 +310,11 @@ public class RobotContainer {
         String auto = autoChooser.getSelected();
         SequentialCommandGroup start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
                 .getSelected()));
-        if (auto.equals("Player1Reef1")) { // For testing
-            start = new SequentialCommandGroup(getAutonomousCommand(autoChooser.getSelected()),
-                    new DriveOffset(m_swerve, m_Limelight, true, 19)); // Add Elevator to L4 and score piece
-        }else if(auto.equals("OnePieceAuto")){ // Permanent choice
+        /*if (auto.equals("Player1Reef1")) { // For testing
+            start = new SequentialCommandGroup(getAutonomousCommand(autoChooser.getSelected()), new WaitCommand(1),
+                    new DriveOffset(m_swerve, m_Limelight, true, 19), getAutonomousCommand("Reef1Player1"), 
+                    new StopDrive(m_swerve)); // Add Elevator to L4 and score piece
+        }/*else if(auto.equals("OnePieceAuto")){ // Permanent choice
             start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
                     .getSelected()),
                 new DriveOffset(m_swerve, m_Limelight, false)); // Add Elevator to L4 and score piece
@@ -345,6 +377,31 @@ public class RobotContainer {
         this.m_elevator.updateConstants();
         this.m_elevator.resetEncoder();
         this.m_coral.reinit();
+        this.setPIDConstants();
+    }
+
+    public void setPIDConstants() {
+        // Configure the drive train tuning constants from the dashboard
+        double driveP = m_driveP.getDouble(Constants.DriveTrainConstants.drivePID[0]);
+        double driveFFStatic = m_driveFFStatic.getDouble(Constants.DriveTrainConstants.driveFeedForward[0]);
+        double driveFFVel = m_driveFFVel.getDouble(Constants.DriveTrainConstants.driveFeedForward[1]);
+        double driveFFAccel = m_driveAccel.getDouble(0.0);
+        m_swerve.getFrontLeftSwerveModule().getDrivePidController().setP(driveP);
+        m_swerve.getFrontLeftSwerveModule().getDriveFeedForward().setKs(driveFFStatic);
+        m_swerve.getFrontLeftSwerveModule().getDriveFeedForward().setKv(driveFFVel);
+        m_swerve.getFrontLeftSwerveModule().getDriveFeedForward().setKa(driveFFAccel);
+        m_swerve.getFrontRightSwerveModule().getDrivePidController().setP(driveP);
+        m_swerve.getFrontRightSwerveModule().getDriveFeedForward().setKs(driveFFStatic);
+        m_swerve.getFrontRightSwerveModule().getDriveFeedForward().setKv(driveFFVel);
+        m_swerve.getFrontRightSwerveModule().getDriveFeedForward().setKa(driveFFAccel);
+        m_swerve.getBackLeftSwerveModule().getDrivePidController().setP(driveP);
+        m_swerve.getBackLeftSwerveModule().getDriveFeedForward().setKs(driveFFStatic);
+        m_swerve.getBackLeftSwerveModule().getDriveFeedForward().setKv(driveFFVel);
+        m_swerve.getBackLeftSwerveModule().getDriveFeedForward().setKa(driveFFAccel);
+        m_swerve.getBackRightSwerveModule().getDrivePidController().setP(driveP);
+        m_swerve.getBackRightSwerveModule().getDriveFeedForward().setKs(driveFFStatic);
+        m_swerve.getBackRightSwerveModule().getDriveFeedForward().setKv(driveFFVel);
+        m_swerve.getBackRightSwerveModule().getDriveFeedForward().setKa(driveFFAccel);
     }
 
     public void reportTelemetry() {

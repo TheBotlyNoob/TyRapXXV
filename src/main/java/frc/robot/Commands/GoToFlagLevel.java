@@ -16,7 +16,7 @@ public class GoToFlagLevel extends Command {
 
     @Override
     public boolean isFinished() {
-        if (Math.abs(el.getCurrentPosition() - el.getDesiredPosition()) < 0.1){
+        if (Math.abs(el.getCurrentPosition() - el.getDesiredPosition()) < 0.2){
             if (Math.abs(el.getCurrentVelocity()) < 0.2){
                 System.out.println("elevator has reached desired level");
                 return true;
