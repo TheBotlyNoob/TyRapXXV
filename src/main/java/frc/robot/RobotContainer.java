@@ -200,7 +200,7 @@ public class RobotContainer {
                 .getSelected()));
         if (auto.equals("Player1Reef1")) { // For testing
             start = new SequentialCommandGroup(getAutonomousCommand(autoChooser.getSelected()),
-                    new DriveOffset(m_swerve, m_Limelight, false)); // Add Elevator to L4 and score piece
+                    new DriveOffset(m_swerve, m_Limelight, true, 19)); // Add Elevator to L4 and score piece
         }else if(auto.equals("OnePieceAuto")){ // Permanent choice
             start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
                     .getSelected()),

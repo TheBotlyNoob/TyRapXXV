@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 // Depending on the robot, use different constants
 //import frc.robot.TyRap24Constants.*;
 import frc.robot.Constants.*;
+import frc.robot.LimelightHelpers;
 
 // This Command combines DriveDistance and CenterOnTag, using Limelight and Odometry 
 //      to drive to an april tag and then drive a specific offset left or right from it.
@@ -57,6 +58,7 @@ public class DriveOffset extends Command {
 
     // Variables created for DriveOffset
     private boolean isLeft;
+    private int id = 999999999;
     private double xOffset;
     private double yOffset;
     private Pose2d tagPose;
@@ -78,19 +80,36 @@ public class DriveOffset extends Command {
     private int counter;
     protected TrapezoidController trapezoidController;
 
-    // Constructor
+    // Constructors
     public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft) {
-        this.dt = dt;
-        this.ll = ll;
-        this.isLeft = isLeft;
-        addRequirements(dt);
-        // 2D transform between robot and camera frames
-        // Currently get offset from SparkJrConstants, but can change later
-        cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
+            this.dt = dt;
+            this.ll = ll;
+            this.isLeft = isLeft;
+            addRequirements(dt);
+            // 2D transform between robot and camera frames
+            // Currently get offset from SparkJrConstants, but can change later
+            cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
+    }
+    
+    public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft, int id) {
+            this.dt = dt;
+            this.ll = ll;
+            this.isLeft = isLeft;
+            this.id = id;
+            addRequirements(dt);
+            // 2D transform between robot and camera frames
+            // Currently get offset from SparkJrConstants, but can change later
+            cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
     }
 
     @Override
     public void initialize() {
+        // Set id
+        if (id != 999999999) {
+                LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, new int[] { id });
+                System.out.println("Set ID");
+        }
+
         // Create a new Trapezoid profile
         xOffset = xOffsetEntry.getDouble(0.3);
         yOffset = yOffsetENtry.getDouble(0.0);
