@@ -41,11 +41,12 @@ import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.EjectCoral;
 import frc.robot.Commands.GoToFlagLevel;
-import frc.robot.Commands.GoToLevel;
 import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
+import frc.robot.Commands.StopCoral;
 import frc.robot.Commands.StopDrive;
+import frc.robot.Commands.StopElevator;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -168,7 +169,13 @@ public class RobotContainer {
             //Toggle  Robot Oriented Drive
             Controller.kDriveController.back()
                     .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
-
+        
+            //Cancel Coral Score
+            Controller.kDriveController.a().onTrue(new SequentialCommandGroup(
+                new StopDrive(m_swerve),
+                new StopCoral(m_coral),
+                new StopElevator(m_elevator)));
+        
             //reset Field Orient Command 
             Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
