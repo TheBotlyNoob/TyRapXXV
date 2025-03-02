@@ -87,6 +87,8 @@ public class RobotContainer {
     private SwerveModuleSB[] mSwerveModuleTelem;
 
     Command m_driveCommand;
+    Command m_driveDistanceCommand;
+    Command m_goToFlagLevelCommand;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -124,7 +126,11 @@ public class RobotContainer {
         m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
         m_competitionTab.add("Drivetrain", this.m_swerve);
 
+        //working on
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
+
+        this.m_driveDistanceCommand = new DriveDistance(m_swerve, () -> 0.14,0);
+        this.m_goToFlagLevelCommand = new GoToFlagLevel(m_elevator);
     }
 
     /**
@@ -148,19 +154,19 @@ public class RobotContainer {
             //Bumper Buttons for Scoring Sequence
             Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, false),
-                new DriveDistance(m_swerve, () -> 0.14,0),
+                m_driveDistanceCommand,
                 new StopDrive(m_swerve),
-                new GoToFlagLevel(m_elevator),
-                new EjectCoral(m_coral),
+                m_goToFlagLevelCommand,
+                new EjectCoral(m_coral), //change
                 new WaitCommand(1),
                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
                 //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
             ));
             Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, true),
-                new DriveDistance(m_swerve, () -> 0.14,0),
+                m_driveDistanceCommand,
                 new StopDrive(m_swerve),
-                new GoToFlagLevel(m_elevator),
+                m_goToFlagLevelCommand,
                 new EjectCoral(m_coral),
                 new WaitCommand(1),
                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
@@ -172,9 +178,9 @@ public class RobotContainer {
         
             //Cancel Coral Score
             Controller.kDriveController.a().onTrue(new SequentialCommandGroup(
-                new StopDrive(m_swerve),
-                new StopCoral(m_coral),
-                new StopElevator(m_elevator)));
+                new StopDrive(m_swerve), //Change command
+                new StopCoral(m_coral), //Change command
+                new StopElevator(m_elevator))); //Change command
         
             //reset Field Orient Command 
             Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));

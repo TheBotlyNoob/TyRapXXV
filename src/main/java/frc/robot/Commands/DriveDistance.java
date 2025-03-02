@@ -66,6 +66,7 @@ public class DriveDistance extends Command {
     private double threshold;
     protected boolean useDashboardEntries = false;
     protected DoubleSupplier distanceSupplier;
+    private boolean cancelFlag;
 
     // Constructors
     public DriveDistance(Drivetrain dt, DoubleSupplier distanceSupplier, double desiredAngle) {
@@ -83,6 +84,7 @@ public class DriveDistance extends Command {
 
     @Override
     public void initialize() {
+        cancelFlag = false;
         try {
             // Make sure dashboard values are used in code
             if (this.useDashboardEntries) {
@@ -152,9 +154,16 @@ public class DriveDistance extends Command {
 
     @Override
     public boolean isFinished() {
+        if (cancelFlag == true) {
+            return true;
+        }
         if (rangeM <= threshold) {
             return true;
         }
         return false;
+    }
+
+    public void stopComand(){
+        cancelFlag = true;
     }
 }
