@@ -38,7 +38,7 @@ import frc.robot.Constants.*;
 import frc.robot.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
-    
+
     public static final double kMaxAngularSpeed = 1.5 * Math.PI; // per second
 
     protected final Translation2d m_frontLeftLocation = new Translation2d(
@@ -52,7 +52,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYLeft);
     protected final Translation2d m_backRightLocation = new Translation2d(
             DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXBackward,
-            DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYRight); 
+            DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYRight);
 
     protected final SwerveModule m_frontLeft = new SwerveModule("FrontLeft",
             ID.kFrontLeftDrive,
@@ -64,9 +64,9 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            true //Pass inverstion value
-            
-            );
+            true // Pass inverstion value
+
+    );
     protected final SwerveModule m_frontRight = new SwerveModule("FrontRight",
             ID.kFrontRightDrive,
             ID.kFrontRightTurn,
@@ -77,8 +77,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            false
-            );
+            false);
     protected final SwerveModule m_backLeft = new SwerveModule("BackLeft",
             ID.kBackLeftDrive,
             ID.kBackLeftTurn,
@@ -89,8 +88,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            false
-            );
+            false);
     protected final SwerveModule m_backRight = new SwerveModule("BackRight",
             ID.kBackRightDrive,
             ID.kBackRightTurn,
@@ -101,15 +99,15 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.turnFeedForward,
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
-            true
-            );
+            true);
 
     protected final Pigeon2 m_gyro;
 
     protected boolean fieldRelative = true;
     protected final ShuffleboardTab m_driveTab = Shuffleboard.getTab("drive subsystem");
     protected final SimpleWidget m_fieldRelativeWidget = m_driveTab.add("drive field relative", fieldRelative);
-    protected final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0).getEntry();
+    protected final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0)
+            .getEntry();
 
     /**
      * The order that you initialize these is important! Later uses of functions
@@ -153,31 +151,30 @@ public class Drivetrain extends SubsystemBase {
 
             // Configure AutoBuilder last
             AutoBuilder.configure(
-                this::getRoboPose2d, // Robot pose supplier
-                this::resetOdo, // Method to reset odometry (will be called if your auto has a starting pose)
-                this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-                this::driveChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
-                new PPHolonomicDriveController( // HolonomicPathFollowerConfig
-                        new PIDConstants(DriveTrainConstants.drivePID[0], // Translation PID constants
-                            DriveTrainConstants.drivePID[1],
-                            DriveTrainConstants.drivePID[2]), 
-                        new PIDConstants(DriveTrainConstants.turnPID[0], // Rotation PID constants
-                            DriveTrainConstants.turnPID[1],
-                            DriveTrainConstants.turnPID[2]) 
-                ),
-                ppConfig,
-                () -> {
-                    // Boolean supplier that controls when the path will be mirrored for the red
-                    // alliance
-                    // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-                    var alliance = DriverStation.getAlliance();
-                    if (alliance.isPresent()) {
-                        return alliance.get() == DriverStation.Alliance.Red;
-                    }
-                    return false;
-                },
-                this // Reference to this subsystem to set requirements
+                    this::getRoboPose2d, // Robot pose supplier
+                    this::resetOdo, // Method to reset odometry (will be called if your auto has a starting pose)
+                    this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                    this::driveChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+                    new PPHolonomicDriveController( // HolonomicPathFollowerConfig
+                            new PIDConstants(DriveTrainConstants.drivePID[0], // Translation PID constants
+                                    DriveTrainConstants.drivePID[1],
+                                    DriveTrainConstants.drivePID[2]),
+                            new PIDConstants(DriveTrainConstants.turnPID[0], // Rotation PID constants
+                                    DriveTrainConstants.turnPID[1],
+                                    DriveTrainConstants.turnPID[2])),
+                    ppConfig,
+                    () -> {
+                        // Boolean supplier that controls when the path will be mirrored for the red
+                        // alliance
+                        // This will flip the path being followed to the red side of the field.
+                        // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                        var alliance = DriverStation.getAlliance();
+                        if (alliance.isPresent()) {
+                            return alliance.get() == DriverStation.Alliance.Red;
+                        }
+                        return false;
+                    },
+                    this // Reference to this subsystem to set requirements
             );
         } catch (Exception e) {
             // Handle exception as needed
@@ -253,9 +250,9 @@ public class Drivetrain extends SubsystemBase {
         m_fieldRelativeWidget.getEntry().setBoolean(fieldRelative);
     }
 
-    public Command setFieldRelativeCommand(boolean isFieldRelative) {
+    public Command toggleFieldRelativeCommand() {
         return runOnce(() -> {
-            this.setFieldRelative(isFieldRelative);
+            this.setFieldRelative(!this.fieldRelative);
         });
     }
 
@@ -312,14 +309,14 @@ public class Drivetrain extends SubsystemBase {
         rotSpeed = rotSpeed * driveMultiplier;
 
         ChassisSpeeds chassisSpeeds = fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
-                getGyroYawRotation2d())
-            : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
+                        getGyroYawRotation2d())
+                : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
         driveChassisSpeeds(chassisSpeeds);
 
         SmartDashboard.putNumber("desired X speed", xSpeed);
         SmartDashboard.putNumber("desired Y speed", ySpeed);
-        SmartDashboard.putNumber("dsired rot speed" , rotSpeed);
+        SmartDashboard.putNumber("dsired rot speed", rotSpeed);
     }
 
     public void driveChassisSpeeds(ChassisSpeeds chassisSpeeds) {
@@ -352,8 +349,8 @@ public class Drivetrain extends SubsystemBase {
             // Pass
         }
 
-       commandedChassisSpeeds = m_kinematics.toChassisSpeeds(
-        swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3]);
+        commandedChassisSpeeds = m_kinematics.toChassisSpeeds(
+                swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3]);
 
     }
 
@@ -377,8 +374,8 @@ public class Drivetrain extends SubsystemBase {
         m_backLeft.setDesiredState(swerveModuleStates[2]);
         m_backRight.setDesiredState(swerveModuleStates[3]);
 
-        // Parameters for robot configuration 
-
+        // Parameters for robot configuration
+        this.driveChassisSpeeds(new ChassisSpeeds());
     }
 
     /** Updates the field relative position of the robot. */
@@ -396,7 +393,7 @@ public class Drivetrain extends SubsystemBase {
         // Converting module speeds to chassis speeds
         m_chassisSpeeds = m_kinematics.toChassisSpeeds(
                 frontLeftState, frontRightState, backLeftState, backRightState);
-        
+
         field.setRobotPose(getRoboPose2d());
     }
 

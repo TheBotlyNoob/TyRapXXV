@@ -50,7 +50,7 @@ public class DriveOffset extends Command {
             .add("CurrentLinearSpeed", 0)
             .getEntry();
     private static GenericEntry decelKpEntry = Shuffleboard.getTab("DriveOffset")
-            .add("DecelKp", 5.0)
+            .add("DecelKp", LimelightConstants.driveOffsetKp)
             .getEntry();
 
     // Variables created for DriveOffset
