@@ -106,6 +106,8 @@ public class RobotContainer {
 
     Command m_driveCommand;
 
+    boolean bindingsConfigured = false;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -162,6 +164,12 @@ public class RobotContainer {
      * joysticks}.
      */
     public void configureBindings() {
+        if (bindingsConfigured)
+        {
+            return;
+        } else {
+            bindingsConfigured = true;
+        }
 
         // DRIVE CONTROLLERS BINDINGS 
 
@@ -240,7 +248,7 @@ public class RobotContainer {
                     .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
 
             //Triger Buttons 
-            Controller.kManipulatorController.rightTrigger().whileTrue(new EjectCoral(m_coral));
+            Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
 
             //Back Button for Climber Mode Toggle
             Controller.kManipulatorController.back()
@@ -266,6 +274,13 @@ public class RobotContainer {
     }
 
     public void configureTestBindings() {
+        if (bindingsConfigured)
+        {
+            return;
+        } else {
+            bindingsConfigured = true;
+        }
+
         Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
         Controller.kDriveController.back()
