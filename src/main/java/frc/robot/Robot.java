@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
         m_container.getDrivetrain().setFieldRelative(true);
         m_container.clearDefaultCommand();
         m_container.setTeleDefaultCommand();
-        m_container.updateConstants();
+        m_container.reinitialize();
         m_container.configureBindings();
     }
 
@@ -66,7 +66,7 @@ public class Robot extends TimedRobot {
        // m_container.getDrivetrain().setFieldRelative(true);
        //m_container.clearDefaultCommand();
         //m_container.setTeleDefaultCommand();
-        m_container.updateConstants();
+        m_container.reinitialize();
         m_container.configureTestBindings();
     }
     @Override

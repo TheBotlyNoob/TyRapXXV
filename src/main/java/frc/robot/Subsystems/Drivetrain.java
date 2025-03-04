@@ -4,6 +4,7 @@
 
 package frc.robot.Subsystems;
 
+import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -100,6 +101,7 @@ public class Drivetrain extends SubsystemBase {
             DriveTrainConstants.driveFeedForward,
             DriveTrainConstants.sparkFlex,
             true);
+    protected final Vector<SwerveModule> m_swerveModules = new Vector<SwerveModule>(4);
 
     protected final Pigeon2 m_gyro;
 
@@ -133,6 +135,11 @@ public class Drivetrain extends SubsystemBase {
         this.m_gyro = gyro;
         this.resetGyro();
         m_driveTab.add("field", field);
+
+        m_swerveModules.add(m_frontLeft);
+        m_swerveModules.add(m_frontRight);
+        m_swerveModules.add(m_backLeft);
+        m_swerveModules.add(m_backRight);
 
         m_odometry = new SwerveDriveOdometry(
                 m_kinematics,
@@ -211,6 +218,10 @@ public class Drivetrain extends SubsystemBase {
 
     public SwerveModule getFrontRightSwerveModule() {
         return m_frontRight;
+    }
+
+    public Vector<SwerveModule> getSwerveModules() {
+        return m_swerveModules;
     }
 
     /**
@@ -377,9 +388,6 @@ public class Drivetrain extends SubsystemBase {
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_backLeft.setDesiredState(swerveModuleStates[2]);
         m_backRight.setDesiredState(swerveModuleStates[3]);
-
-        // Parameters for robot configuration
-        this.driveChassisSpeeds(new ChassisSpeeds());
     }
 
     /** Updates the field relative position of the robot. */

@@ -60,17 +60,26 @@ public class ClimberSubsystem extends SubsystemBase {
     public void toggleClimbMode(){
         System.out.println("Toggling climb current=" + isClimbMode);
         if (isClimbMode){
-            retractArms();
-            rampDown();
-            isClimbMode = false;
+            setCoralMode();
         }
         else {
-            extendArms();
-            rampUp();
-            isClimbMode = true;
+            setClimbMode();
         }
 
     }
+
+    public void setClimbMode() {
+        retractArms();
+        rampDown();
+        isClimbMode = false;
+    }
+
+    public void setCoralMode() {
+        extendArms();
+        rampUp();
+        isClimbMode = true;
+    }
+
     public void toggleGrabArms(){
         System.out.println("Toggling grab arms current=" + m_clampPneumatic.get());
         m_clampPneumatic.toggle();

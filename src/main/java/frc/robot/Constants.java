@@ -88,7 +88,7 @@ public class Constants {
         public static final int kYRight = -1;
 
         // ITS TUNED. NO TOUCH!
-        public static final double[] turnPID = { 1.5, 0.2, 0.0 };
+        public static final double[] turnPID = { 4.5, 1.0, 0.0 };
         public static final double[] drivePID = { 2, 0.0, 0.0 };
         public static final double[] turnFeedForward = { 0.3, 0.2 };
         public static final double[] driveFeedForward = { 0.17, 2.255 };
@@ -157,9 +157,9 @@ public class Constants {
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
         // For ProportionalController & DriveDistance as well
-        public static final double maxAccMSS = 4;
-        public static final double maxDccMSS = 3;
-        public static final double minVelocity = 0.15;
+        public static final double maxAccMSS = 1.5;
+        public static final double maxDccMSS = 8;
+        public static final double minVelocity = 0.05;
         public static final double maxVelocity = 5.0;
         public static final double offset = 0.0;
         public static final double proportion = 2;

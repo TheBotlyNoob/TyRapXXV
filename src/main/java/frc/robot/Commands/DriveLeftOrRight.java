@@ -21,6 +21,7 @@ public class DriveLeftOrRight extends DriveDistance {
             this.offsetGoal *= -1;
         }
     }
+    
     @Override
     public void initialize() {
         if (ll.getTimeSinceValid() == 0) {
@@ -47,7 +48,7 @@ public class DriveLeftOrRight extends DriveDistance {
                 profile = new TrapezoidProfile(
                         new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(LimelightConstants.maxAccMSS)));
             } catch (Exception e) {
-                System.out.println("Exception initializing DriveDistance");
+                System.out.println("Exception initializing DriveLeftOrRight");
                 e.printStackTrace();
             }
         }
