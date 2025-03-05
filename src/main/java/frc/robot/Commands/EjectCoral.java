@@ -10,6 +10,7 @@ public class EjectCoral extends Command {
 
     @Override
     public void initialize() {
+        System.out.println("Eject coral");
         co.ejectCoral();
     }
 

@@ -54,7 +54,7 @@ public class Constants {
         public static final double kMaxEncoderPos = .255;
         public static final double kMinEncoderPos = .062;
         public static final double kLimitEncoderPos = .037; //HARD STOP
-
+        public static final int wristCounterLimit = 5;
     }
 
     public static class MechID {
@@ -184,7 +184,7 @@ public class Constants {
             public static final double kLevel1 = 3.5;
             public static final double kLevel2 = 6.1;
             public static final double kLevel3 = 12.85;
-            public static final double kLevel4 = 24.92;
+            public static final double kLevel4 = 24.5;
         }
 
         public static class PID {

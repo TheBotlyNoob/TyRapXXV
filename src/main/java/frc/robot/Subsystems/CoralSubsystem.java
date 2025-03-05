@@ -54,6 +54,10 @@ public class CoralSubsystem extends SubsystemBase {
     private boolean ejectActive = false;
     private Timer timer;
 
+    private double lastWristEncoderVal;
+    private boolean wristStopped = false;
+    private int wristCounter = 0;
+
     public enum CoralState {
         WAITING, INTAKING, HOLDING, EJECTING;
     };
@@ -61,7 +65,7 @@ public class CoralSubsystem extends SubsystemBase {
     protected CoralState state = CoralState.WAITING;
 
     public CoralSubsystem(NetworkTableInstance nt, ElevatorSubsystem el) {
-        this.el = new ElevatorSubsystem(nt);
+        this.el = el;
         m_table = nt.getTable(getName());
 
         m_table_level = m_table.getStringTopic("coral").publish();
@@ -91,6 +95,8 @@ public class CoralSubsystem extends SubsystemBase {
         m_irSensor = new DigitalInput(Constants.SensorID.kIRSensorPort);
         m_irSensorPub = nt.getDoubleTopic("IR Sensor").publish();
 
+        lastWristEncoderVal = m_wristEncoder.getPosition();
+
         timer = new Timer();
     }
 
@@ -108,22 +114,26 @@ public class CoralSubsystem extends SubsystemBase {
         double voltage = kWristMotorVoltageReverse.get();
         // double speed = kWristMotorSpeedReverse.get();
         // m_wristMotor.set(-speed);
-        if (m_wristEncoder.getPosition() <= Constants.Coral.kMinEncoderPos) {
+        /*if (m_wristEncoder.getPosition() <= Constants.Coral.kMinEncoderPos) {
             stopMotorWrist();
         } else {
-            m_wristMotor.setVoltage(voltage);
-        }
+            m_wristMotor.setVoltage(-voltage);
+        }*/
+
+        m_wristMotor.setVoltage(voltage);
 
     }
 
     public void forwardMotor() {
         double voltage = kWristMotorVoltageForward.get();
         // double speed = kWristMotorSpeedForward.get();
-        if (m_wristEncoder.getPosition() >= Constants.Coral.kMaxEncoderPos) {
+        /*if (m_wristEncoder.getPosition() >= Constants.Coral.kMaxEncoderPos) {
             stopMotorWrist();
         } else {
-            m_wristMotor.setVoltage(-voltage);
-        }
+            m_wristMotor.setVoltage(voltage);
+        }*/
+
+        m_wristMotor.setVoltage(-voltage);
 
         // m_wristMotor.set(speed);
     }
@@ -166,6 +176,16 @@ public class CoralSubsystem extends SubsystemBase {
         boolean irDetected = !m_irSensor.get();
         m_irSensorPub.set(irDetected ? 1.0 : 0.0);
 
+        if (lastWristEncoderVal == m_wristEncoder.getPosition()) {
+            counter++;
+            if (counter >= Constants.Coral.wristCounterLimit) {
+                wristStopped = true;
+            }
+        } else {
+            wristStopped = false;
+            counter = 0;
+        }
+
         if (state == CoralState.WAITING) {
             if (irDetected) {
                 state = CoralState.INTAKING;
@@ -194,5 +214,7 @@ public class CoralSubsystem extends SubsystemBase {
                 ejectActive = false;
             }
         }
+
+        lastWristEncoderVal = m_wristEncoder.getPosition();
     }
 }

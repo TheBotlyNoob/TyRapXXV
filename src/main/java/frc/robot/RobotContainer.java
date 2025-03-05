@@ -45,7 +45,6 @@ import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
-import frc.robot.Subsystems.RangeSensor;
 import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.CenterOnTag;
@@ -107,6 +106,8 @@ public class RobotContainer {
 
     Command m_driveCommand;
 
+    boolean bindingsConfigured = false;
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -163,6 +164,12 @@ public class RobotContainer {
      * joysticks}.
      */
     public void configureBindings() {
+        if (bindingsConfigured)
+        {
+            return;
+        } else {
+            bindingsConfigured = true;
+        }
 
         // DRIVE CONTROLLERS BINDINGS 
         
@@ -171,7 +178,8 @@ public class RobotContainer {
                 new ConditionalCommand(
                     new ConditionalCommand(
                         new SequentialCommandGroup(
-                            new DriveOffset(m_swerve, m_Limelight, false),
+                            new PrintCommand("Running offset score routine"),
+                        new DriveOffset(m_swerve, m_Limelight, false),
                             new StopDrive(m_swerve),
                             new StationaryWait(m_swerve, 0.06),
                             new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
@@ -181,26 +189,20 @@ public class RobotContainer {
                             new WaitCommand(1),
                             m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
                         new SequentialCommandGroup(
-                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.5).alongWith(
-                                new GoToFlagLevel(m_elevator)),
+                            new PrintCommand("Running drive left right score"),
+                        new ParallelCommandGroup(
+                            new GoToFlagLevel(m_elevator),
+                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
+                                    new DriveLeftOrRight(m_swerve, m_Limelight, false))),        
                             new StopDrive(m_swerve),
                             new EjectCoral(m_coral),
-                            new WaitCommand(1),
+                            new WaitCommand(.7),
+                        new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.2),
                             m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-                        () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.06)),
+                        () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
                     new PrintCommand("level has not been set"),
                     () -> m_elevator.isAnyLevelSet()));
                         
-            /*Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
-                new DriveOffset(m_swerve, m_Limelight, false),
-                new StopDrive(m_swerve),
-                new StationaryWait(m_swerve, 0.06),
-                new DriveDistance(m_swerve, () -> 0.15,0),
-                new StopDrive(m_swerve),
-                new GoToFlagLevel(m_elevator),
-                new EjectCoral(m_coral),
-                new WaitCommand(1),
-                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)))); */
             Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, true),
                 new StopDrive(m_swerve),
@@ -244,7 +246,7 @@ public class RobotContainer {
                     .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
 
             //Triger Buttons 
-            Controller.kManipulatorController.rightTrigger().whileTrue(new EjectCoral(m_coral));
+            Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
 
             //Back Button for Climber Mode Toggle
             Controller.kManipulatorController.back()
@@ -270,6 +272,13 @@ public class RobotContainer {
     }
 
     public void configureTestBindings() {
+        if (bindingsConfigured)
+        {
+            return;
+        } else {
+            bindingsConfigured = true;
+        }
+
         Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
         Controller.kDriveController.back()

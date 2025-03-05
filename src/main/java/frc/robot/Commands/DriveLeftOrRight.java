@@ -16,7 +16,7 @@ public class DriveLeftOrRight extends DriveDistance {
         super(dt);
         this.isLeft = isLeft;
         this.ll = ll;
-        this.offsetGoal = 0.165;
+        this.offsetGoal = 0.17;
         if (isLeft){
             this.offsetGoal *= -1;
         }
