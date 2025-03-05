@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -168,24 +169,27 @@ public class RobotContainer {
             //Bumper Buttons for Scoring Sequence
             Controller.kDriveController.rightBumper().onTrue(
                 new ConditionalCommand(
-                    new SequentialCommandGroup(
-                        new DriveOffset(m_swerve, m_Limelight, false),
-                        new StopDrive(m_swerve),
-                        new StationaryWait(m_swerve, 0.06),
-                        new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
-                        new StopDrive(m_swerve),
-                        new GoToFlagLevel(m_elevator),
-                        new EjectCoral(m_coral),
-                        new WaitCommand(1),
-                        m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-                    new SequentialCommandGroup(
-                        new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.5).alongWith(
-                            new GoToFlagLevel(m_elevator)),
-                        new StopDrive(m_swerve),
-                        new EjectCoral(m_coral),
-                        new WaitCommand(1),
-                        m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-                    () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.06)));
+                    new ConditionalCommand(
+                        new SequentialCommandGroup(
+                            new DriveOffset(m_swerve, m_Limelight, false),
+                            new StopDrive(m_swerve),
+                            new StationaryWait(m_swerve, 0.06),
+                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
+                            new StopDrive(m_swerve),
+                            new GoToFlagLevel(m_elevator),
+                            new EjectCoral(m_coral),
+                            new WaitCommand(1),
+                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
+                        new SequentialCommandGroup(
+                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.5).alongWith(
+                                new GoToFlagLevel(m_elevator)),
+                            new StopDrive(m_swerve),
+                            new EjectCoral(m_coral),
+                            new WaitCommand(1),
+                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
+                        () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.06)),
+                    new PrintCommand("level has not been set"),
+                    () -> m_elevator.isAnyLevelSet()));
                         
             /*Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, false),
