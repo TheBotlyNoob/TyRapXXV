@@ -139,10 +139,10 @@ public class RobotContainer {
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
         this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
-        AddressableLED led1 = new AddressableLED(0);
+        AddressableLED led1 = new AddressableLED(6);
         led1.setLength(5);
-        AddressableLED led2 = new AddressableLED(1);
-        led2.setLength(2);
+        AddressableLED led2 = new AddressableLED(8);
+        led2.setLength(5);
 
         AddressableLEDBuffer ledBuf = new AddressableLEDBuffer(5);
 
