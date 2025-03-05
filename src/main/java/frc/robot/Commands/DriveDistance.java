@@ -110,7 +110,8 @@ public class DriveDistance extends Command {
             desiredPosYEntry.setValue(desiredPose.getY());
             // Create a new Trapezoid profile
             profile = new TrapezoidProfile(
-                    new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(LimelightConstants.maxAccMSS)));
+                    //new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(LimelightConstants.maxAccMSS)));
+                    new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(3)));
         } catch (Exception e) {
             System.out.println("Exception initializing DriveDistance");
             e.printStackTrace();

@@ -32,7 +32,7 @@ public class DriveLeftOrRight extends DriveDistance {
                     this.desiredAngle = 90;
                 } else {this.desiredAngle = -90;}
                 this.desiredDistance = Math.abs(this.yError);
-                threshold = 0.005;
+                threshold = 0.007;
                 // Set min & max velocity
                 minVel = minVelEntry.getDouble(LimelightConstants.minVelocity);
                 maxVel = maxVelEntry.getDouble(LimelightConstants.maxVelocity);

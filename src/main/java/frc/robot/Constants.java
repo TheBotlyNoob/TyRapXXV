@@ -200,8 +200,8 @@ public class Constants {
             public static final double kA = 0.0; // volts per acceleration (V/(m/s^2))
         }
 
-        public static final double kMaxVelocity = 2.5;
-        public static final double kMaxAcceleration = 2.0;
+        public static final double kMaxVelocity = 3.5;
+        public static final double kMaxAcceleration = 3.0;
         public static final double kDecelProp = 0.4;
 
         public static final double kElevatorGearRatio = 0;

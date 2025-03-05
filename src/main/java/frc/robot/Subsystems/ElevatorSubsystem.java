@@ -422,7 +422,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 targetVelocity = m_manualSpeed;
             }
             // Enforce a velocity limit for safety until tuning complete
-            targetVelocity = MathUtil.clamp(targetVelocity, -1, 1.2);
+            targetVelocity = MathUtil.clamp(targetVelocity, -2, 1.8);
 
             double targetAcceleration = (targetVelocity - this.m_lastSpeed);
 
@@ -440,10 +440,10 @@ public class ElevatorSubsystem extends SubsystemBase {
             if (currentPosition < 1.0) {
                 outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 6.0);
             } else if (currentPosition > Constants.Elevator.kElevatorMaxPos - 1.5) {
-                outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 1.0);
+                outputVoltage = MathUtil.clamp(outputVoltage, -2.0, 1.0);
             }
             else {
-                outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 4.0);
+                outputVoltage = MathUtil.clamp(outputVoltage, -2.0, 6.0);
             }
             outputVoltagePostClampPub.set(outputVoltage);
             desiredVelocityPub.set(targetVelocity);

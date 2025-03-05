@@ -191,9 +191,11 @@ public class RobotContainer {
                         new SequentialCommandGroup(
                             new PrintCommand("Running drive left right score"),
                         new ParallelCommandGroup(
-                            new GoToFlagLevel(m_elevator),
+                            new GoToFlagLevel(m_elevator).withTimeout(1.5),
                             new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
-                                    new DriveLeftOrRight(m_swerve, m_Limelight, false))),        
+                                    new DriveLeftOrRight(m_swerve, m_Limelight, false)).andThen(
+                                    new StopDrive(m_swerve)
+                                    )),
                             new StopDrive(m_swerve),
                             new EjectCoral(m_coral),
                             new WaitCommand(.7),
@@ -203,17 +205,37 @@ public class RobotContainer {
                     new PrintCommand("level has not been set"),
                     () -> m_elevator.isAnyLevelSet()));
                         
-            Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
-                new DriveOffset(m_swerve, m_Limelight, true),
-                new StopDrive(m_swerve),
-                new StationaryWait(m_swerve, 0.06),
-                new DriveDistance(m_swerve, () -> 0.15,0),
-                new StopDrive(m_swerve),
-                new GoToFlagLevel(m_elevator),
-                new EjectCoral(m_coral),
-                new WaitCommand(1),
-                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-            ));
+            //Bumper Buttons for Scoring Sequence
+            Controller.kDriveController.leftBumper().onTrue(
+                new ConditionalCommand(
+                    new ConditionalCommand(
+                        new SequentialCommandGroup(
+                            new PrintCommand("Running offset score routine"),
+                        new DriveOffset(m_swerve, m_Limelight, true),
+                            new StopDrive(m_swerve),
+                            new StationaryWait(m_swerve, 0.06),
+                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
+                            new StopDrive(m_swerve),
+                            new GoToFlagLevel(m_elevator),
+                            new EjectCoral(m_coral),
+                            new WaitCommand(1),
+                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
+                        new SequentialCommandGroup(
+                            new PrintCommand("Running drive left right score"),
+                        new ParallelCommandGroup(
+                            new GoToFlagLevel(m_elevator).withTimeout(1.5),
+                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
+                                    new DriveLeftOrRight(m_swerve, m_Limelight, true)).andThen(
+                                    new StopDrive(m_swerve)
+                                    )),     
+                            new StopDrive(m_swerve),   
+                            new EjectCoral(m_coral),
+                            new WaitCommand(.7),
+                        new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.2),
+                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
+                        () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
+                    new PrintCommand("level has not been set"),
+                    () -> m_elevator.isAnyLevelSet()));
 
             //Toggle  Robot Oriented Drive
             Controller.kDriveController.back()
