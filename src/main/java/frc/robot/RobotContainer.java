@@ -92,14 +92,14 @@ public class RobotContainer {
     private GenericEntry m_commandedYVel = m_competitionTab.add("CommandedVY", 0).getEntry();
     private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
-    protected GenericEntry m_driveP = m_competitionTab.add("Drive P Val", DriveTrainConstants.drivePID[0]).getEntry();
-    protected GenericEntry m_driveFFStatic = m_competitionTab.add("Drive FF Static", DriveTrainConstants.driveFeedForward[0]).getEntry();
-    protected GenericEntry m_driveFFVel = m_competitionTab.add("Drive FF Vel", DriveTrainConstants.driveFeedForward[1]).getEntry();
+    protected GenericEntry m_driveP = m_competitionTab.add("Drive P Val", DrivetrainConstants.drivePID[0]).getEntry();
+    protected GenericEntry m_driveFFStatic = m_competitionTab.add("Drive FF Static", DrivetrainConstants.driveFeedForward[0]).getEntry();
+    protected GenericEntry m_driveFFVel = m_competitionTab.add("Drive FF Vel", DrivetrainConstants.driveFeedForward[1]).getEntry();
     protected GenericEntry m_driveAccel = m_competitionTab.add("Drive FF Accel", 0.0).getEntry();
-    protected GenericEntry m_turnP = m_competitionTab.add("Turn P Val", DriveTrainConstants.turnPID[0]).getEntry();
-    protected GenericEntry m_turnI = m_competitionTab.add("Turn I Val", DriveTrainConstants.turnPID[1]).getEntry();
-    protected GenericEntry m_turnFFStatic = m_competitionTab.add("Turn FF Static", DriveTrainConstants.turnFeedForward[0]).getEntry();
-    protected GenericEntry m_turnFFVel = m_competitionTab.add("Turn FF Vel", DriveTrainConstants.turnFeedForward[1]).getEntry();
+    protected GenericEntry m_turnP = m_competitionTab.add("Turn P Val", DrivetrainConstants.turnPID[0]).getEntry();
+    protected GenericEntry m_turnI = m_competitionTab.add("Turn I Val", DrivetrainConstants.turnPID[1]).getEntry();
+    protected GenericEntry m_turnFFStatic = m_competitionTab.add("Turn FF Static", DrivetrainConstants.turnFeedForward[0]).getEntry();
+    protected GenericEntry m_turnFFVel = m_competitionTab.add("Turn FF Vel", DrivetrainConstants.turnFeedForward[1]).getEntry();
     
     private GenericEntry m_fixedSpeed = m_competitionTab.add("Fixed Speed", 0).getEntry();
     private SwerveModuleSB[] mSwerveModuleTelem;
@@ -471,14 +471,14 @@ public class RobotContainer {
     public void setPIDConstants() {
         // Configure the drive train tuning constants from the dashboard
         for (SwerveModule m : m_swerve.getSwerveModules()) {
-            m.getDrivePidController().setP(m_driveP.getDouble(Constants.DriveTrainConstants.drivePID[0]));
-            m.getDriveFeedForward().setKs(m_driveFFStatic.getDouble(Constants.DriveTrainConstants.driveFeedForward[0]));
-            m.getDriveFeedForward().setKv(m_driveFFVel.getDouble(Constants.DriveTrainConstants.driveFeedForward[1]));
+            m.getDrivePidController().setP(m_driveP.getDouble(Constants.DrivetrainConstants.drivePID[0]));
+            m.getDriveFeedForward().setKs(m_driveFFStatic.getDouble(Constants.DrivetrainConstants.driveFeedForward[0]));
+            m.getDriveFeedForward().setKv(m_driveFFVel.getDouble(Constants.DrivetrainConstants.driveFeedForward[1]));
             m.getDriveFeedForward().setKa(m_driveAccel.getDouble(0.0));
-            m.getTurnPidController().setP(m_turnP.getDouble(Constants.DriveTrainConstants.turnPID[0]));
-            m.getTurnPidController().setI(m_turnI.getDouble(DriveTrainConstants.turnPID[1]));
-            m.getTurnFeedForward().setKs(m_turnFFStatic.getDouble(DriveTrainConstants.turnFeedForward[0]));
-            m.getTurnFeedForward().setKv(m_turnFFVel.getDouble(DriveTrainConstants.turnFeedForward[1]));
+            m.getTurnPidController().setP(m_turnP.getDouble(Constants.DrivetrainConstants.turnPID[0]));
+            m.getTurnPidController().setI(m_turnI.getDouble(DrivetrainConstants.turnPID[1]));
+            m.getTurnFeedForward().setKs(m_turnFFStatic.getDouble(DrivetrainConstants.turnFeedForward[0]));
+            m.getTurnFeedForward().setKv(m_turnFFVel.getDouble(DrivetrainConstants.turnFeedForward[1]));
         }
     }
 

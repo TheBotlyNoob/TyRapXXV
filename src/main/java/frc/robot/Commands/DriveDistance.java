@@ -16,7 +16,7 @@ import frc.robot.Constants.*;
 
 // This Command will use the current position in odometry to drive straight at 
 // a specifie distance and direction. 
-// Command will set drivetrain speeds until odometry indicates the robot is at the desired position
+// Command will set Drivetrain speeds until odometry indicates the robot is at the desired position
 // This is for more precise positioning, like when we need to be close to an AprilTag
 public class DriveDistance extends Command {
     // Drivetrain Object

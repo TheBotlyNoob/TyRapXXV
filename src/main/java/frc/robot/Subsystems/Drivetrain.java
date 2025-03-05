@@ -43,28 +43,28 @@ public class Drivetrain extends SubsystemBase {
     public static final double kMaxAngularSpeed = 1.5 * Math.PI; // per second
 
     protected final Translation2d m_frontLeftLocation = new Translation2d(
-            DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXForward,
-            DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYLeft);
+            DrivetrainConstants.kDistanceMiddleToFrontMotor * DrivetrainConstants.kXForward,
+            DrivetrainConstants.kDistanceMiddleToSideMotor * DrivetrainConstants.kYLeft);
     protected final Translation2d m_frontRightLocation = new Translation2d(
-            DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXForward,
-            DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYRight);
+            DrivetrainConstants.kDistanceMiddleToFrontMotor * DrivetrainConstants.kXForward,
+            DrivetrainConstants.kDistanceMiddleToSideMotor * DrivetrainConstants.kYRight);
     protected final Translation2d m_backLeftLocation = new Translation2d(
-            DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXBackward,
-            DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYLeft);
+            DrivetrainConstants.kDistanceMiddleToFrontMotor * DrivetrainConstants.kXBackward,
+            DrivetrainConstants.kDistanceMiddleToSideMotor * DrivetrainConstants.kYLeft);
     protected final Translation2d m_backRightLocation = new Translation2d(
-            DriveTrainConstants.kDistanceMiddleToFrontMotor * DriveTrainConstants.kXBackward,
-            DriveTrainConstants.kDistanceMiddleToSideMotor * DriveTrainConstants.kYRight);
+            DrivetrainConstants.kDistanceMiddleToFrontMotor * DrivetrainConstants.kXBackward,
+            DrivetrainConstants.kDistanceMiddleToSideMotor * DrivetrainConstants.kYRight);
 
     protected final SwerveModule m_frontLeft = new SwerveModule("FrontLeft",
             ID.kFrontLeftDrive,
             ID.kFrontLeftTurn,
             ID.kFrontLeftCANCoder,
             Offsets.kFrontLeftOffset,
-            DriveTrainConstants.turnPID,
-            DriveTrainConstants.drivePID,
-            DriveTrainConstants.turnFeedForward,
-            DriveTrainConstants.driveFeedForward,
-            DriveTrainConstants.sparkFlex,
+            DrivetrainConstants.turnPID,
+            DrivetrainConstants.drivePID,
+            DrivetrainConstants.turnFeedForward,
+            DrivetrainConstants.driveFeedForward,
+            DrivetrainConstants.sparkFlex,
             true // Pass inverstion value
 
     );
@@ -73,33 +73,33 @@ public class Drivetrain extends SubsystemBase {
             ID.kFrontRightTurn,
             ID.kFrontRightCANCoder,
             Offsets.kFrontRightOffset,
-            DriveTrainConstants.turnPID,
-            DriveTrainConstants.drivePID,
-            DriveTrainConstants.turnFeedForward,
-            DriveTrainConstants.driveFeedForward,
-            DriveTrainConstants.sparkFlex,
+            DrivetrainConstants.turnPID,
+            DrivetrainConstants.drivePID,
+            DrivetrainConstants.turnFeedForward,
+            DrivetrainConstants.driveFeedForward,
+            DrivetrainConstants.sparkFlex,
             false);
     protected final SwerveModule m_backLeft = new SwerveModule("BackLeft",
             ID.kBackLeftDrive,
             ID.kBackLeftTurn,
             ID.kBackLeftCANCoder,
             Offsets.kBackLeftOffset,
-            DriveTrainConstants.turnPID,
-            DriveTrainConstants.drivePID,
-            DriveTrainConstants.turnFeedForward,
-            DriveTrainConstants.driveFeedForward,
-            DriveTrainConstants.sparkFlex,
+            DrivetrainConstants.turnPID,
+            DrivetrainConstants.drivePID,
+            DrivetrainConstants.turnFeedForward,
+            DrivetrainConstants.driveFeedForward,
+            DrivetrainConstants.sparkFlex,
             false);
     protected final SwerveModule m_backRight = new SwerveModule("BackRight",
             ID.kBackRightDrive,
             ID.kBackRightTurn,
             ID.kBackRightCANCoder,
             Offsets.kBackRightOffset,
-            DriveTrainConstants.turnPID,
-            DriveTrainConstants.drivePID,
-            DriveTrainConstants.turnFeedForward,
-            DriveTrainConstants.driveFeedForward,
-            DriveTrainConstants.sparkFlex,
+            DrivetrainConstants.turnPID,
+            DrivetrainConstants.drivePID,
+            DrivetrainConstants.turnFeedForward,
+            DrivetrainConstants.driveFeedForward,
+            DrivetrainConstants.sparkFlex,
             true);
     protected final Vector<SwerveModule> m_swerveModules = new Vector<SwerveModule>(4);
 
@@ -163,12 +163,12 @@ public class Drivetrain extends SubsystemBase {
                     this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
                     this::driveChassisSpeeds, // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
                     new PPHolonomicDriveController( // HolonomicPathFollowerConfig
-                            new PIDConstants(DriveTrainConstants.drivePID[0], // Translation PID constants
-                                    DriveTrainConstants.drivePID[1],
-                                    DriveTrainConstants.drivePID[2]),
-                            new PIDConstants(DriveTrainConstants.turnPID[0], // Rotation PID constants
-                                    DriveTrainConstants.turnPID[1],
-                                    DriveTrainConstants.turnPID[2])),
+                            new PIDConstants(DrivetrainConstants.drivePID[0], // Translation PID constants
+                                    DrivetrainConstants.drivePID[1],
+                                    DrivetrainConstants.drivePID[2]),
+                            new PIDConstants(DrivetrainConstants.turnPID[0], // Rotation PID constants
+                                    DrivetrainConstants.turnPID[1],
+                                    DrivetrainConstants.turnPID[2])),
                     ppConfig,
                     () -> {
                         // Boolean supplier that controls when the path will be mirrored for the red
@@ -336,37 +336,7 @@ public class Drivetrain extends SubsystemBase {
 
     public void driveChassisSpeeds(ChassisSpeeds chassisSpeeds) {
         m_driveCommandedRotationSpeed.setDouble(Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(chassisSpeeds);
-
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveTrainConstants.kMaxPossibleSpeed);
-
-        // passing back the math from kinematics to the swerves themselves.
-        CountDownLatch latch = new CountDownLatch(4);
-        executorService.execute(() -> {
-            m_frontLeft.setDesiredState(swerveModuleStates[0]);
-            latch.countDown();
-        });
-        executorService.execute(() -> {
-            m_frontRight.setDesiredState(swerveModuleStates[1]);
-            latch.countDown();
-        });
-        executorService.execute(() -> {
-            m_backLeft.setDesiredState(swerveModuleStates[2]);
-            latch.countDown();
-        });
-        executorService.execute(() -> {
-            m_backRight.setDesiredState(swerveModuleStates[3]);
-            latch.countDown();
-        });
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            // Pass
-        }
-
-        commandedChassisSpeeds = m_kinematics.toChassisSpeeds(
-                swerveModuleStates[0], swerveModuleStates[1], swerveModuleStates[2], swerveModuleStates[3]);
-
+        commandedChassisSpeeds = chassisSpeeds;
     }
 
     public Pose2d getRoboPose2d() {
@@ -374,20 +344,34 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void stopDriving() {
-        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
+        /*SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                         0,
                         0,
                         0,
                         getGyroYawRotation2d()));
 
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DriveTrainConstants.kMaxPossibleSpeed);
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DrivetrainConstants.kMaxPossibleSpeed);
 
         // passing back the math from kinematics to the swerves themselves.
         m_frontLeft.setDesiredState(swerveModuleStates[0]);
         m_frontRight.setDesiredState(swerveModuleStates[1]);
         m_backLeft.setDesiredState(swerveModuleStates[2]);
-        m_backRight.setDesiredState(swerveModuleStates[3]);
+        m_backRight.setDesiredState(swerveModuleStates[3]);*/
+
+        // getting velocity vectors from each module
+        SwerveModuleState frontLeftState = m_frontLeft.getState();
+        SwerveModuleState frontRightState = m_frontRight.getState();
+        SwerveModuleState backLeftState = m_backLeft.getState();
+        SwerveModuleState backRightState = m_backRight.getState();
+        frontLeftState.speedMetersPerSecond = 0.0;
+        m_frontLeft.setDesiredState(frontLeftState);
+        frontRightState.speedMetersPerSecond = 0.0;
+        m_frontRight.setDesiredState(frontRightState);
+        backLeftState.speedMetersPerSecond = 0.0;
+        m_backLeft.setDesiredState(backLeftState);
+        backRightState.speedMetersPerSecond = 0.0;
+        m_backRight.setDesiredState(backRightState);     
     }
 
     /** Updates the field relative position of the robot. */
@@ -412,5 +396,33 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         updateOdometry();
+
+        SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(commandedChassisSpeeds);
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DrivetrainConstants.kMaxPossibleSpeed);
+
+        // passing back the math from kinematics to the swerves themselves.
+        CountDownLatch latch = new CountDownLatch(4);
+        executorService.execute(() -> {
+            m_frontLeft.setDesiredState(swerveModuleStates[0]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_frontRight.setDesiredState(swerveModuleStates[1]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_backLeft.setDesiredState(swerveModuleStates[2]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_backRight.setDesiredState(swerveModuleStates[3]);
+            latch.countDown();
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            // Pass
+        }
     }
 }

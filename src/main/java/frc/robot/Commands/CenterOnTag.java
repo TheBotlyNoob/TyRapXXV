@@ -203,14 +203,14 @@ public class CenterOnTag extends Command {
 //         // if (Math.abs(xError) < LimelightConstants.xDisThreshold && Math
 //         //         //.abs(yError) < LimelightConstants.yDisThreshold
 //         //         && Math.abs(ll.getFilteredYawDegrees()) < LimelightConstants.rotThreshold) {
-//         //     // Set FieldRelative back to true so the drivetrain works for teleop
+//         //     // Set FieldRelative back to true so the Drivetrain works for teleop
 //         //     dt.setFieldRelative(true);
 //         //     dt.drive(0, 0, 0);
 //         //     System.out.println("COT command complete");
 //         //     return true;
 //         // } else if (llLost == true) {
 //         //     System.out.println("COT command aborted because limelight lost");
-//         //     // Set FieldRelative back to true so the drivetrain works for teleop
+//         //     // Set FieldRelative back to true so the Drivetrain works for teleop
 //         //     dt.setFieldRelative(true);
 //         //     dt.drive(0, 0, 0);
 //         //     return true;

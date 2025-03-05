@@ -153,7 +153,7 @@ public class SwerveModule {
          */
         m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
         SparkMaxConfig turningConfig = new SparkMaxConfig();
-        turningConfig.inverted(DriveTrainConstants.kInvertTurn); //m_turningMotor.setInverted(true);
+        turningConfig.inverted(DrivetrainConstants.kInvertTurn); //m_turningMotor.setInverted(true);
         turningConfig.smartCurrentLimit(40); //m_turningMotor.setSmartCurrentLimit(40);
         turningConfig.idleMode(IdleMode.kBrake); //m_turningMotor.setIdleMode(IdleMode.kBrake);
         LimitSwitchConfig limitConfig = new LimitSwitchConfig();

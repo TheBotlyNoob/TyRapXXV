@@ -74,7 +74,7 @@ public class Constants {
         public static final double kRightJoyStickDeadband = 0.06;
     }
 
-    public static class DriveTrainConstants {
+    public static class DrivetrainConstants {
         // Distance in meters
         public static final double kDistanceMiddleToFrontMotor = 0.339852;
         public static final double kDistanceMiddleToSideMotor = 0.289052;
@@ -116,7 +116,7 @@ public class Constants {
         public static final double kRateLimitXSpeed = 150.0;
         public static final double kRateLimitYSpeed = 150.0;
         public static final double kRateLimitRot = 70.0;
-        public static final double kMaxNecessarySpeed = DriveTrainConstants.kMaxPossibleSpeed * 0.8;
+        public static final double kMaxNecessarySpeed = DrivetrainConstants.kMaxPossibleSpeed * 0.8;
 
         public static final CommandXboxController kDriveController = new CommandXboxController(kDriveControllerID);
         public static final CommandXboxController kManipulatorController = new CommandXboxController(
@@ -171,7 +171,7 @@ public class Constants {
         public static final double driveOffsetMaxDccMSS = 3;
         public static final double driveOffsetMinVel = 0.1;
         public static final double driveOffsetMaxVel = 1.5;
-        public static final double driveOffsetAngleError = 0.014;
+        public static final double driveOffsetAngleError = 0.02;
         public static final double driveOffsetRangeMThreshold = 0.01;
         public static final double driveOffsetKp = 2.0;
     }
