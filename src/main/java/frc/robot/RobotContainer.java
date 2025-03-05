@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -177,6 +178,7 @@ public class RobotContainer {
             Controller.kDriveController.rightBumper().onTrue(
                 new ConditionalCommand(
                     new SequentialCommandGroup(
+                        new PrintCommand("Running offset score routine"),
                         new DriveOffset(m_swerve, m_Limelight, false),
                         new StopDrive(m_swerve),
                         new StationaryWait(m_swerve, 0.06),
@@ -187,13 +189,17 @@ public class RobotContainer {
                         new WaitCommand(1),
                         m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
                     new SequentialCommandGroup(
-                        new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.5).alongWith(
-                            new GoToFlagLevel(m_elevator)),
+                        new PrintCommand("Running drive left right score"),
+                        new ParallelCommandGroup(
+                            new GoToFlagLevel(m_elevator),
+                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
+                                new DriveLeftOrRight(m_swerve, m_Limelight, false))),        
                         new StopDrive(m_swerve),
                         new EjectCoral(m_coral),
-                        new WaitCommand(1),
+                        new WaitCommand(.7),
+                        new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.2),
                         m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-                    () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.06)));
+                    () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)));
                         
             /*Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, false),
