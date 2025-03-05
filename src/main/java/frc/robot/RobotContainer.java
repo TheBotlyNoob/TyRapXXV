@@ -132,7 +132,7 @@ public class RobotContainer {
 
         // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
-        this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
+        this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault(), m_elevator);
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -173,7 +173,7 @@ public class RobotContainer {
         }
 
         // DRIVE CONTROLLERS BINDINGS 
-
+        
             //Bumper Buttons for Scoring Sequence
             Controller.kDriveController.rightBumper().onTrue(
                 new ConditionalCommand(
