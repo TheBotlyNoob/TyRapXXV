@@ -65,7 +65,7 @@ public class CoralSubsystem extends SubsystemBase {
     protected CoralState state = CoralState.WAITING;
 
     public CoralSubsystem(NetworkTableInstance nt, ElevatorSubsystem el) {
-        this.el = new ElevatorSubsystem(nt);
+        this.el = el;
         m_table = nt.getTable(getName());
 
         m_table_level = m_table.getStringTopic("coral").publish();

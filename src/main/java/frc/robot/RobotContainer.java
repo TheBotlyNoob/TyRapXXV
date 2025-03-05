@@ -45,7 +45,6 @@ import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
-import frc.robot.Subsystems.RangeSensor;
 import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.CenterOnTag;
@@ -201,16 +200,6 @@ public class RobotContainer {
                         m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
                     () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)));
                         
-            /*Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
-                new DriveOffset(m_swerve, m_Limelight, false),
-                new StopDrive(m_swerve),
-                new StationaryWait(m_swerve, 0.06),
-                new DriveDistance(m_swerve, () -> 0.15,0),
-                new StopDrive(m_swerve),
-                new GoToFlagLevel(m_elevator),
-                new EjectCoral(m_coral),
-                new WaitCommand(1),
-                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)))); */
             Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, true),
                 new StopDrive(m_swerve),
