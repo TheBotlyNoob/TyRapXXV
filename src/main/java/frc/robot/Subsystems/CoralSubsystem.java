@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Commands.EjectCoral;
+import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Utils.MotorPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
 
@@ -27,6 +28,7 @@ public class CoralSubsystem extends SubsystemBase {
 
     private final SparkMax m_wristMotor;
     private final SparkMax m_coralGrabberMotor;
+    private final ElevatorSubsystem el;
 
     private boolean pointedOut = false;
     private double holdPosition = 0.0;
@@ -58,7 +60,8 @@ public class CoralSubsystem extends SubsystemBase {
 
     protected CoralState state = CoralState.WAITING;
 
-    public CoralSubsystem(NetworkTableInstance nt) {
+    public CoralSubsystem(NetworkTableInstance nt, ElevatorSubsystem el) {
+        this.el = new ElevatorSubsystem(nt);
         m_table = nt.getTable(getName());
 
         m_table_level = m_table.getStringTopic("coral").publish();
@@ -147,6 +150,7 @@ public class CoralSubsystem extends SubsystemBase {
         boolean irDetected = !m_irSensor.get();
         if (irDetected) {
             state = CoralState.HOLDING;
+            el.setLevel(ElevatorLevel.LEVEL1);
             m_coralGrabberMotor.set(0.0);
         } else {
             state = CoralState.WAITING;
@@ -175,6 +179,7 @@ public class CoralSubsystem extends SubsystemBase {
             counter = m_coralGrabberMotor.getEncoder().getPosition();
             if (counter >= (start + 7.0)) {
                 state = CoralState.HOLDING;
+                el.setLevel(ElevatorLevel.LEVEL1);
             }
         } else if (state == CoralState.HOLDING) {
             m_coralGrabberMotor.set(0.0);
