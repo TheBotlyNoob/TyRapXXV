@@ -197,7 +197,7 @@ public class CoralSubsystem extends SubsystemBase {
         } else if (state == CoralState.INTAKING) {
             m_coralGrabberMotor.set(0.1);
             counter = m_coralGrabberMotor.getEncoder().getPosition();
-            if (counter >= (start + 7.0)) {
+            if (counter >= (start + 5.0)) {
                 state = CoralState.HOLDING;
                 el.setLevel(ElevatorLevel.LEVEL1);
             }

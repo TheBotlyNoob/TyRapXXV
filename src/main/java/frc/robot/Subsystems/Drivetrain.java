@@ -16,12 +16,13 @@ import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
@@ -36,6 +37,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
+import frc.robot.LimelightHelpers;
 import frc.robot.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
@@ -66,7 +68,6 @@ public class Drivetrain extends SubsystemBase {
             DrivetrainConstants.driveFeedForward,
             DrivetrainConstants.sparkFlex,
             true // Pass inverstion value
-
     );
     protected final SwerveModule m_frontRight = new SwerveModule("FrontRight",
             ID.kFrontRightDrive,
@@ -120,7 +121,9 @@ public class Drivetrain extends SubsystemBase {
     protected final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
             m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation, m_backRightLocation);
 
-    protected final SwerveDriveOdometry m_odometry;
+    protected final SwerveDrivePoseEstimator m_odometry;
+    protected int counter = 0;
+    protected boolean enableVisionPoseInputs;
 
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
     protected ChassisSpeeds commandedChassisSpeeds = new ChassisSpeeds();
@@ -141,7 +144,7 @@ public class Drivetrain extends SubsystemBase {
         m_swerveModules.add(m_backLeft);
         m_swerveModules.add(m_backRight);
 
-        m_odometry = new SwerveDriveOdometry(
+        m_odometry = new SwerveDrivePoseEstimator(
                 m_kinematics,
                 getGyroYawRotation2d(),
                 new SwerveModulePosition[] {
@@ -149,7 +152,8 @@ public class Drivetrain extends SubsystemBase {
                         m_frontRight.getPosition(),
                         m_backLeft.getPosition(),
                         m_backRight.getPosition()
-                });
+                },
+                new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
 
         // Load the RobotConfig from the PathPlanner GUI settings
         RobotConfig ppConfig;
@@ -340,30 +344,22 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Pose2d getRoboPose2d() {
-        return m_odometry.getPoseMeters();
+        return m_odometry.getEstimatedPosition();
+    }
+
+    public void setEnableVisionPoseInputs(boolean enableVisionPoseInputs) {
+        this.enableVisionPoseInputs = enableVisionPoseInputs;
     }
 
     public void stopDriving() {
-        /*SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(
-                ChassisSpeeds.fromFieldRelativeSpeeds(
-                        0,
-                        0,
-                        0,
-                        getGyroYawRotation2d()));
-
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DrivetrainConstants.kMaxPossibleSpeed);
-
-        // passing back the math from kinematics to the swerves themselves.
-        m_frontLeft.setDesiredState(swerveModuleStates[0]);
-        m_frontRight.setDesiredState(swerveModuleStates[1]);
-        m_backLeft.setDesiredState(swerveModuleStates[2]);
-        m_backRight.setDesiredState(swerveModuleStates[3]);*/
-
-        // getting velocity vectors from each module
+        commandedChassisSpeeds = new ChassisSpeeds();
+        // Get velocity and position from each module
         SwerveModuleState frontLeftState = m_frontLeft.getState();
         SwerveModuleState frontRightState = m_frontRight.getState();
         SwerveModuleState backLeftState = m_backLeft.getState();
         SwerveModuleState backRightState = m_backRight.getState();
+        // Command each module to zero speed while maintaining its current
+        // angle
         frontLeftState.speedMetersPerSecond = 0.0;
         m_frontLeft.setDesiredState(frontLeftState);
         frontRightState.speedMetersPerSecond = 0.0;
@@ -371,14 +367,36 @@ public class Drivetrain extends SubsystemBase {
         backLeftState.speedMetersPerSecond = 0.0;
         m_backLeft.setDesiredState(backLeftState);
         backRightState.speedMetersPerSecond = 0.0;
-        m_backRight.setDesiredState(backRightState);     
+        m_backRight.setDesiredState(backRightState);
     }
 
     /** Updates the field relative position of the robot. */
     public void updateOdometry() {
+                Rotation2d rotationYaw = getGyroYawRotation2d();
         m_odometry.update(
-                getGyroYawRotation2d(),
+                rotationYaw,
                 getModulePositions());
+        counter++;
+        if (counter % 10 == 0 && enableVisionPoseInputs) {
+            LimelightHelpers.SetRobotOrientation(ID.kFrontLimelightName, rotationYaw.getDegrees(), 0, 0, 0, 0, 0);
+            LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ID.kFrontLimelightName);
+            boolean doRejectUpdate = false;
+            if(Math.abs(m_gyro.getAngularVelocityZWorld().getValueAsDouble()) > 360) // if our angular velocity is too large, ignore vision updates
+            {
+                doRejectUpdate = true;
+            }
+            if(mt2.tagCount == 0)
+            {
+                doRejectUpdate = true;
+            }
+            if(!doRejectUpdate)
+            {
+                m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+                m_odometry.addVisionMeasurement(
+                    mt2.pose,
+                    mt2.timestampSeconds);
+            }
+        }
 
         // getting velocity vectors from each module
         SwerveModuleState frontLeftState = m_frontLeft.getState();

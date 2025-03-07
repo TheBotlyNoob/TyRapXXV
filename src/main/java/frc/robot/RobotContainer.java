@@ -123,7 +123,7 @@ public class RobotContainer {
         mSwerveModuleTelem = swerveModuleTelem;
 
         this.m_Limelight = new Limelight();
-        this.m_Limelight.setLimelightPipeline(2);
+        this.m_Limelight.setLimelightPipeline(LimelightConstants.defaultPipeline);
         CameraServer.startAutomaticCapture(); // Start USB webcam capture for climb
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
         this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
@@ -147,6 +147,7 @@ public class RobotContainer {
 
         configureBindings();
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
+
     }
 
     /**
@@ -177,36 +178,24 @@ public class RobotContainer {
             Controller.kDriveController.rightBumper().onTrue(
                 new ConditionalCommand(
                     new ConditionalCommand(
-                        new SequentialCommandGroup(
-                            new PrintCommand("Running offset score routine"),
-                        new DriveOffset(m_swerve, m_Limelight, false),
-                            new StopDrive(m_swerve),
-                            new StationaryWait(m_swerve, 0.06),
-                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
-                            new StopDrive(m_swerve),
-                            new GoToFlagLevel(m_elevator),
-                            new EjectCoral(m_coral),
-                            new WaitCommand(1),
-                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-                        new SequentialCommandGroup(
-                            new PrintCommand("Running drive left right score"),
-                        new ParallelCommandGroup(
-                            new GoToFlagLevel(m_elevator).withTimeout(1.5),
-                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
-                                    new DriveLeftOrRight(m_swerve, m_Limelight, false)).andThen(
-                                    new StopDrive(m_swerve)
-                                    )),
-                            new StopDrive(m_swerve),
-                            new EjectCoral(m_coral),
-                            new WaitCommand(.7),
-                        new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.2),
-                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
+                        buildScoreOffsetCommand(false),
+                        buildScoreBumperedUpCommand(false),
                         () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
                     new PrintCommand("level has not been set"),
                     () -> m_elevator.isAnyLevelSet()));
                         
             //Bumper Buttons for Scoring Sequence
             Controller.kDriveController.leftBumper().onTrue(
+                new ConditionalCommand(
+                    new ConditionalCommand(
+                        buildScoreOffsetCommand(true),
+                        buildScoreBumperedUpCommand(true),
+                        () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
+                    new PrintCommand("level has not been set"),
+                    () -> m_elevator.isAnyLevelSet()));
+
+            //Bumper Buttons for Scoring Sequence
+            /*Controller.kDriveController.leftBumper().onTrue(
                 new ConditionalCommand(
                     new ConditionalCommand(
                         new SequentialCommandGroup(
@@ -222,20 +211,21 @@ public class RobotContainer {
                             m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
                         new SequentialCommandGroup(
                             new PrintCommand("Running drive left right score"),
-                        new ParallelCommandGroup(
-                            new GoToFlagLevel(m_elevator).withTimeout(1.5),
-                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
-                                    new DriveLeftOrRight(m_swerve, m_Limelight, true)).andThen(
+                            new ParallelCommandGroup(
+                                new GoToFlagLevel(m_elevator).withTimeout(1.5),
+                                new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
+                                    new DriveLeftOrRight(m_swerve, m_Limelight, true),
                                     new StopDrive(m_swerve)
-                                    )),     
+                                    )
+                                ),     
                             new StopDrive(m_swerve),   
                             new EjectCoral(m_coral),
-                            new WaitCommand(.7),
-                        new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.2),
+                            new WaitCommand(.5),
+                            new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.5),
                             m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
                         () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
                     new PrintCommand("level has not been set"),
-                    () -> m_elevator.isAnyLevelSet()));
+                    () -> m_elevator.isAnyLevelSet())); */
 
             //Toggle  Robot Oriented Drive
             Controller.kDriveController.back()
@@ -357,6 +347,41 @@ public class RobotContainer {
                 .onTrue(m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL3)));
         Controller.kManipulatorController.y()
                 .onTrue(m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL4)));
+    }
+
+    protected SequentialCommandGroup buildScoreOffsetCommand(boolean isLeft) {
+        return new SequentialCommandGroup(
+            new PrintCommand("Running offset score routine"),
+            new DriveOffset(m_swerve, m_Limelight, isLeft),
+            new StopDrive(m_swerve),
+            //new StationaryWait(m_swerve, 0.06),
+            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
+            new StopDrive(m_swerve),
+            new GoToFlagLevel(m_elevator),
+            new EjectCoral(m_coral),
+            new WaitCommand(.7),
+            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
+    }
+
+    protected SequentialCommandGroup buildScoreBumperedUpCommand(boolean isLeft) {
+        return new SequentialCommandGroup(
+            new PrintCommand("Running drive left right score"),
+            new ParallelCommandGroup(
+                // Raise the elevator to the selected level while in parallel aligning left or right
+                new GoToFlagLevel(m_elevator).withTimeout(2.5),
+                new SequentialCommandGroup(
+                    new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2),
+                    //new DriveFixedVelocity(m_swerve, 0, () -> 0.5).withTimeout(0.2),
+                    new DriveFixedVelocity(m_swerve, 180, () -> 0.15).withTimeout(.1),
+                    new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
+                    new StopDrive(m_swerve)
+                )
+            ),
+            new StopDrive(m_swerve),
+            new EjectCoral(m_coral),
+            new StationaryWait(m_swerve, .5),
+            new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.4),
+            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
     }
 
     public Drivetrain getDrivetrain() {
@@ -487,6 +512,7 @@ public class RobotContainer {
     }
 
     public void reinitialize() {
+        this.m_Limelight.setLimelightPipeline(LimelightConstants.defaultPipeline);
         this.m_elevator.updateConstants();
         this.m_elevator.resetEncoder();
         this.m_coral.reinit();

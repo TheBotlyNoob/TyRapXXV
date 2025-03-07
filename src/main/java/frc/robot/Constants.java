@@ -142,6 +142,7 @@ public class Constants {
     }
 
     public static class LimelightConstants {
+        public static final int defaultPipeline = 2;
         // For CenterOnTag
         public static final double minXVelocity = 0.1;
         public static final double maxXVelocity = 1.0;
@@ -164,6 +165,7 @@ public class Constants {
         public static final double offset = 0.0;
         public static final double proportion = 2;
         public static final double threshold = .02;
+        public static final double driveDistanceProp = 2;
         // For DriveOffset
         public static final double driveOffsetXOffset = 0.7;
         public static final double driveOffsetYOffset = 0.17;
