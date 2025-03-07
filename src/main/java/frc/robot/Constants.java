@@ -46,7 +46,7 @@ public class Constants {
         public static final double kMinEncoderPos = 0.218;
     }
     public static class Coral {
-        public static final double kWristMotorVoltage = 4.5;
+        public static final double kWristMotorVoltage = 8.0;
         public static final double kWristMotorVoltageReverse = 6.0;
         // down -4.4
         // up +6
@@ -183,7 +183,7 @@ public class Constants {
     public class Elevator {
         public static class Heights {
             public static final double kGround = 0.0;
-            public static final double kLevel1 = 3.5;
+            public static final double kLevel1 = 5.3; //3.5
             public static final double kLevel2 = 6.1;
             public static final double kLevel3 = 12.85;
             public static final double kLevel4 = 24.5;

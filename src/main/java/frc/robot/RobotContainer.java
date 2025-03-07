@@ -183,7 +183,7 @@ public class RobotContainer {
                         buildScoreOffsetCommand(false),
                         buildScoreBumperedUpCommand(false),
                         () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
-                    new PrintCommand("level has not been set"),
+                    new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
                     () -> m_elevator.isAnyLevelSet()));
                         
             //Bumper Buttons for Scoring Sequence
@@ -193,7 +193,7 @@ public class RobotContainer {
                         buildScoreOffsetCommand(true),
                         buildScoreBumperedUpCommand(true),
                         () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
-                    new PrintCommand("level has not been set"),
+                    new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
                     () -> m_elevator.isAnyLevelSet()));
 
             //Bumper Buttons for Scoring Sequence
@@ -235,6 +235,8 @@ public class RobotContainer {
 
             //reset Field Orient Command 
             Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
+            Controller.kDriveController.x().onTrue(m_coral.wristExtendCommand());
+            Controller.kDriveController.b().onTrue(m_coral.wristRetractCommand());
 
             //Trigger Buttons for Algae Intake and Eject
             Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
@@ -261,6 +263,7 @@ public class RobotContainer {
 
             //Triger Buttons 
             Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
+            Controller.kManipulatorController.rightBumper().onTrue(buildRemoveAlgaeCommand());
 
             //Back Button for Climber Mode Toggle
             Controller.kManipulatorController.back()
@@ -372,9 +375,9 @@ public class RobotContainer {
                 // Raise the elevator to the selected level while in parallel aligning left or right
                 new GoToFlagLevel(m_elevator).withTimeout(2.5),
                 new SequentialCommandGroup(
-                    new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2),
+                    new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.15),
                     //new DriveFixedVelocity(m_swerve, 0, () -> 0.5).withTimeout(0.2),
-                    new DriveFixedVelocity(m_swerve, 180, () -> 0.15).withTimeout(.1),
+                    new DriveFixedVelocity(m_swerve, 180, () -> 0.25).withTimeout(.1),
                     new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
                     new StopDrive(m_swerve)
                 )
@@ -384,6 +387,13 @@ public class RobotContainer {
             new StationaryWait(m_swerve, .5),
             new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.4),
             m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
+    }
+
+    public SequentialCommandGroup buildRemoveAlgaeCommand() {
+        return new SequentialCommandGroup(
+            m_coral.wristExtendCommand(),
+            new DriveOffset(m_swerve, m_Limelight,)
+        )
     }
 
     public Drivetrain getDrivetrain() {

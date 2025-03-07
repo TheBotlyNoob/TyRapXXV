@@ -10,6 +10,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Commands.EjectCoral;
@@ -156,6 +158,14 @@ public class CoralSubsystem extends SubsystemBase {
         reverseMotor();
     }
 
+    public Command wristExtendCommand() {
+        return new RunCommand(() -> extendManipulator(), this).withTimeout(0.5);
+    }
+
+    public Command wristRetractCommand() {
+        return new RunCommand(() -> retractManipulator(), this).withTimeout(0.5);
+    }
+
     public void reinit()  {
         boolean irDetected = !m_irSensor.get();
         if (irDetected) {
@@ -197,7 +207,7 @@ public class CoralSubsystem extends SubsystemBase {
         } else if (state == CoralState.INTAKING) {
             m_coralGrabberMotor.set(0.1);
             counter = m_coralGrabberMotor.getEncoder().getPosition();
-            if (counter >= (start + 5.0)) {
+            if (counter >= (start + 4.5)) {
                 state = CoralState.HOLDING;
                 el.setLevel(ElevatorLevel.LEVEL1);
             }

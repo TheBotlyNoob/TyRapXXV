@@ -41,7 +41,7 @@ public class DriveOffset extends Command {
             .add("DriveOffsetMaxDccEntry", LimelightConstants.driveOffsetMaxDccMSS).getEntry();
     protected static GenericEntry xOffsetEntry = Shuffleboard.getTab("DriveOffset")
             .add("DriveOffsetXOffset", LimelightConstants.driveOffsetXOffset).getEntry();
-    protected static GenericEntry yOffsetENtry = Shuffleboard.getTab("DriveOffset")
+    protected static GenericEntry yOffsetEntry = Shuffleboard.getTab("DriveOffset")
             .add("DriveOffsetYOffset", LimelightConstants.driveOffsetYOffset).getEntry();
     protected static GenericEntry omegaDps = Shuffleboard.getTab("DriveOffset")
             .add("OmegaSpeedDps", 0).getEntry();
@@ -77,12 +77,14 @@ public class DriveOffset extends Command {
     protected final double threshold = LimelightConstants.driveOffsetRangeMThreshold;
     private int counter;
     protected TrapezoidController trapezoidController;
+    protected boolean useDashboardEntries;
 
     // Constructors
     public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft) {
             this.dt = dt;
             this.ll = ll;
             this.isLeft = isLeft;
+            this.useDashboardEntries = true;
             addRequirements(dt);
             // 2D transform between robot and camera frames
             // Currently get offset from SparkJrConstants, but can change later
@@ -110,7 +112,7 @@ public class DriveOffset extends Command {
 
         // Create a new Trapezoid profile
         xOffset = xOffsetEntry.getDouble(0.3);
-        yOffset = yOffsetENtry.getDouble(0.0);
+        yOffset = yOffsetEntry.getDouble(0.0);
         // Change offset based on direction, so we can go to left or right reef goal
         if (isLeft) {
             // Left is negative Y
