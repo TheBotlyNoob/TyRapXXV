@@ -75,8 +75,10 @@ public class CoralSubsystem extends SubsystemBase {
         m_coralGrabberMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
         m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushed);
 
-        kWristMotorVoltageForward = m_table.getDoubleTopic("wrist motor voltage forward").getEntry(Constants.Coral.kWristMotorVoltage);
-        kWristMotorVoltageReverse = m_table.getDoubleTopic("wrist motor voltage reverse").getEntry(Constants.Coral.kWristMotorVoltageReverse);
+        kWristMotorVoltageForward = m_table.getDoubleTopic("wrist motor voltage forward")
+                .getEntry(Constants.Coral.kWristMotorVoltage);
+        kWristMotorVoltageReverse = m_table.getDoubleTopic("wrist motor voltage reverse")
+                .getEntry(Constants.Coral.kWristMotorVoltageReverse);
 
         // kWristMotorSpeedForward = m_table.getDoubleTopic("wrist motor speed
         // forward").getEntry(0.0);
@@ -166,7 +168,7 @@ public class CoralSubsystem extends SubsystemBase {
         return new RunCommand(() -> retractManipulator(), this).withTimeout(0.5);
     }
 
-    public void reinit()  {
+    public void reinit() {
         boolean irDetected = !m_irSensor.get();
         if (irDetected) {
             state = CoralState.HOLDING;
@@ -175,6 +177,10 @@ public class CoralSubsystem extends SubsystemBase {
         } else {
             state = CoralState.WAITING;
         }
+    }
+
+    public CoralState getState() {
+        return state;
     }
 
     @Override

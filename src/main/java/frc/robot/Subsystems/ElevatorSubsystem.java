@@ -28,7 +28,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    public enum ElevatorLevel{ 
+    public enum ElevatorLevel {
         /**
          * The ground level of the elevator, where the human player can load coral.
          */
@@ -276,16 +276,20 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void setLevelUsingFlag() {
-        //m_level = m_levelFlag;
-        //m_table_level.set(m_level.toString());
+        // m_level = m_levelFlag;
+        // m_table_level.set(m_level.toString());
         this.setLevel(m_levelFlag);
         System.out.println("Moving elevator using the flag to: " + m_level);
+    }
+
+    public ElevatorLevel getLevelFlag() {
+        return m_levelFlag;
     }
 
     public boolean isAnyLevelSet(){
         return isAnyLevelSet;
     }
-  
+
     public void levelUp() {
         int currentLevel = ElevatorLevel.toInt(m_level);
         if (currentLevel < ElevatorLevel.toInt(ElevatorLevel.LEVEL4)) {
@@ -346,11 +350,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         outputVoltage = voltage;
         if (voltage > 0.0) {
             targetVelocity = 0.1;
-        } else if (voltage < 0.0)
-        {
+        } else if (voltage < 0.0) {
             targetVelocity = -0.1;
-        } else 
-        {
+        } else {
             targetVelocity = 0.0;
         }
         handleLimits();
