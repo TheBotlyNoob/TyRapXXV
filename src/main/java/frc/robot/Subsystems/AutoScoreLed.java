@@ -42,18 +42,18 @@ public class AutoScoreLed extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (elevator.getLevelFlag() == ElevatorLevel.GROUND) {
-            black.applyTo(ledBuf);
-        } else if (elevator.getLevelFlag() == ElevatorLevel.LEVEL1) {
-            gray.applyTo(ledBuf);
-        } else if (elevator.getLevelFlag() == ElevatorLevel.LEVEL2) {
-            purple.applyTo(ledBuf);
-        } else if (elevator.getLevelFlag() == ElevatorLevel.LEVEL3) {
-            yellow.applyTo(ledBuf);
-        } else if (elevator.getLevelFlag() == ElevatorLevel.LEVEL4) {
-            blue.applyTo(ledBuf);
+        switch (elevator.getLevelFlag()){
+            case LEVEL1:
+                gray.applyTo(ledBuf);
+            case LEVEL2:
+                purple.applyTo(ledBuf);
+            case LEVEL3:
+                yellow.applyTo(ledBuf);
+            case LEVEL4:
+                blue.applyTo(ledBuf);
+            default:
+                break;
         }
-
         led.setData(ledBuf);
     }
 
