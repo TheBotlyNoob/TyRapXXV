@@ -139,14 +139,12 @@ public class RobotContainer {
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
         this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
-        AddressableLED led1 = new AddressableLED(6);
-        led1.setLength(5);
-        AddressableLED led2 = new AddressableLED(8);
-        led2.setLength(5);
+        AddressableLED led = new AddressableLED(0);
+        led.setLength(5);
 
         AddressableLEDBuffer ledBuf = new AddressableLEDBuffer(5);
 
-        this.m_leds = new AutoScoreLed(led1, led2, ledBuf, m_Limelight, m_coral, m_elevator);
+        this.m_leds = new AutoScoreLed(led, ledBuf, m_Limelight, m_coral, m_elevator);
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);

@@ -2,7 +2,6 @@ package frc.robot.Subsystems;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -11,8 +10,7 @@ import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Subsystems.CoralSubsystem.CoralState;
 
 public class AutoScoreLed extends SubsystemBase {
-    protected final AddressableLED led1;
-    protected final AddressableLED led2;
+    protected final AddressableLED led;
     protected final AddressableLEDBuffer ledBuf;
     protected final Limelight ll;
     protected final CoralSubsystem coral;
@@ -21,14 +19,12 @@ public class AutoScoreLed extends SubsystemBase {
     private static LEDPattern canScoreLEDPattern = LEDPattern.solid(Color.kBlue);
     private static LEDPattern cantScoreLEDPattern = LEDPattern.solid(Color.kBlack);
 
-    public AutoScoreLed(AddressableLED led1, AddressableLED led2, AddressableLEDBuffer ledBuf, Limelight ll,
+    public AutoScoreLed(AddressableLED leds, AddressableLEDBuffer ledBuf, Limelight ll,
             CoralSubsystem coral,
             ElevatorSubsystem elevator) {
-        led1.start();
-        led2.start();
+        leds.start();
 
-        this.led1 = led1;
-        this.led2 = led2;
+        this.led = leds;
         this.ledBuf = ledBuf;
         this.ll = ll;
         this.coral = coral;
@@ -36,8 +32,9 @@ public class AutoScoreLed extends SubsystemBase {
     }
 
     boolean canAutoScore() {
-        // TODO: decide if elevator flag can be unset.
-        return ll.getTimeSinceValid() <= 1 && coral.getState() == CoralState.HOLDING;
+        // TODO: Decide when the LEDs should be set.
+        //return ll.getTimeSinceValid() <= 1 && coral.getState() == CoralState.HOLDING;
+        return true;
     }
 
     @Override
@@ -48,8 +45,7 @@ public class AutoScoreLed extends SubsystemBase {
             cantScoreLEDPattern.applyTo(ledBuf);
         }
 
-        led1.setData(ledBuf);
-        led2.setData(ledBuf);
+        led.setData(ledBuf);
     }
 
 }
