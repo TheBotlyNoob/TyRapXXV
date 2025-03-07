@@ -46,8 +46,8 @@ public class Constants {
         public static final double kMinEncoderPos = 0.218;
     }
     public static class Coral {
-        public static final double kWristMotorVoltage = 8.0;
-        public static final double kWristMotorVoltageReverse = 6.0;
+        public static final double kWristMotorVoltage = 6.0;
+        public static final double kWristMotorVoltageReverse = 8.0;
         // down -4.4
         // up +6
         public static final double kCoralFeederMotorVoltage = .5;

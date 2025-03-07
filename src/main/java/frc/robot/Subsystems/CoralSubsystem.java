@@ -122,7 +122,7 @@ public class CoralSubsystem extends SubsystemBase {
             m_wristMotor.setVoltage(-voltage);
         }*/
 
-        m_wristMotor.setVoltage(voltage);
+        m_wristMotor.setVoltage(-voltage);
 
     }
 
@@ -135,7 +135,7 @@ public class CoralSubsystem extends SubsystemBase {
             m_wristMotor.setVoltage(voltage);
         }*/
 
-        m_wristMotor.setVoltage(-voltage);
+        m_wristMotor.setVoltage(voltage);
 
         // m_wristMotor.set(speed);
     }
