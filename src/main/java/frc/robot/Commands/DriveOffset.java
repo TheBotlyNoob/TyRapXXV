@@ -78,6 +78,8 @@ public class DriveOffset extends Command {
     private int counter;
     protected TrapezoidController trapezoidController;
     protected boolean useDashboardEntries;
+    protected double constructedXOffsetM;
+    protected double constructedYOffsetM;
 
     // Constructors
     public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft) {
@@ -96,11 +98,26 @@ public class DriveOffset extends Command {
             this.ll = ll;
             this.isLeft = isLeft;
             this.id = id;
+            this.useDashboardEntries = true;
             addRequirements(dt);
             // 2D transform between robot and camera frames
             // Currently get offset from SparkJrConstants, but can change later
             cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
     }
+
+        public DriveOffset(Drivetrain dt, Limelight ll, double xOffsetM, double yOffsetM) {
+                this.dt = dt;
+                this.ll = ll;
+                this.isLeft = false;
+                this.useDashboardEntries = false;
+                this.constructedXOffsetM = xOffsetM;
+                this.constructedYOffsetM = yOffsetM;
+                addRequirements(dt);
+                // 2D transform between robot and camera frames
+                // Currently get offset from SparkJrConstants, but can change later
+                cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
+                System.out.println("Running drive offset with set x and y offsets");
+        }
 
     @Override
     public void initialize() {
@@ -111,12 +128,17 @@ public class DriveOffset extends Command {
         }
 
         // Create a new Trapezoid profile
-        xOffset = xOffsetEntry.getDouble(0.3);
-        yOffset = yOffsetEntry.getDouble(0.0);
-        // Change offset based on direction, so we can go to left or right reef goal
-        if (isLeft) {
-            // Left is negative Y
-            yOffset *= -1;
+        if (useDashboardEntries) {
+                xOffset = xOffsetEntry.getDouble(0.3);
+                yOffset = yOffsetEntry.getDouble(0.0);
+                // Change offset based on direction, so we can go to left or right reef goal
+                if (isLeft) {
+                        // Left is negative Y
+                        yOffset *= -1;
+                }
+        } else {
+                xOffset = constructedXOffsetM;
+                yOffset = constructedYOffsetM;
         }
         // Get minimun velocity from Constants and shuffleboard
         minVel = minVelEntry.getDouble(LimelightConstants.driveOffsetMinVel);

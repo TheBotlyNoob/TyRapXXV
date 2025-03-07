@@ -263,7 +263,8 @@ public class RobotContainer {
 
             //Triger Buttons 
             Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
-            Controller.kManipulatorController.rightBumper().onTrue(buildRemoveAlgaeCommand());
+            Controller.kManipulatorController.rightBumper().onTrue(buildRemoveAlgaeCommand().unless(
+                () -> m_elevator.getCurrentPosition() < (ElevatorLevel.LEVEL1.toHeight()-1.0)));
 
             //Back Button for Climber Mode Toggle
             Controller.kManipulatorController.back()
@@ -391,8 +392,13 @@ public class RobotContainer {
 
     public SequentialCommandGroup buildRemoveAlgaeCommand() {
         return new SequentialCommandGroup(
-            m_coral.wristExtendCommand(),
-            new DriveOffset(m_swerve, m_Limelight, true)
+            new PrintCommand("Running remove algae"),
+            new ParallelCommandGroup(
+                m_coral.wristRetractCommand(),
+                new DriveOffset(m_swerve, m_Limelight, .3, 0.0 )),
+            new DriveDistance(m_swerve, () -> .2, 0.0),
+            new StopDrive(m_swerve),
+            new PrintCommand("Remove algae complete")
         );
     }
 
@@ -417,6 +423,7 @@ public class RobotContainer {
     public SequentialCommandGroup buildTwoPieceAuto(String pathToReef, int tag1, 
             String pathToCoralStn, String pathCoralToReef, int tag2, double forwardDistM) {
         return new SequentialCommandGroup(
+            m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)),
             getAutonomousCommand(pathToReef, true), 
             new StationaryWait(m_swerve, 0.5),
             new DriveOffset(m_swerve, m_Limelight, false, tag1),
@@ -446,7 +453,47 @@ public class RobotContainer {
                 new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
             new EjectCoral(m_coral),
             new StationaryWait(m_swerve, .7),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
+            m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true))
+            );
+    }
+
+    public SequentialCommandGroup buildTwoPieceAutoBumpered(String pathToReef, int tag1, 
+            String pathToCoralStn, String pathCoralToReef, int tag2, double forwardDistM) {
+        return new SequentialCommandGroup(
+            m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)),
+            getAutonomousCommand(pathToReef, true), 
+            //new StationaryWait(m_swerve, 0.5),
+            
+            new DriveOffset(m_swerve, m_Limelight, false, tag1),
+            new ParallelCommandGroup(
+                new SequentialCommandGroup(
+                    new DriveDistance(m_swerve, () -> forwardDistM, 0),
+                    new StopDrive(m_swerve)),
+                new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
+            new EjectCoral(m_coral),
+            new StationaryWait(m_swerve, .7),
+            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
+            new StationaryWait(m_swerve, 1.0),
+            getAutonomousCommand(pathToCoralStn, false), 
+            new StopDrive(m_swerve),
+            new StationaryWait(m_swerve, .2),
+            new DriveDistance(m_swerve, () -> .02, 180),
+            new StopDrive(m_swerve),
+            new StationaryWait(m_swerve, 1.0),
+            getAutonomousCommand(pathCoralToReef, false),
+            new StopDrive(m_swerve),
+            new StationaryWait(m_swerve, .4),
+            new DriveOffset(m_swerve, m_Limelight, true, tag2),
+            new ParallelCommandGroup(
+                new SequentialCommandGroup(
+                    new DriveDistance(m_swerve, () -> forwardDistM, 0),
+                    new StopDrive(m_swerve)),
+                new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
+            new EjectCoral(m_coral),
+            new StationaryWait(m_swerve, .7),
+            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
+            m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true))
             );
     }
 
