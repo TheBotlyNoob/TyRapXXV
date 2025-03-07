@@ -41,9 +41,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.*;
 import frc.robot.Subsystems.AlgaeGrabberSubsystem;
+import frc.robot.Subsystems.AutoScoreLed;
 import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.Drivetrain;
-import frc.robot.Subsystems.ElevatorLED;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
@@ -86,7 +86,7 @@ public class RobotContainer {
     private final SendableChooser<String> autoChooser;
     protected final ElevatorSubsystem m_elevator;
     protected final CoralSubsystem m_coral;
-    protected final ElevatorLED m_leds;
+    protected final AutoScoreLed m_leds;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
@@ -139,7 +139,11 @@ public class RobotContainer {
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
         this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault());
 
-        this.m_leds = new ElevatorLED(m_elevator);
+        AddressableLED led = new AddressableLED(0);
+        led.setLength(5);
+        AddressableLEDBuffer ledBuf = new AddressableLEDBuffer(5);
+
+        this.m_leds = new AutoScoreLed(led, ledBuf, m_Limelight, m_coral, m_elevator);
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
