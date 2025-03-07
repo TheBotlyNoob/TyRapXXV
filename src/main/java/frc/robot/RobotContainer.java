@@ -65,6 +65,7 @@ import frc.robot.Commands.RotateWheels;
 import frc.robot.Commands.StationaryWait;
 import frc.robot.Commands.StopDrive;
 import org.json.simple.parser.ParseException;
+import frc.robot.Commands.RumbleManip;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -235,7 +236,9 @@ public class RobotContainer {
                         new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.2),
                             m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
                         () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
-                    new PrintCommand("level has not been set"),
+                    new SequentialCommandGroup(
+                        new PrintCommand("level has not been set"),
+                        new RumbleManip(0.5)),
                     () -> m_elevator.isAnyLevelSet()));
 
             //Toggle  Robot Oriented Drive

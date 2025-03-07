@@ -133,7 +133,6 @@ public class ElevatorSubsystem extends SubsystemBase {
             }
         }
     }
-    private final XboxController xboxController = new XboxController(Constants.Controller.kManipControllerID);
     private ElevatorLevel m_level = ElevatorLevel.GROUND;
     private ElevatorLevel m_levelFlag = ElevatorLevel.GROUND;
     protected boolean isAnyLevelSet = false;
@@ -434,14 +433,6 @@ public class ElevatorSubsystem extends SubsystemBase {
                 }
                 desiredPosition = currentPosition;
                 targetVelocity = m_manualSpeed;
-            }
-            if (!isAnyLevelSet){
-                xboxController.setRumble(RumbleType.kLeftRumble, 0.5);
-                xboxController.setRumble(RumbleType.kRightRumble, 0.5);
-            }
-            else {
-                xboxController.setRumble(RumbleType.kLeftRumble, 0.0);
-                xboxController.setRumble(RumbleType.kRightRumble, 0.0);                
             }
             // Enforce a velocity limit for safety until tuning complete
             targetVelocity = MathUtil.clamp(targetVelocity, -2, 1.8);
