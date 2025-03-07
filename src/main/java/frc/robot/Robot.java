@@ -36,6 +36,7 @@ public class Robot extends TimedRobot {
         m_container.setTeleDefaultCommand();
         m_container.reinitialize();
         m_container.configureBindings();
+        m_container.turnRumbleOff();
     }
 
     @Override
