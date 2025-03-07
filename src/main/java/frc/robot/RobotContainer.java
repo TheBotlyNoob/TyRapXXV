@@ -26,6 +26,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -491,6 +492,11 @@ public class RobotContainer {
         this.m_elevator.resetEncoder();
         this.m_coral.reinit();
         this.setPIDConstants();
+    }
+
+    public void turnRumbleOff(){
+        Controller.kManipulatorController.setRumble(RumbleType.kLeftRumble, 0.0);
+        Controller.kManipulatorController.setRumble(RumbleType.kRightRumble, 0.0);
     }
 
     public void setPIDConstants() {

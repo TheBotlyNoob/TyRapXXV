@@ -47,6 +47,11 @@ public class Robot extends TimedRobot {
     }
 
     @Override
+    public void disabledInit() {
+        m_container.turnRumbleOff();
+    }
+
+    @Override
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         m_container.reportTelemetry();
