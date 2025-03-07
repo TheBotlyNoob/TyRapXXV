@@ -392,8 +392,8 @@ public class RobotContainer {
     public SequentialCommandGroup buildRemoveAlgaeCommand() {
         return new SequentialCommandGroup(
             m_coral.wristExtendCommand(),
-            new DriveOffset(m_swerve, m_Limelight,)
-        )
+            new DriveOffset(m_swerve, m_Limelight, true)
+        );
     }
 
     public Drivetrain getDrivetrain() {
