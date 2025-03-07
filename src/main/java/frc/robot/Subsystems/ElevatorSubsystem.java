@@ -23,7 +23,9 @@ import frc.robot.Constants;
 import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.TrapezoidController;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
 
 public class ElevatorSubsystem extends SubsystemBase {
     public enum ElevatorLevel{ 
@@ -131,7 +133,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             }
         }
     }
-
+    private final XboxController xboxController = new XboxController(Constants.Controller.kManipControllerID);
     private ElevatorLevel m_level = ElevatorLevel.GROUND;
     private ElevatorLevel m_levelFlag = ElevatorLevel.GROUND;
     protected boolean isAnyLevelSet = false;
@@ -418,8 +420,28 @@ public class ElevatorSubsystem extends SubsystemBase {
             }
 
             if (m_manualMode) {
+                if (currentPosition >= ElevatorLevel.toInt(ElevatorLevel.LEVEL1)){
+                    setLevel(ElevatorLevel.LEVEL1);
+                }
+                if (currentPosition >= ElevatorLevel.toInt(ElevatorLevel.LEVEL2)){
+                    setLevel(ElevatorLevel.LEVEL2);
+                }
+                if (currentPosition >= ElevatorLevel.toInt(ElevatorLevel.LEVEL3)){
+                    setLevel(ElevatorLevel.LEVEL3);
+                }
+                if (currentPosition >= ElevatorLevel.toInt(ElevatorLevel.LEVEL4)){
+                    setLevel(ElevatorLevel.LEVEL4);
+                }
                 desiredPosition = currentPosition;
                 targetVelocity = m_manualSpeed;
+            }
+            if (!isAnyLevelSet){
+                xboxController.setRumble(RumbleType.kLeftRumble, 0.5);
+                xboxController.setRumble(RumbleType.kRightRumble, 0.5);
+            }
+            else {
+                xboxController.setRumble(RumbleType.kLeftRumble, 0.0);
+                xboxController.setRumble(RumbleType.kRightRumble, 0.0);                
             }
             // Enforce a velocity limit for safety until tuning complete
             targetVelocity = MathUtil.clamp(targetVelocity, -2, 1.8);
