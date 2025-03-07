@@ -65,6 +65,7 @@ import frc.robot.Commands.RotateWheels;
 import frc.robot.Commands.StationaryWait;
 import frc.robot.Commands.StopDrive;
 import org.json.simple.parser.ParseException;
+import frc.robot.Commands.RumbleManip;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
