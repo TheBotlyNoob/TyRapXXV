@@ -89,6 +89,10 @@ public class RobotContainer {
     Command m_driveCommand;
     Command m_driveDistanceCommand;
     Command m_goToFlagLevelCommand;
+    
+    SequentialCommandGroup m_scoreCancel;
+    SequentialCommandGroup m_scoreLeft;
+    SequentialCommandGroup m_scoreRight;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -131,6 +135,35 @@ public class RobotContainer {
 
         this.m_driveDistanceCommand = new DriveDistance(m_swerve, () -> 0.14,0);
         this.m_goToFlagLevelCommand = new GoToFlagLevel(m_elevator);
+
+        this.m_scoreLeft = new SequentialCommandGroup(
+                new DriveOffset(m_swerve, m_Limelight, true),
+                m_driveDistanceCommand,
+                new StopDrive(m_swerve),
+                m_goToFlagLevelCommand,
+                new EjectCoral(m_coral),
+                new WaitCommand(1),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
+            );
+        
+            this.m_scoreRight = new SequentialCommandGroup(
+                new DriveOffset(m_swerve, m_Limelight,false),
+                m_driveDistanceCommand,
+                new StopDrive(m_swerve),
+                m_goToFlagLevelCommand,
+                new EjectCoral(m_coral), //change
+                new WaitCommand(1),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
+            );
+
+            this.m_scoreCancel = new SequentialCommandGroup(
+                m_climber.runOnce(() -> m_scoreLeft.cancel()),
+                m_climber.runOnce(() -> m_scoreRight.cancel()),
+                new StopDrive(m_swerve),
+                new StopCoral(m_coral),
+                new StopElevator(m_elevator));
     }
 
     /**
@@ -152,37 +185,17 @@ public class RobotContainer {
         // DRIVE CONTROLLERS BINDINGS 
 
             //Bumper Buttons for Scoring Sequence
-            Controller.kDriveController.rightBumper().onTrue(new SequentialCommandGroup(
-                new DriveOffset(m_swerve, m_Limelight, false),
-                m_driveDistanceCommand,
-                new StopDrive(m_swerve),
-                m_goToFlagLevelCommand,
-                new EjectCoral(m_coral), //change
-                new WaitCommand(1),
-                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
-            ));
-            Controller.kDriveController.leftBumper().onTrue(new SequentialCommandGroup(
-                new DriveOffset(m_swerve, m_Limelight, true),
-                m_driveDistanceCommand,
-                new StopDrive(m_swerve),
-                m_goToFlagLevelCommand,
-                new EjectCoral(m_coral),
-                new WaitCommand(1),
-                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-            ));
+            Controller.kDriveController.rightBumper().onTrue(m_scoreRight);
+            Controller.kDriveController.leftBumper().onTrue(m_scoreLeft);
 
             //Toggle  Robot Oriented Drive
             Controller.kDriveController.back()
                     .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
         
             //Cancel Coral Score
-            Controller.kDriveController.a().onTrue(new SequentialCommandGroup(
-                new StopDrive(m_swerve), //Change command
-                new StopCoral(m_coral), //Change command
-                new StopElevator(m_elevator))); //Change command
-        
-            //reset Field Orient Command 
+            Controller.kDriveController.a().onTrue(m_scoreCancel);
+
+            //reset Field Orient Command
             Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
             //Trigger Buttons for Algae Intake and Eject
