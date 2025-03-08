@@ -245,6 +245,8 @@ public class RobotContainer {
 
             //reset Field Orient Command 
             Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
+            Controller.kDriveController.x().onTrue(m_coral.wristExtendCommand());
+            Controller.kDriveController.b().onTrue(m_coral.wristRetractCommand());
 
         // Trigger Buttons for Algae Intake and Eject
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
@@ -271,8 +273,7 @@ public class RobotContainer {
 
             //Triger Buttons 
             Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
-            Controller.kManipulatorController.rightBumper().onTrue(buildRemoveAlgaeCommand().unless(
-                () -> m_elevator.getCurrentPosition() < (ElevatorLevel.LEVEL1.toHeight()-1.0)));
+            Controller.kManipulatorController.rightBumper().onTrue(buildRemoveAlgaeCommand());
 
         // Back Button for Climber Mode Toggle
         Controller.kManipulatorController.back()
@@ -409,8 +410,9 @@ public class RobotContainer {
             new PrintCommand("Running remove algae"),
             new ParallelCommandGroup(
                 m_coral.wristExtendCommand(),
-                new DriveOffset(m_swerve, m_Limelight, .3, 0.0 )),
-            new DriveDistance(m_swerve, () -> .2, 0.0),
+                new DriveOffset(m_swerve, m_Limelight, .7, 0.0 ),
+                new GoToFlagLevel(m_elevator)),
+            new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8),
             new StopDrive(m_swerve),
             new PrintCommand("Remove algae complete")
         );
