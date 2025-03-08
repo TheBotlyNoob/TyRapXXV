@@ -159,8 +159,8 @@ public class RobotContainer {
             );
 
             this.m_scoreCancel = new SequentialCommandGroup(
-                m_climber.runOnce(() -> m_scoreLeft.cancel()),
-                m_climber.runOnce(() -> m_scoreRight.cancel()),
+                m_elevator.runOnce(() -> m_scoreLeft.cancel()),
+                m_elevator.runOnce(() -> m_scoreRight.cancel()),
                 new StopDrive(m_swerve),
                 new StopCoral(m_coral),
                 new StopElevator(m_elevator));
