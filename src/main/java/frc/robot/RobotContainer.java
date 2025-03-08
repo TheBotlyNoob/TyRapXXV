@@ -138,9 +138,9 @@ public class RobotContainer {
 
         this.m_scoreLeft = new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, true),
-                m_driveDistanceCommand,
+                new DriveDistance(m_swerve, () -> 0.14,0),
                 new StopDrive(m_swerve),
-                m_goToFlagLevelCommand,
+                new GoToFlagLevel(m_elevator),
                 new EjectCoral(m_coral),
                 new WaitCommand(1),
                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
@@ -149,9 +149,9 @@ public class RobotContainer {
         
             this.m_scoreRight = new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight,false),
-                m_driveDistanceCommand,
+                new DriveDistance(m_swerve, () -> 0.14,0),
                 new StopDrive(m_swerve),
-                m_goToFlagLevelCommand,
+                new GoToFlagLevel(m_elevator),
                 new EjectCoral(m_coral), //change
                 new WaitCommand(1),
                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
