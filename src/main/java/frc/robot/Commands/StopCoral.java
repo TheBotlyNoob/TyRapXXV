@@ -12,7 +12,7 @@ public class StopCoral extends Command {
 
     @Override
     public void initialize() {
-        System.out.println("Stopped Coral.");
+        System.out.println("Stopping the coral.");
         co.stopMotorGrabber();
         co.stopMotorWrist();
     }

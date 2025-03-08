@@ -11,7 +11,7 @@ public class StopElevator extends Command {
 
     @Override
     public void initialize() {
-        System.out.println("Stopping the elevator");
+        System.out.println("Stopping the elevator.");
         el.holdCurrentPosition();
     }
 
