@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
-import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 
 public class AutoScoreLed extends SubsystemBase {
     protected final AddressableLED led;
@@ -48,23 +47,33 @@ public class AutoScoreLed extends SubsystemBase {
     }
 
     public void flashColor(){
-        if (Timer.getFPGATimestamp() % 0.5 == 0){
+        if (Timer.getFPGATimestamp() % 0.4 == 0){
             black.applyTo(ledBuf);
         }
     }
 
     @Override
     public void periodic() {
-        if (elevator.getLevelFlag() == ElevatorLevel.GROUND) {
-            black.applyTo(ledBuf);
-        } else if (elevator.getLevelFlag() == ElevatorLevel.LEVEL1) {
-            gray.applyTo(ledBuf);
-        } else if (elevator.getLevelFlag() == ElevatorLevel.LEVEL2) {
-            purple.applyTo(ledBuf);
-        } else if (elevator.getLevelFlag() == ElevatorLevel.LEVEL3) {
-            yellow.applyTo(ledBuf);
-        } else if (elevator.getLevelFlag() == ElevatorLevel.LEVEL4) {
-            blue.applyTo(ledBuf);
+        switch (elevator.getLevelFlag()){
+            case LEVEL1:
+                gray.applyTo(ledBuf);
+                System.out.println("setting level 1 to gray");
+                break;
+            case LEVEL2:
+                purple.applyTo(ledBuf);
+                System.out.println("setting level 2 to gray");
+                break;
+            case LEVEL3:
+                yellow.applyTo(ledBuf);
+                System.out.println("setting level 3 to gray");
+                break;
+            case LEVEL4:
+                blue.applyTo(ledBuf);
+                System.out.println("setting level 4 to gray");
+                break;
+            case GROUND:
+                black.applyTo(ledBuf);
+                break;
         }
         if (canSeeValidTag()){
             flashColor();
