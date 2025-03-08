@@ -43,7 +43,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.*;
 import frc.robot.Subsystems.AlgaeGrabberSubsystem;
-import frc.robot.Subsystems.AutoScoreLed;
+import frc.robot.Subsystems.LightSubsystem;
 import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
@@ -88,7 +88,7 @@ public class RobotContainer {
     private final SendableChooser<String> autoChooser;
     protected final ElevatorSubsystem m_elevator;
     protected final CoralSubsystem m_coral;
-    protected final AutoScoreLed m_leds;
+    protected final LightSubsystem m_leds;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
@@ -99,14 +99,18 @@ public class RobotContainer {
     private StructArrayPublisher<SwerveModuleState> publisher = NetworkTableInstance.getDefault()
             .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
     protected GenericEntry m_driveP = m_competitionTab.add("Drive P Val", DrivetrainConstants.drivePID[0]).getEntry();
-    protected GenericEntry m_driveFFStatic = m_competitionTab.add("Drive FF Static", DrivetrainConstants.driveFeedForward[0]).getEntry();
-    protected GenericEntry m_driveFFVel = m_competitionTab.add("Drive FF Vel", DrivetrainConstants.driveFeedForward[1]).getEntry();
+    protected GenericEntry m_driveFFStatic = m_competitionTab
+            .add("Drive FF Static", DrivetrainConstants.driveFeedForward[0]).getEntry();
+    protected GenericEntry m_driveFFVel = m_competitionTab.add("Drive FF Vel", DrivetrainConstants.driveFeedForward[1])
+            .getEntry();
     protected GenericEntry m_driveAccel = m_competitionTab.add("Drive FF Accel", 0.0).getEntry();
     protected GenericEntry m_turnP = m_competitionTab.add("Turn P Val", DrivetrainConstants.turnPID[0]).getEntry();
     protected GenericEntry m_turnI = m_competitionTab.add("Turn I Val", DrivetrainConstants.turnPID[1]).getEntry();
-    protected GenericEntry m_turnFFStatic = m_competitionTab.add("Turn FF Static", DrivetrainConstants.turnFeedForward[0]).getEntry();
-    protected GenericEntry m_turnFFVel = m_competitionTab.add("Turn FF Vel", DrivetrainConstants.turnFeedForward[1]).getEntry();
-    
+    protected GenericEntry m_turnFFStatic = m_competitionTab
+            .add("Turn FF Static", DrivetrainConstants.turnFeedForward[0]).getEntry();
+    protected GenericEntry m_turnFFVel = m_competitionTab.add("Turn FF Vel", DrivetrainConstants.turnFeedForward[1])
+            .getEntry();
+
     private GenericEntry m_fixedSpeed = m_competitionTab.add("Fixed Speed", 0).getEntry();
     private SwerveModuleSB[] mSwerveModuleTelem;
 
@@ -143,7 +147,7 @@ public class RobotContainer {
         led.setLength(5);
         AddressableLEDBuffer ledBuf = new AddressableLEDBuffer(5);
 
-        this.m_leds = new AutoScoreLed(led, ledBuf, m_Limelight, m_coral, m_elevator);
+        this.m_leds = new LightSubsystem(led, ledBuf, m_Limelight, m_coral, m_elevator);
 
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
@@ -177,67 +181,69 @@ public class RobotContainer {
      * joysticks}.
      */
     public void configureBindings() {
-        if (bindingsConfigured)
-        {
+        if (bindingsConfigured) {
             return;
         } else {
             bindingsConfigured = true;
         }
 
-        // DRIVE CONTROLLERS BINDINGS 
-        
-            //Bumper Buttons for Scoring Sequence
-            Controller.kDriveController.rightBumper().onTrue(
-                new ConditionalCommand(
-                    new ConditionalCommand(
-                        buildScoreOffsetCommand(false),
-                        buildScoreBumperedUpCommand(false, 0.15),
-                        () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
-                    new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
-                    () -> m_elevator.isAnyLevelSet()));
-                        
-            //Bumper Buttons for Scoring Sequence
-            Controller.kDriveController.leftBumper().onTrue(
-                new ConditionalCommand(
-                    new ConditionalCommand(
-                        buildScoreOffsetCommand(true),
-                        buildScoreBumperedUpCommand(true, 0.15),
-                        () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
-                    new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
-                    () -> m_elevator.isAnyLevelSet()));
+        // DRIVE CONTROLLERS BINDINGS
 
-            //Bumper Buttons for Scoring Sequence
-            /*Controller.kDriveController.leftBumper().onTrue(
+        // Bumper Buttons for Scoring Sequence
+        Controller.kDriveController.rightBumper().onTrue(
                 new ConditionalCommand(
-                    new ConditionalCommand(
-                        new SequentialCommandGroup(
-                            new PrintCommand("Running offset score routine"),
-                        new DriveOffset(m_swerve, m_Limelight, true),
-                            new StopDrive(m_swerve),
-                            new StationaryWait(m_swerve, 0.06),
-                            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
-                            new StopDrive(m_swerve),
-                            new GoToFlagLevel(m_elevator),
-                            new EjectCoral(m_coral),
-                            new WaitCommand(1),
-                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-                        new SequentialCommandGroup(
-                            new PrintCommand("Running drive left right score"),
-                            new ParallelCommandGroup(
-                                new GoToFlagLevel(m_elevator).withTimeout(1.5),
-                                new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
-                                    new DriveLeftOrRight(m_swerve, m_Limelight, true),
-                                    new StopDrive(m_swerve)
-                                    )
-                                ),     
-                            new StopDrive(m_swerve),   
-                            new EjectCoral(m_coral),
-                            new WaitCommand(.5),
-                            new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.5),
-                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-                        () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber+0.1)),
-                    new PrintCommand("level has not been set"),
-                    () -> m_elevator.isAnyLevelSet())); */
+                        new ConditionalCommand(
+                                buildScoreOffsetCommand(false),
+                                buildScoreBumperedUpCommand(false, 0.15),
+                                () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber + 0.1)),
+                        new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
+                        () -> m_elevator.isAnyLevelSet()));
+
+        // Bumper Buttons for Scoring Sequence
+        Controller.kDriveController.leftBumper().onTrue(
+                new ConditionalCommand(
+                        new ConditionalCommand(
+                                buildScoreOffsetCommand(true),
+                                buildScoreBumperedUpCommand(true, 0.15),
+                                () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber + 0.1)),
+                        new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
+                        () -> m_elevator.isAnyLevelSet()));
+
+        // Bumper Buttons for Scoring Sequence
+        /*
+         * Controller.kDriveController.leftBumper().onTrue(
+         * new ConditionalCommand(
+         * new ConditionalCommand(
+         * new SequentialCommandGroup(
+         * new PrintCommand("Running offset score routine"),
+         * new DriveOffset(m_swerve, m_Limelight, true),
+         * new StopDrive(m_swerve),
+         * new StationaryWait(m_swerve, 0.06),
+         * new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
+         * new StopDrive(m_swerve),
+         * new GoToFlagLevel(m_elevator),
+         * new EjectCoral(m_coral),
+         * new WaitCommand(1),
+         * m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
+         * new SequentialCommandGroup(
+         * new PrintCommand("Running drive left right score"),
+         * new ParallelCommandGroup(
+         * new GoToFlagLevel(m_elevator).withTimeout(1.5),
+         * new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
+         * new DriveLeftOrRight(m_swerve, m_Limelight, true),
+         * new StopDrive(m_swerve)
+         * )
+         * ),
+         * new StopDrive(m_swerve),
+         * new EjectCoral(m_coral),
+         * new WaitCommand(.5),
+         * new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.5),
+         * m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
+         * () -> m_Limelight.getzDistanceMeters() >
+         * (Offsets.cameraOffsetFromFrontBumber+0.1)),
+         * new PrintCommand("level has not been set"),
+         * () -> m_elevator.isAnyLevelSet()));
+         */
 
         // Toggle Robot Oriented Drive
         Controller.kDriveController.back()
@@ -277,9 +283,7 @@ public class RobotContainer {
 
         // Back Button for Climber Mode Toggle
         Controller.kManipulatorController.back()
-                .onTrue(m_climber.runOnce(() -> m_climber.setClimbMode()));
-        Controller.kManipulatorController.start()
-                .onTrue(m_climber.runOnce(() -> m_climber.setCoralMode()));
+                .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
 
         // X, A, B, Y for Elevator Level Flags
         Controller.kManipulatorController.x()
@@ -299,8 +303,7 @@ public class RobotContainer {
     }
 
     public void configureTestBindings() {
-        if (bindingsConfigured)
-        {
+        if (bindingsConfigured) {
             return;
         } else {
             bindingsConfigured = true;
@@ -371,38 +374,58 @@ public class RobotContainer {
 
     protected SequentialCommandGroup buildScoreOffsetCommand(boolean isLeft) {
         return new SequentialCommandGroup(
-            new PrintCommand("Running offset score routine"),
-            new DriveOffset(m_swerve, m_Limelight, isLeft),
-            new StopDrive(m_swerve),
-            //new StationaryWait(m_swerve, 0.06),
-            new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
-            new StopDrive(m_swerve),
-            new GoToFlagLevel(m_elevator),
-            new EjectCoral(m_coral),
-            new WaitCommand(.7),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
+                new PrintCommand("Running offset score routine"),
+                new DriveOffset(m_swerve, m_Limelight, isLeft),
+                new StopDrive(m_swerve),
+                // new StationaryWait(m_swerve, 0.06),
+                new DriveDistance(m_swerve, () -> 0.15, 0).withTimeout(0.5),
+                new StopDrive(m_swerve),
+                new GoToFlagLevel(m_elevator),
+                new EjectCoral(m_coral),
+                new WaitCommand(.7),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
     }
 
     protected SequentialCommandGroup buildScoreBumperedUpCommand(boolean isLeft, double forwardTimeout) {
         return new SequentialCommandGroup(
-            new PrintCommand("Running drive left right score"),
-            new ParallelCommandGroup(
-                // Raise the elevator to the selected level while in parallel aligning left or right
-                new GoToFlagLevel(m_elevator).withTimeout(2.5),
-                new SequentialCommandGroup(
-                    new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(forwardTimeout),
-                    //new DriveFixedVelocity(m_swerve, 0, () -> 0.5).withTimeout(0.2),
-                    new DriveFixedVelocity(m_swerve, 180, () -> 0.25).withTimeout(.1),
-                    new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
-                    new StopDrive(m_swerve)
-                )
-            ),
-            new StopDrive(m_swerve),
-            new EjectCoral(m_coral),
-            new StationaryWait(m_swerve, .5),
-            new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.4),
-            new StopDrive(m_swerve),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
+                new PrintCommand("Running drive left right score"),
+                new ParallelCommandGroup(
+                        // Raise the elevator to the selected level while in parallel aligning left or
+                        // right
+                        new GoToFlagLevel(m_elevator).withTimeout(2.5),
+                        new SequentialCommandGroup(
+                                new DriveDistance(m_swerve, () -> 0.15, 0).withTimeout(forwardTimeout),
+                                // new DriveFixedVelocity(m_swerve, 0, () -> 0.5).withTimeout(0.2),
+                                new DriveFixedVelocity(m_swerve, 180, () -> 0.25).withTimeout(.1),
+                                new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
+                                new StopDrive(m_swerve))),
+                new StopDrive(m_swerve),
+                new EjectCoral(m_coral),
+                new StationaryWait(m_swerve, .5),
+                new DriveDistance(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                new StopDrive(m_swerve),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
+    }
+
+    protected SequentialCommandGroup buildScoreBumperedUpAutoCommand(boolean isLeft, double forwardTimeout) {
+        return new SequentialCommandGroup(
+                new PrintCommand("Running drive left right score"),
+                new ParallelCommandGroup(
+                        // Raise the elevator to the selected level while in parallel aligning left or
+                        // right
+                        new GoToFlagLevel(m_elevator).withTimeout(2.5),
+                        new SequentialCommandGroup(
+                                // new DriveDistance(m_swerve, () -> 0.7, 0).withTimeout(forwardTimeout),
+                                new DriveFixedVelocity(m_swerve, 0, () -> 1.5).withTimeout(0.5),
+                                new DriveFixedVelocity(m_swerve, 180, () -> 0.25).withTimeout(.1),
+                                new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
+                                new StopDrive(m_swerve))),
+                new StopDrive(m_swerve),
+                new EjectCoral(m_coral),
+                new StationaryWait(m_swerve, .5),
+                new DriveDistance(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                new StopDrive(m_swerve),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
     }
 
     public SequentialCommandGroup buildRemoveAlgaeCommand() {
@@ -441,60 +464,58 @@ public class RobotContainer {
     public SequentialCommandGroup buildTwoPieceAuto(String pathToReef, int tag1,
             String pathToCoralStn, String pathCoralToReef, int tag2, double forwardDistM) {
         return new SequentialCommandGroup(
-            m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)),
-            getAutonomousCommand(pathToReef, true), 
-            new StationaryWait(m_swerve, 0.5),
-            new DriveOffset(m_swerve, m_Limelight, false, tag1),
-            new ParallelCommandGroup(
-                new SequentialCommandGroup(
-                    new DriveDistance(m_swerve, () -> forwardDistM, 0),
-                    new StopDrive(m_swerve)),
-                new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
-            new EjectCoral(m_coral),
-            new StationaryWait(m_swerve, .7),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
-            new StationaryWait(m_swerve, 1.0),
-            getAutonomousCommand(pathToCoralStn, false), 
-            new StopDrive(m_swerve),
-            new StationaryWait(m_swerve, .2),
-            new DriveDistance(m_swerve, () -> .02, 180),
-            new StopDrive(m_swerve),
-            new StationaryWait(m_swerve, 1.0),
-            getAutonomousCommand(pathCoralToReef, false),
-            new StopDrive(m_swerve),
-            new StationaryWait(m_swerve, .4),
-            new DriveOffset(m_swerve, m_Limelight, true, tag2),
-            new ParallelCommandGroup(
-                new SequentialCommandGroup(
-                    new DriveDistance(m_swerve, () -> forwardDistM, 0),
-                    new StopDrive(m_swerve)),
-                new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
-            new EjectCoral(m_coral),
-            new StationaryWait(m_swerve, .7),
-            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
-            m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true))
-            );
+                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)),
+                getAutonomousCommand(pathToReef, true),
+                new StationaryWait(m_swerve, 0.5),
+                new DriveOffset(m_swerve, m_Limelight, false, tag1),
+                new ParallelCommandGroup(
+                        new SequentialCommandGroup(
+                                new DriveDistance(m_swerve, () -> forwardDistM, 0),
+                                new StopDrive(m_swerve)),
+                        new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
+                new EjectCoral(m_coral),
+                new StationaryWait(m_swerve, .7),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
+                new StationaryWait(m_swerve, 1.0),
+                getAutonomousCommand(pathToCoralStn, false),
+                new StopDrive(m_swerve),
+                new StationaryWait(m_swerve, .2),
+                new DriveDistance(m_swerve, () -> .02, 180),
+                new StopDrive(m_swerve),
+                new StationaryWait(m_swerve, 1.0),
+                getAutonomousCommand(pathCoralToReef, false),
+                new StopDrive(m_swerve),
+                new StationaryWait(m_swerve, .4),
+                new DriveOffset(m_swerve, m_Limelight, true, tag2),
+                new ParallelCommandGroup(
+                        new SequentialCommandGroup(
+                                new DriveDistance(m_swerve, () -> forwardDistM, 0),
+                                new StopDrive(m_swerve)),
+                        new GoToLevel(m_elevator, ElevatorLevel.LEVEL2)),
+                new EjectCoral(m_coral),
+                new StationaryWait(m_swerve, .7),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
+                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)));
     }
 
-    public SequentialCommandGroup buildTwoPieceAutoBumpered(String pathToReef, int tag1, 
+    public SequentialCommandGroup buildTwoPieceAutoBumpered(String pathToReef, int tag1,
             String pathToCoralStn, String pathCoralToReef, int tag2, double forwardDistM) {
         return new SequentialCommandGroup(
-            m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)),
-            getAutonomousCommand(pathToReef, true),
-            new StationaryWait(m_swerve, 0.5), // Testing purposes
-            buildScoreBumperedUpCommand(false, .25),
-            new StationaryWait(m_swerve, 0.5), // Testing purposes
-            getAutonomousCommand(pathToCoralStn, false), 
-            new DriveDistance(m_swerve, () -> .1, 180).withTimeout(0.3),
-            new StopDrive(m_swerve),
-            new StationaryWait(m_swerve, 1.0),
-            getAutonomousCommand(pathCoralToReef, false),
-            new StopDrive(m_swerve),
-            new StationaryWait(m_swerve, .5), // Testing purposes
-            buildScoreBumperedUpCommand(false, .25),
-            new StationaryWait(m_swerve, .5), // Testing purposes
-            m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false))
-            );
+                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)),
+                getAutonomousCommand(pathToReef, true),
+                new StationaryWait(m_swerve, 0.5), // Testing purposes
+                buildScoreBumperedUpCommand(false, .25),
+                new StationaryWait(m_swerve, 0.5), // Testing purposes
+                getAutonomousCommand(pathToCoralStn, false),
+                new DriveDistance(m_swerve, () -> .1, 180).withTimeout(0.3),
+                new StopDrive(m_swerve),
+                new StationaryWait(m_swerve, 1.0),
+                getAutonomousCommand(pathCoralToReef, false),
+                new StopDrive(m_swerve),
+                new StationaryWait(m_swerve, .5), // Testing purposes
+                buildScoreBumperedUpCommand(false, .25),
+                new StationaryWait(m_swerve, .5), // Testing purposes
+                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
     }
 
     public void startAutonomous() {
@@ -510,6 +531,14 @@ public class RobotContainer {
             start = buildTwoPieceAuto("Starting7Reef4",
                     16, "Reef4Player2",
                     "Player1Reef1", 17, 0.16);
+            start.schedule();
+        } else if (auto.equals("OnePieceAuto")) {
+            m_elevator.setLevelFlag(ElevatorLevel.LEVEL3);
+            start = new SequentialCommandGroup(m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                    getAutonomousCommand("OnePieceAuto", true),
+                    new StationaryWait(m_swerve, 2),
+                    buildScoreBumperedUpAutoCommand(false, 1.5),
+                    m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
             start.schedule();
         }
 
@@ -588,7 +617,7 @@ public class RobotContainer {
         this.setPIDConstants();
     }
 
-    public void turnRumbleOff(){
+    public void turnRumbleOff() {
         Controller.kManipulatorController.setRumble(RumbleType.kLeftRumble, 0.0);
         Controller.kManipulatorController.setRumble(RumbleType.kRightRumble, 0.0);
     }

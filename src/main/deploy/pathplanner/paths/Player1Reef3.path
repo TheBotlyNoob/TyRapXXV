@@ -64,11 +64,11 @@
     },
     {
       "anchor": {
-        "x": 6.18,
+        "x": 5.9,
         "y": 4.0
       },
       "prevControl": {
-        "x": 7.18,
+        "x": 6.9,
         "y": 4.0
       },
       "nextControl": null,
@@ -93,7 +93,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "PlayerReef",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": -55.0

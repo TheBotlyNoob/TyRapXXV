@@ -3,12 +3,12 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.18,
+        "x": 5.9,
         "y": 4.0
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.18,
+        "x": 6.9,
         "y": 4.0
       },
       "isLocked": false,
@@ -93,7 +93,7 @@
     "rotation": 55.0
   },
   "reversed": false,
-  "folder": "ReefPlayer",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
     "rotation": 180.0

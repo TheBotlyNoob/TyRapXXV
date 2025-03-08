@@ -44,6 +44,12 @@ public class Drive extends Command {
         rotSpeed = -m_rotLimiter
                 .calculate(MathUtil.applyDeadband(m_controller.getRightX(), Deadbands.kRightJoyStickDeadband))
                 * Drivetrain.kMaxAngularSpeed;
+
+        if (m_controller.getLeftStickButton()) {
+            xSpeed *= .25;
+            ySpeed *= .25;
+            rotSpeed *= .25;
+        }
     }
 
     @Override
