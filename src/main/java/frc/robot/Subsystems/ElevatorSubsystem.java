@@ -432,18 +432,22 @@ public class ElevatorSubsystem extends SubsystemBase {
             }
 
             if (m_manualMode) {
-                if (currentPosition >= ElevatorLevel.toInt(ElevatorLevel.LEVEL4)){
-                    setLevel(ElevatorLevel.LEVEL4);
+                if (currentPosition >= ElevatorLevel.LEVEL4.toHeight()){
+                    m_level = ElevatorLevel.LEVEL4;
                 } 
-                else if (currentPosition >= ElevatorLevel.toInt(ElevatorLevel.LEVEL3)){
-                    setLevel(ElevatorLevel.LEVEL3);
+                else if (currentPosition >= ElevatorLevel.LEVEL3.toHeight()){
+                    m_level = ElevatorLevel.LEVEL3;
                 }
-                else if (currentPosition >= ElevatorLevel.toInt(ElevatorLevel.LEVEL2)){
-                    setLevel(ElevatorLevel.LEVEL2);
+                else if (currentPosition >= ElevatorLevel.LEVEL2.toHeight()){
+                    m_level = ElevatorLevel.LEVEL2;
                 }
-                else if (currentPosition >= ElevatorLevel.toInt(ElevatorLevel.LEVEL1)){
-                    setLevel(ElevatorLevel.LEVEL1);
+                else if (currentPosition >= ElevatorLevel.LEVEL1.toHeight()){
+                    m_level = ElevatorLevel.LEVEL1;
                 }
+                else {
+                    m_level = ElevatorLevel.GROUND;
+                }
+                m_table_level.set(m_level.toString());
                 desiredPosition = currentPosition;
                 targetVelocity = m_manualSpeed;
             }
