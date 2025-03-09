@@ -36,6 +36,7 @@ public class LightSubsystem extends SubsystemBase {
     public LightSubsystem(AddressableLED leds, AddressableLEDBuffer ledBuf, Limelight ll,
             CoralSubsystem coral,
             ElevatorSubsystem elevator, ClimberSubsystem climb) {
+        leds.start();
         this.led = leds;
         this.ledBuf = ledBuf;
         this.ll = ll;
