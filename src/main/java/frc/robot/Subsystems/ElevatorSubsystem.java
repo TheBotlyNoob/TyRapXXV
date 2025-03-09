@@ -286,6 +286,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         return m_levelFlag;
     }
 
+    public boolean isValidAlgaeLevel(){
+        if(m_levelFlag == ElevatorLevel.LEVEL1 || m_levelFlag == ElevatorLevel.LEVEL3){
+            return true;
+        }
+        return false;
+    }
+
     public boolean isAnyLevelSet(){
         return isAnyLevelSet;
     }
@@ -329,8 +336,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     public void resetEncoder() {
-        encoder.setPosition(0);
-        setLevel(ElevatorLevel.GROUND);
+        if (isAtBottom()) {
+            encoder.setPosition(0);
+            setLevel(ElevatorLevel.GROUND);
+        } else {
+            System.err.println("Tried to reset elevator encoder when not at ground level");
+        }
     }
 
     public void updateConstants() {

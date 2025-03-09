@@ -32,8 +32,8 @@ public class ClimberSubsystem extends SubsystemBase {
     private final Value kArmsExtend = Value.kForward; //grabber arms extends and lower to start climb
     private final Value kArmsRetract = Value.kReverse; 
 
-    private final Value kGrabberClose = Value.kReverse; //grabber clamps to cage
-    private final Value kGrabberOpen = Value.kForward;
+    private final Value kGrabberClose = Value.kForward; //grabber clamps to cage
+    private final Value kGrabberOpen = Value.kReverse;
 
     private final Value kRampUp = Value.kForward; //
     private final Value kRampDown = Value.kReverse;
@@ -69,15 +69,17 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void setClimbMode() {
-        retractArms();
-        rampDown();
-        isClimbMode = false;
+        extendArms();
+        rampUp();
+        m_clampPneumatic.set(kGrabberOpen);
+        isClimbMode = true;
     }
 
     public void setCoralMode() {
-        extendArms();
-        rampUp();
-        isClimbMode = true;
+        retractArms();
+        rampDown();
+        m_clampPneumatic.set(kGrabberOpen);
+        isClimbMode = false;
     }
 
     public void toggleGrabArms(){
