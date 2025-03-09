@@ -513,9 +513,9 @@ public class RobotContainer {
         String auto = autoChooser.getSelected();
         SequentialCommandGroup start;
         if (auto.equals("BlueLeftTwoPiece")) { // For testing
-            start = buildTwoPieceAuto("Starting1Reef2",
+            start = buildTwoPieceAuto("Starting2Reef2",
                     22, "Reef2Player1",
-                    "Player1Reef5", 17, 0.16);
+                    "Player1Reef1", 17, 0.16);
             start.schedule();
         } else if (auto.equals("BlueRight2Piece")) {
             start = buildTwoPieceAuto("Starting6Reef4",
