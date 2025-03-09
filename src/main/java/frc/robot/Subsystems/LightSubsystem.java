@@ -1,5 +1,8 @@
 package frc.robot.Subsystems;
 
+import edu.wpi.first.units.FrequencyUnit;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Frequency;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -17,9 +20,6 @@ public class LightSubsystem extends SubsystemBase {
     protected final CoralSubsystem coral;
     protected final ElevatorSubsystem elevator;
     protected final ClimberSubsystem climber;
-    protected final Timer timer;
-    protected double lastRecordedTime;
-    protected int counter;
 
     private static LEDPattern blue = LEDPattern.solid(Color.kBlue);
     private static LEDPattern black = LEDPattern.solid(Color.kBlack);
@@ -34,12 +34,6 @@ public class LightSubsystem extends SubsystemBase {
     public LightSubsystem(AddressableLED leds, AddressableLEDBuffer ledBuf, Limelight ll,
             CoralSubsystem coral,
             ElevatorSubsystem elevator, ClimberSubsystem climb) {
-        leds.start();
-        this.timer = new Timer();
-        lastRecordedTime = timer.get();
-        counter = 0;
-        timer.reset();
-        timer.start();
         this.led = leds;
         this.ledBuf = ledBuf;
         this.ll = ll;
@@ -59,14 +53,8 @@ public class LightSubsystem extends SubsystemBase {
         return false;
     }
 
-    public void flashColor() {
-        if (counter % 2 == 0 && RobotState.isEnabled()) {
-            if (!climber.isClimbMode() && canSeeValidTag()) {
-                black.applyTo(ledBuf);
-            } else if (climber.isClimbMode()) {
-                blue.applyTo(ledBuf);
-            }
-        }
+    public LEDPattern makeScroll(LEDPattern a, LEDPattern b) {
+        return b.blend(a.scrollAtRelativeSpeed(Frequency.ofBaseUnits(1.0, Units.Hertz)));
     }
 
     @Override
@@ -74,33 +62,33 @@ public class LightSubsystem extends SubsystemBase {
         if (RobotState.isDisabled()) {
             amber.applyTo(ledBuf);
         } else if (climber.isClimbMode()) {
-            orange.applyTo(ledBuf);
+            makeScroll(orange, blue).applyTo(ledBuf);
         } else {
+            final LEDPattern color;
             switch (elevator.getLevelFlag()) {
                 case LEVEL1:
-                    gray.applyTo(ledBuf);
+                    color = gray;
                     break;
                 case LEVEL2:
-                    purple.applyTo(ledBuf);
+                    color = purple;
                     break;
                 case LEVEL3:
-                    yellow.applyTo(ledBuf);
+                    color = yellow;
                     break;
                 case LEVEL4:
-                    blue.applyTo(ledBuf);
+                    color = blue;
                     break;
                 case GROUND:
-                    orange.applyTo(ledBuf);
-                    break;
+                default:
+                    color = orange;
+            }
+
+            if (canSeeValidTag()) {
+                makeScroll(color, black).applyTo(ledBuf);
+            } else {
+                color.applyTo(ledBuf);
             }
         }
-
-        if (timer.get() - lastRecordedTime >= 0.25) {
-            lastRecordedTime = timer.get();
-            counter++;
-        }
-
-        flashColor();
 
         led.setData(ledBuf);
     }
