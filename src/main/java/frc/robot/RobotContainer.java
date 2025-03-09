@@ -180,7 +180,7 @@ public class RobotContainer {
                                 buildScoreBumperedUpCommand(true, 0.15),
                                 () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber + 0.1)),
                         new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
-                        () -> m_elevator.isAnyLevelSet()));
+                        () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag()));
         
         this.m_scoreRight = new SequentialCommandGroup(
                 new ConditionalCommand(
@@ -189,7 +189,7 @@ public class RobotContainer {
                                 buildScoreBumperedUpCommand(false, 0.15),
                                 () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber + 0.1)),
                         new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
-                        () -> m_elevator.isAnyLevelSet()));
+                        () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag()));
 
             this.m_scoreCancel = new SequentialCommandGroup(
                 m_elevator.runOnce(() -> m_scoreLeft.cancel()),

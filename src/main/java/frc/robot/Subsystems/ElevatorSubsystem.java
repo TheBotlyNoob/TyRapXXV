@@ -100,17 +100,40 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         public double toHeight() {
             switch (this) {
                 case GROUND:
-                    return Constants.Elevator.Heights.kGround;
+                    return ground;
                 case LEVEL1:
-                    return Constants.Elevator.Heights.kLevel1;
+                    return level1;
                 case LEVEL2:
-                    return Constants.Elevator.Heights.kLevel2;
+                    return level2;
                 case LEVEL3:
-                    return Constants.Elevator.Heights.kLevel3;
+                    return level3;
                 case LEVEL4:
-                    return Constants.Elevator.Heights.kLevel4;
+                    return level4;
                 default:
-                    return Constants.Elevator.Heights.kGround;
+                    return ground;
+            }
+        }
+
+        public void setDashboard(double height){
+            switch (this) {
+                case GROUND:
+                    ground = Constants.Elevator.Heights.kGround;
+                    break;
+                case LEVEL1:
+                    level1 = height;
+                    break;
+                case LEVEL2:
+                    level2 = height;
+                    break;
+                case LEVEL3:
+                    level3 = height;
+                    break;
+                case LEVEL4:
+                    level4 = height;
+                    break;
+                default:
+                    ground = Constants.Elevator.Heights.kGround;
+                    break;
             }
         }
 
@@ -122,17 +145,22 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         public String toString() {
             switch (this) {
                 case LEVEL1:
-                    return String.format("LEVEL1 (%.2f rotations)", Constants.Elevator.Heights.kLevel1);
+                    return String.format("LEVEL1 (%.2f rotations)", level1);
                 case LEVEL2:
-                    return String.format("LEVEL2 (%.2f rotations)", Constants.Elevator.Heights.kLevel2);
+                    return String.format("LEVEL2 (%.2f rotations)", level2);
                 case LEVEL3:
-                    return String.format("LEVEL3 (%.2f rotations)", Constants.Elevator.Heights.kLevel3);
+                    return String.format("LEVEL3 (%.2f rotations)", level3);
                 case LEVEL4:
-                    return String.format("LEVEL4 (%.2f rotations)", Constants.Elevator.Heights.kLevel4);
+                    return String.format("LEVEL4 (%.2f rotations)", level4);
                 default:
-                    return String.format("GROUND (%.2f rotations)", Constants.Elevator.Heights.kGround);
+                    return String.format("GROUND (%.2f rotations)", ground);
             }
         }
+        double ground = Constants.Elevator.Heights.kGround;
+        double level1 = Constants.Elevator.Heights.kLevel1;
+        double level2 = Constants.Elevator.Heights.kLevel2;
+        double level3 = Constants.Elevator.Heights.kLevel3;
+        double level4 = Constants.Elevator.Heights.kLevel4;
     }
     private ElevatorLevel m_level = ElevatorLevel.GROUND;
     private ElevatorLevel m_levelFlag = ElevatorLevel.GROUND;
@@ -171,6 +199,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
     protected DoubleEntry m_elevatorKMaxVel;
     protected DoubleEntry m_elevatorKMaxAccel;
     protected DoubleEntry m_elevatorKProportion;
+    protected DoubleEntry LEVEL_1;
+    protected DoubleEntry LEVEL_2;
+    protected DoubleEntry LEVEL_3;
+    protected DoubleEntry LEVEL_4;
 
     protected double outputVoltage = 0;
     protected double desiredPosition = 0;
@@ -205,6 +237,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         m_elevatorKMaxVel = m_table.getDoubleTopic("KMaxVel").getEntry(Constants.Elevator.kMaxVelocity);
         m_elevatorKMaxAccel = m_table.getDoubleTopic("KMaxAccel").getEntry(Constants.Elevator.kMaxAcceleration);
         m_elevatorKProportion = m_table.getDoubleTopic("KProp").getEntry(Constants.Elevator.kDecelProp);
+        LEVEL_1 = m_table.getDoubleTopic("Level 1").getEntry(ElevatorLevel.LEVEL1.toHeight());
+        LEVEL_2 = m_table.getDoubleTopic("Level 2").getEntry(ElevatorLevel.LEVEL2.toHeight());
+        LEVEL_3 = m_table.getDoubleTopic("Level 3").getEntry(ElevatorLevel.LEVEL3.toHeight());
+        LEVEL_4 = m_table.getDoubleTopic("Level 4").getEntry(ElevatorLevel.LEVEL4.toHeight());
 
         m_elevatorKs.set(Constants.Elevator.FF.kS);
         m_elevatorKg.set(Constants.Elevator.FF.kG);
@@ -216,6 +252,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         m_elevatorKMaxVel.set(Constants.Elevator.kMaxVelocity);
         m_elevatorKMaxAccel.set(Constants.Elevator.kMaxAcceleration);
         m_elevatorKProportion.set(Constants.Elevator.kDecelProp);
+        LEVEL_1.set(ElevatorLevel.LEVEL1.toHeight());
+        LEVEL_2.set(ElevatorLevel.LEVEL2.toHeight());
+        LEVEL_3.set(ElevatorLevel.LEVEL3.toHeight());
+        LEVEL_4.set(ElevatorLevel.LEVEL4.toHeight());
 
         m_motorLeader = new SparkFlex(Constants.MechID.kElevatorFrontCanId, MotorType.kBrushless);
         m_motorFollower = new SparkFlex(Constants.MechID.kElevatorBackCanId, MotorType.kBrushless);
@@ -360,6 +400,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         m_trapController.setMaxVel(m_elevatorKMaxVel.get());
         m_trapController.setMaxAccel(m_elevatorKMaxAccel.get());
         m_trapController.setDecelKp(m_elevatorKProportion.get());
+        ElevatorLevel.LEVEL1.setDashboard(LEVEL_1.get());
+        ElevatorLevel.LEVEL2.setDashboard(LEVEL_2.get());
+        ElevatorLevel.LEVEL3.setDashboard(LEVEL_3.get());
+        ElevatorLevel.LEVEL4.setDashboard(LEVEL_4.get());
     }
 
     public void setVoltageTest(double voltage) {
