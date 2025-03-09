@@ -1,5 +1,7 @@
 package frc.robot.Subsystems;
 
+import java.util.HashMap;
+
 import edu.wpi.first.units.FrequencyUnit;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Frequency;
@@ -21,13 +23,13 @@ public class LightSubsystem extends SubsystemBase {
     protected final ElevatorSubsystem elevator;
     protected final ClimberSubsystem climber;
 
-    private static LEDPattern blue = LEDPattern.solid(Color.kBlue);
-    private static LEDPattern black = LEDPattern.solid(Color.kBlack);
-    private static LEDPattern yellow = LEDPattern.solid(Color.kYellow);
-    private static LEDPattern purple = LEDPattern.solid(Color.kPurple);
-    private static LEDPattern gray = LEDPattern.solid(Color.kGray);
-    private static LEDPattern orange = LEDPattern.solid(Color.kOrange);
-    private static LEDPattern amber = LEDPattern.solid(Color.kOrangeRed);
+    private static Color blue = Color.kBlue;
+    private static Color black = (Color.kBlack);
+    private static Color yellow = (Color.kYellow);
+    private static Color purple = (Color.kPurple);
+    private static Color gray = (Color.kGray);
+    private static Color orange = (Color.kOrange);
+    private static Color amber = (Color.kOrangeRed);
 
     private static final double[] validID = { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
 
@@ -53,18 +55,26 @@ public class LightSubsystem extends SubsystemBase {
         return false;
     }
 
-    public LEDPattern makeScroll(LEDPattern a, LEDPattern b) {
-        return b.blend(a.scrollAtRelativeSpeed(Frequency.ofBaseUnits(1.0, Units.Hertz)));
+    public LEDPattern makeScroll(Color a, Color b) {
+        HashMap<Integer, Color> colorMap = new HashMap<>();
+        for (int i = 0; i < ledBuf.getLength(); i++) {
+            if (i % 2 == 0) {
+                colorMap.put((Integer) i, a);
+            } else {
+                colorMap.put((Integer) i, b);
+            }
+        }
+        return LEDPattern.steps(colorMap).scrollAtRelativeSpeed(Frequency.ofBaseUnits(1.0, Units.Hertz));
     }
 
     @Override
     public void periodic() {
         if (RobotState.isDisabled()) {
-            amber.applyTo(ledBuf);
+            LEDPattern.solid(amber).applyTo(ledBuf);
         } else if (climber.isClimbMode()) {
-            makeScroll(orange, blue).applyTo(ledBuf);
+            makeScroll(Color.kOrange, Color.kBlue).applyTo(ledBuf);
         } else {
-            final LEDPattern color;
+            final Color color;
             switch (elevator.getLevelFlag()) {
                 case LEVEL1:
                     color = gray;
@@ -86,7 +96,7 @@ public class LightSubsystem extends SubsystemBase {
             if (canSeeValidTag()) {
                 makeScroll(color, black).applyTo(ledBuf);
             } else {
-                color.applyTo(ledBuf);
+                LEDPattern.solid(color).applyTo(ledBuf);
             }
         }
 
