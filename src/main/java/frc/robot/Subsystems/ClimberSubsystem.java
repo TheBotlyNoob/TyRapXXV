@@ -4,6 +4,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.SafeableSubsystem;
@@ -32,36 +33,48 @@ public class ClimberSubsystem extends SubsystemBase {
     protected final DoubleSolenoid m_clampPneumatic;
     protected final DoubleSolenoid m_lowerPneumatic;
     protected final DoubleSolenoid m_rampPneumatic;
-    
-    private final Value kArmsExtend = Value.kForward; //grabber arms extends and lower to start climb
-    private final Value kArmsRetract = Value.kReverse; 
 
-    private final Value kGrabberClose = Value.kForward; //grabber clamps to cage
+    private final Value kArmsExtend = Value.kForward; // grabber arms extends and lower to start climb
+    private final Value kArmsRetract = Value.kReverse;
+
+    private final Value kGrabberClose = Value.kForward; // grabber clamps to cage
     private final Value kGrabberOpen = Value.kReverse;
 
     private final Value kRampUp = Value.kForward; //
-    private final Value kRampDown = Value.kReverse;
-    ; //unclamps
+    private final Value kRampDown = Value.kReverse;; // unclamps
+                                                     //
+    private boolean movingToDefaultPos = false;
 
     public ClimberSubsystem(AbsoluteEncoder climbArmEncoder, NetworkTableInstance nt, SafeableSubsystem[] toMakeSafe) {
         table = nt.getTable(getName());
         m_climbingMotor = new SparkMax(Constants.MechID.kClimberCanId, MotorType.kBrushless);
         m_climbMotorPublisher = new MotorPublisher(m_climbingMotor, table, "climbingMotor");
         m_encoderPublisher = table.getDoubleTopic("absolute encoder").publish();
-        //m_climbEncoder = climbArmEncoder;
+        // m_climbEncoder = climbArmEncoder;
         m_climbEncoder = new DutyCycleEncoder(9);
         m_encoderPub = nt.getDoubleTopic("Encoder Position").publish();
         isClimbMode = false;
-        
-        m_clampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kClampSolenoidCANID1, Constants.Climber.kClampSolenoidCANID2);
-        m_lowerPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kLowerSolenoidCANID1, Constants.Climber.kLowerSolenoidCANID2);
-        m_rampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kRampSolenoidCANID1,Constants.Climber.kRampSolenoidCANID2);
-        
+
+        m_clampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kClampSolenoidCANID1,
+                Constants.Climber.kClampSolenoidCANID2);
+        m_lowerPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kLowerSolenoidCANID1,
+                Constants.Climber.kLowerSolenoidCANID2);
+        m_rampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kRampSolenoidCANID1,
+                Constants.Climber.kRampSolenoidCANID2);
+
         m_lowerPneumatic.set(kArmsRetract);
         m_clampPneumatic.set(kGrabberOpen);
         m_rampPneumatic.set(kRampDown);
 
         m_toMakeSafe = toMakeSafe;
+
+        new Trigger(() -> movingToDefaultPos).and(() -> m_climbEncoder.get() < Constants.Climber.kDefaultEncoderPos)
+                .onTrue(runEnd(() -> {
+                    extendStinger();
+                }, () -> {
+                    movingToDefaultPos = false;
+                    stopMotor();
+                }));
     }
 
     public boolean isClimbMode() {
@@ -73,11 +86,26 @@ public class ClimberSubsystem extends SubsystemBase {
     }
 
     public void toggleClimbMode() {
-        System.out.println("Toggling climb current=" + isClimbMode);
-        if (isClimbMode) {
+        setMode(!isClimbMode);
+    }
+
+    public void setClimbMode() {
+        setMode(true);
+    }
+
+    public void setCoralMode() {
+        setMode(false);
+    }
+
+    public void setMode(boolean climb) {
+        System.out.println("Changing climb new=" + climb);
+        if (climb) {
             retractArms();
             rampDown();
-            isClimbMode = false;
+
+            movingToDefaultPos = true;
+
+            isClimbMode = true;
         } else {
             for (int i = 0; i < m_toMakeSafe.length; i++) {
                 System.out.println("Placing " + m_toMakeSafe[i].getName() + " into a safe position");
@@ -85,29 +113,12 @@ public class ClimberSubsystem extends SubsystemBase {
             }
             extendArms();
             rampUp();
-            isClimbMode = true;
+
+            isClimbMode = false;
         }
     }
 
-    public void setClimbMode() {
-        extendArms();
-        rampUp();
-        m_clampPneumatic.set(kGrabberOpen);
-        isClimbMode = true;
-        for (int i = 0; i < m_toMakeSafe.length; i++) {
-            System.out.println("Placing " + m_toMakeSafe[i].getName() + " into a safe position");
-            m_toMakeSafe[i].makeSafe();
-        }
-    }
-
-    public void setCoralMode() {
-        retractArms();
-        rampDown();
-        m_clampPneumatic.set(kGrabberOpen);
-        isClimbMode = false;
-    }
-
-    public void toggleGrabArms(){
+    public void toggleGrabArms() {
         System.out.println("Toggling grab arms current=" + m_clampPneumatic.get());
         m_clampPneumatic.toggle();
     }
@@ -132,10 +143,10 @@ public class ClimberSubsystem extends SubsystemBase {
     public void rampDown() {
         m_rampPneumatic.set(kRampDown);
     }
-    
-    public void reverseMotor(){
+
+    public void reverseMotor() {
         System.out.println("reverseMotor called");
-        if (m_climbEncoder.get() <= Constants.Climber.kMinEncoderPos){
+        if (m_climbEncoder.get() <= Constants.Climber.kMinEncoderPos) {
             stopMotor();
         } else {
             m_climbingMotor.setVoltage(-Constants.Climber.kClimbMotorVoltage);
@@ -145,7 +156,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public void forwardMotor() {
         System.out.println("forwardMotor called");
 
-        if (m_climbEncoder.get() >= Constants.Climber.kMaxEncoderPos){
+        if (m_climbEncoder.get() >= Constants.Climber.kMaxEncoderPos) {
             stopMotor();
         } else {
             m_climbingMotor.setVoltage(Constants.Climber.kClimbMotorVoltage);

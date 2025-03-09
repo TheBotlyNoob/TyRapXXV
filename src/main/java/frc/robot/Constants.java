@@ -36,8 +36,8 @@ public class Constants {
         public static final int[] algaeAprilIDs = new int[] { 3, 4, 5, 14, 15, 16 };
         public static final int[] playerAprilIDs = new int[] { 1, 2, 12, 13 };
     }
+
     public static class Climber {
-        // TODO
         public static final int kLowerSolenoidCANID1 = 4;
         public static final int kLowerSolenoidCANID2 = 5;
 
@@ -50,7 +50,10 @@ public class Constants {
         public static final double kClimbMotorVoltage = 12;
         public static final double kMaxEncoderPos = 0.44;
         public static final double kMinEncoderPos = 0.218;
+
+        public static final double kDefaultEncoderPos = .31;
     }
+
     public static class Coral {
         public static final double kWristMotorVoltage = 6.0;
         public static final double kWristMotorVoltageReverse = 8.0;
@@ -59,20 +62,21 @@ public class Constants {
         public static final double kCoralFeederMotorVoltage = .5;
         public static final double kMaxEncoderPos = .255;
         public static final double kMinEncoderPos = .062;
-        public static final double kLimitEncoderPos = .037; //HARD STOP
+        public static final double kLimitEncoderPos = .037; // HARD STOP
         public static final int wristCounterLimit = 5;
+
     }
 
     public static class MechID {
         public static final int kAlgaeMotorCanId = 41;
         public static final int kClimberCanId = 10;
-        //Elevator
+        // Elevator
         public static final int kElevatorBackCanId = 11;
         public static final int kElevatorFrontCanId = 12;
-        //Coral Manipulator
+        // Coral Manipulator
         public static final int kCoralWristCanId = 13;
         public static final int kCoralWheelCanId = 14;
-    
+
     }
 
     public static class Deadbands {
@@ -183,13 +187,15 @@ public class Constants {
         public static final double driveOffsetRangeMThreshold = 0.01;
         public static final double driveOffsetKp = 3.0;
     }
+
     public static final class SensorID {
-        public static final int kIRSensorPort = 7; 
+        public static final int kIRSensorPort = 7;
     }
+
     public class Elevator {
         public static class Heights {
             public static final double kGround = 0.0;
-            public static final double kLevel1 = 5.3; //3.5
+            public static final double kLevel1 = 5.3; // 3.5
             public static final double kLevel2 = 6.1;
             public static final double kLevel3 = 12.85;
             public static final double kLevel4 = 24.5;
@@ -217,7 +223,6 @@ public class Constants {
 
         public static final double kManualSpeed = 0.5;
         public static final double kElevatorMaxPos = 27.65;
-
 
         public static final int kBottomLimitSwitch = 4;
         public static final int kTopLimitSwitch = 8;
