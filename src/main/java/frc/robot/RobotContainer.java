@@ -575,11 +575,11 @@ public class RobotContainer {
                 Optional<Alliance> ally = DriverStation.getAlliance();
                 waypoints = path.getWaypoints();
                 first = waypoints.get(0);
-                if (ally.isPresent()) {
-                    if (ally.get() == Alliance.Red) {
-                        first.flip();
-                    }
-                }
+                // if (ally.isPresent()) {
+                //     if (ally.get() == Alliance.Red) {
+                //         first.flip();
+                //     }
+                // }
                 if (pose.isPresent()) {
                     m_swerve.resetStartingTranslation(first.anchor());
                     System.out.println(first.toString());
