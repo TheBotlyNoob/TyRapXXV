@@ -29,6 +29,12 @@ public class Constants {
 
         // Limelight
         public static final String kFrontLimelightName = "limelight-c";
+        public static final int[] allAprilIDs = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+                18, 19, 20, 21, 22 };
+        public static final int[] reefAprilIDs = new int[] { 6, 7, 8, 9, 10, 11, 17,
+                18, 19, 20, 21, 22 };
+        public static final int[] algaeAprilIDs = new int[] { 3, 4, 5, 14, 15, 16 };
+        public static final int[] playerAprilIDs = new int[] { 1, 2, 12, 13 };
     }
     public static class Climber {
         // TODO
@@ -173,7 +179,7 @@ public class Constants {
         public static final double driveOffsetMaxDccMSS = 3;
         public static final double driveOffsetMinVel = 0.1;
         public static final double driveOffsetMaxVel = 1.5;
-        public static final double driveOffsetAngleError = 0.02;
+        public static final double driveOffsetAngleError = 0.04;
         public static final double driveOffsetRangeMThreshold = 0.01;
         public static final double driveOffsetKp = 2.0;
     }
