@@ -54,15 +54,16 @@ import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
 import frc.robot.Commands.EjectCoral;
 import frc.robot.Commands.GoToFlagLevel;
-import frc.robot.Commands.GoToLevel;
 import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.RotateWheels;
 import frc.robot.Commands.StationaryWait;
+import frc.robot.Commands.StopCoral;
 import frc.robot.Commands.StopDrive;
 import org.json.simple.parser.ParseException;
 import frc.robot.Commands.RumbleManip;
+import frc.robot.Commands.StopElevator;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -111,6 +112,10 @@ public class RobotContainer {
     Command m_driveCommand;
 
     boolean bindingsConfigured = false;
+    
+    SequentialCommandGroup m_scoreCancel;
+    SequentialCommandGroup m_scoreLeft;
+    SequentialCommandGroup m_scoreRight;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -158,6 +163,34 @@ public class RobotContainer {
         configureBindings();
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
 
+        this.m_scoreLeft = new SequentialCommandGroup(
+                new DriveOffset(m_swerve, m_Limelight, true),
+                new DriveDistance(m_swerve, () -> 0.14,0),
+                new StopDrive(m_swerve),
+                new GoToFlagLevel(m_elevator),
+                new EjectCoral(m_coral),
+                new WaitCommand(1),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
+            );
+        
+            this.m_scoreRight = new SequentialCommandGroup(
+                new DriveOffset(m_swerve, m_Limelight,false),
+                new DriveDistance(m_swerve, () -> 0.14,0),
+                new StopDrive(m_swerve),
+                new GoToFlagLevel(m_elevator),
+                new EjectCoral(m_coral), //change
+                new WaitCommand(1),
+                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
+                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
+            );
+
+            this.m_scoreCancel = new SequentialCommandGroup(
+                m_elevator.runOnce(() -> m_scoreLeft.cancel()),
+                m_elevator.runOnce(() -> m_scoreRight.cancel()),
+                new StopDrive(m_swerve),
+                new StopCoral(m_coral),
+                new StopElevator(m_elevator));
     }
 
     /**
@@ -207,8 +240,11 @@ public class RobotContainer {
         Controller.kDriveController.back()
                 .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
 
-        // reset Field Orient Command
-        Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
+        // Cancel Coral Score
+        Controller.kDriveController.a().onTrue(m_scoreCancel);
+
+            //reset Field Orient Command 
+            Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
         // Coral extend and retract
         Controller.kDriveController.x().onTrue(m_coral.wristExtendCommand());
