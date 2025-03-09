@@ -14,6 +14,7 @@ import frc.robot.Utils.TrapezoidController;
 import frc.robot.Constants.LimelightConstants;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import frc.robot.Constants.*;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 
 // This Command combines DriveDistance and CenterOnTag, using Limelight and Odometry 
@@ -243,6 +244,8 @@ public class DriveOffset extends Command {
     @Override
     public boolean isFinished() {
         if (rangeM <= threshold && Math.abs(angleError) <= LimelightConstants.driveOffsetAngleError) {
+                LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.allAprilIDs);
+                System.out.println("Reset IDs");
             return true;
         }
         return false;
