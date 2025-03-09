@@ -22,12 +22,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.TrapezoidController;
+import frc.robot.Utils.SafeableSubsystem;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 
-public class ElevatorSubsystem extends SubsystemBase {
+public class ElevatorSubsystem extends SafeableSubsystem {
     public enum ElevatorLevel {
         /**
          * The ground level of the elevator, where the human player can load coral.
@@ -415,6 +416,10 @@ public class ElevatorSubsystem extends SubsystemBase {
             System.out.println("Cut off output due to max height");
             outputVoltage = 0.4;
         }
+    }
+    
+    public void makeSafe() {
+        setLevel(ElevatorLevel.GROUND);
     }
 
     @Override

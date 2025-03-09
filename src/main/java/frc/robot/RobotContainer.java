@@ -47,6 +47,7 @@ import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
+import frc.robot.Utils.SafeableSubsystem;
 import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.CenterOnTag;
@@ -83,6 +84,7 @@ public class RobotContainer {
     private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
     private final Drivetrain m_swerve;
     private final Limelight m_Limelight;
+    private SafeableSubsystem[] m_safeable;
     private final AlgaeGrabberSubsystem m_algae;
     private final ClimberSubsystem m_climber;
     private final SendableChooser<String> autoChooser;
@@ -140,8 +142,6 @@ public class RobotContainer {
         this.m_Limelight.setLimelightPipeline(LimelightConstants.defaultPipeline);
         CameraServer.startAutomaticCapture(); // Start USB webcam capture for climb
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
-        this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
-                NetworkTableInstance.getDefault());
 
         // this.m_range = new RangeSensor(0);
         this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
@@ -156,6 +156,11 @@ public class RobotContainer {
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
         this.m_swerve.setDefaultCommand(this.m_driveCommand);
+
+        SafeableSubsystem[] m_safeable = { m_elevator, m_algae, m_coral };
+        this.m_safeable = m_safeable;
+        this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
+                NetworkTableInstance.getDefault(), m_safeable);
 
         autoChooser = new SendableChooser<>(); // Default auto will be `Commands.none()'
 
@@ -218,10 +223,10 @@ public class RobotContainer {
         // DRIVE CONTROLLERS BINDINGS
 
         // Bumper Buttons for Scoring Sequence
-        Controller.kDriveController.rightBumper().onTrue(m_scoreRight);
+        Controller.kDriveController.rightBumper().and(m_climber::isCoralMode).onTrue(m_scoreRight);
 
         // Bumper Buttons for Scoring Sequence
-        Controller.kDriveController.leftBumper().onTrue(m_scoreLeft);
+        Controller.kDriveController.leftBumper().and(m_climber::isCoralMode).onTrue(m_scoreLeft);
 
         // Toggle Robot Oriented Drive
         Controller.kDriveController.back()
@@ -230,25 +235,25 @@ public class RobotContainer {
         // Cancel Coral Score
         Controller.kDriveController.a().onTrue(m_scoreCancel);
 
-            //reset Field Orient Command 
-            Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
+        //reset Field Orient Command 
+        Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
 
         // Coral extend and retract
-        Controller.kDriveController.x().onTrue(m_coral.wristExtendCommand());
-        Controller.kDriveController.b().onTrue(m_coral.wristRetractCommand());
+        Controller.kDriveController.x().and(m_climber::isCoralMode).onTrue(m_coral.wristExtendCommand());
+        Controller.kDriveController.b().and(m_climber::isCoralMode).onTrue(m_coral.wristRetractCommand());
 
         // Trigger Buttons for Algae Intake and Eject
-        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
-        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
+        Controller.kDriveController.leftTrigger().and(m_climber::isCoralMode).whileTrue(new EjectAlgae(m_algae));
+        Controller.kDriveController.rightTrigger().and(m_climber::isCoralMode).whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
                                                                                         // sure grabber isnt extended
 
         // MANIPULATOR CONTROLLER BINDINGS:
 
         // D-Pad for Elevator Manual Control
-        Controller.kManipulatorController.povUp()
+        Controller.kManipulatorController.povUp().and(m_climber::isCoralMode)
                 .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
                 .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
-        Controller.kManipulatorController.povDown()
+        Controller.kManipulatorController.povDown().and(m_climber::isCoralMode)
                 .onTrue(m_elevator.runOnce(() -> m_elevator.manualDown()))
                 .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
 
@@ -262,7 +267,7 @@ public class RobotContainer {
 
         // Triger Buttons
         Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
-        Controller.kManipulatorController.rightBumper().onTrue(new ConditionalCommand(buildRemoveAlgaeCommand(),
+        Controller.kManipulatorController.rightBumper().and(m_climber::isCoralMode).onTrue(new ConditionalCommand(buildRemoveAlgaeCommand(),
                 new RumbleManip(.5), () -> (m_elevator.isValidAlgaeLevel() && m_leds.canSeeValidTag())));
 
         // Back Button and Start button for Climber Mode Toggle
@@ -282,10 +287,10 @@ public class RobotContainer {
                 .onTrue(m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)));
 
         // TEMPORARY BINDINGS FOR TESTING:
-        Controller.kDriveController.povUp().whileTrue(new MoveCoralManipulator(m_coral, true));
-        Controller.kDriveController.povDown().whileTrue(new MoveCoralManipulator(m_coral, false));
-        Controller.kDriveController.povLeft().onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
-        Controller.kDriveController.povRight().onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kDriveController.povUp().and(m_climber::isCoralMode).whileTrue(new MoveCoralManipulator(m_coral, true));
+        Controller.kDriveController.povDown().and(m_climber::isCoralMode).whileTrue(new MoveCoralManipulator(m_coral, false));
+        Controller.kDriveController.povLeft().and(m_climber::isCoralMode).onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
+        Controller.kDriveController.povRight().and(m_climber::isCoralMode).onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
     }
 
     public void configureTestBindings() {
@@ -317,16 +322,18 @@ public class RobotContainer {
         Controller.kDriveController.x().onTrue(new DriveDistance(m_swerve,
                 () -> (m_Limelight.getzDistanceMeters() - Constants.Offsets.cameraOffsetFromFrontBumber) + 0.02, 0));
 
-        Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
-        Controller.kDriveController.rightTrigger().whileTrue(new AlgaeIntake(m_algae)); // when disabling robot make
-                                                                                        // sure grabber isnt extended
+        Controller.kDriveController.leftTrigger().and(m_climber::isCoralMode).whileTrue(new EjectAlgae(m_algae));
+        Controller.kDriveController.rightTrigger().and(m_climber::isCoralMode).whileTrue(new AlgaeIntake(m_algae));
 
-        Controller.kManipulatorController.povUp()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.manualUp()))
-                .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
-        Controller.kManipulatorController.povDown()
-                .onTrue(m_elevator.runOnce(() -> m_elevator.manualDown()))
-                .onFalse(m_elevator.runOnce(() -> m_elevator.stopManualMode()));
+        // when disabling robot, make
+        // sure grabber isnt extended
+        // Controller.kDriveController.leftBumper().onTrue(new DriveRange(m_swerve, ()
+        // -> 0.5, () -> m_range.getRange(), 90, 0.2));
+
+        Controller.kManipulatorController.povUp().and(m_climber::isCoralMode)
+                .onTrue(m_elevator.runOnce(() -> m_elevator.levelUp()));
+        Controller.kManipulatorController.povDown().and(m_climber::isCoralMode)
+                .onTrue(m_elevator.runOnce(() -> m_elevator.levelDown()));
 
         Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
         Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
