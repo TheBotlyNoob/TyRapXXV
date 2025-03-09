@@ -196,6 +196,10 @@ public class Drivetrain extends SubsystemBase {
         m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(), newPose);
     }
 
+    public void resetStartingTranslation(Translation2d newTranslation) {
+        m_odometry.resetTranslation(newTranslation);
+    }
+
     public Pigeon2 getGyro() {
         return m_gyro;
     }

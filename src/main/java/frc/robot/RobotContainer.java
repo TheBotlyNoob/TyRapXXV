@@ -5,17 +5,19 @@
 package frc.robot;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.*;
 
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
@@ -24,6 +26,8 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -560,15 +564,25 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand(String pathName, boolean resetOdometry) {
+        List<Waypoint> waypoints;
         PathPlannerPath path;
+        Waypoint first;
         System.out.println("getAutoCommand building auto for " + pathName);
         try {
             path = PathPlannerPath.fromPathFile(pathName);
             if (resetOdometry) {
                 Optional<Pose2d> pose = path.getStartingHolonomicPose();
+                Optional<Alliance> ally = DriverStation.getAlliance();
+                waypoints = path.getWaypoints();
+                first = waypoints.get(0);
+                if (ally.isPresent()) {
+                    if (ally.get() == Alliance.Red) {
+                        first.flip();
+                    }
+                }
                 if (pose.isPresent()) {
-                    m_swerve.resetStartingPose(pose.get());
-                    System.out.println(pose.get());
+                    m_swerve.resetStartingTranslation(first.anchor());
+                    System.out.println(first.toString());
                 } else {
                     System.out.println("Error getting PathPlanner pose");
                 }
