@@ -48,8 +48,8 @@ public class Constants {
         public static final int kRampSolenoidCANID2 = 7;
 
         public static final double kClimbMotorVoltage = 12;
-        public static final double kMaxEncoderPos = 0.44;
-        public static final double kMinEncoderPos = 0.218;
+        public static final double kMaxEncoderPos = 0.43;
+        public static final double kMinEncoderPos = 0.28;
     }
     public static class Coral {
         public static final double kWristMotorVoltage = 6.0;
