@@ -3,6 +3,7 @@ package frc.robot.Subsystems;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,6 +27,7 @@ public class LightSubsystem extends SubsystemBase {
     private static LEDPattern purple = LEDPattern.solid(Color.kPurple);
     private static LEDPattern gray = LEDPattern.solid(Color.kGray);
     private static LEDPattern orange = LEDPattern.solid(Color.kOrange);
+    private static LEDPattern amber = LEDPattern.solid(Color.kOrangeRed);
 
     private static final double[] validID = { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
 
@@ -58,7 +60,7 @@ public class LightSubsystem extends SubsystemBase {
     }
 
     public void flashColor() {
-        if (counter % 2 == 0) {
+        if (counter % 2 == 0 && RobotState.isEnabled()) {
             if (!climber.isClimbMode() && canSeeValidTag()) {
                 black.applyTo(ledBuf);
             } else if (climber.isClimbMode()) {
@@ -69,7 +71,9 @@ public class LightSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (climber.isClimbMode()) {
+        if (RobotState.isDisabled()) {
+            amber.applyTo(ledBuf);
+        } else if (climber.isClimbMode()) {
             orange.applyTo(ledBuf);
         } else {
             switch (elevator.getLevelFlag()) {
