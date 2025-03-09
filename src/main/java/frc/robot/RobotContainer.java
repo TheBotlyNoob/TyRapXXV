@@ -160,30 +160,26 @@ public class RobotContainer {
 
         m_competitionTab.add("Drivetrain", this.m_swerve);
 
-        configureBindings();
+        //configureBindings();
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
 
         this.m_scoreLeft = new SequentialCommandGroup(
-                new DriveOffset(m_swerve, m_Limelight, true),
-                new DriveDistance(m_swerve, () -> 0.14,0),
-                new StopDrive(m_swerve),
-                new GoToFlagLevel(m_elevator),
-                new EjectCoral(m_coral),
-                new WaitCommand(1),
-                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
-            );
+                new ConditionalCommand(
+                        new ConditionalCommand(
+                                buildScoreOffsetCommand(true),
+                                buildScoreBumperedUpCommand(true, 0.15),
+                                () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber + 0.1)),
+                        new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
+                        () -> m_elevator.isAnyLevelSet()));
         
-            this.m_scoreRight = new SequentialCommandGroup(
-                new DriveOffset(m_swerve, m_Limelight,false),
-                new DriveDistance(m_swerve, () -> 0.14,0),
-                new StopDrive(m_swerve),
-                new GoToFlagLevel(m_elevator),
-                new EjectCoral(m_coral), //change
-                new WaitCommand(1),
-                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))
-                //new GoToLevel(m_elevator, ElevatorLevel.LEVEL1)
-            );
+        this.m_scoreRight = new SequentialCommandGroup(
+                new ConditionalCommand(
+                        new ConditionalCommand(
+                                buildScoreOffsetCommand(false),
+                                buildScoreBumperedUpCommand(false, 0.15),
+                                () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber + 0.1)),
+                        new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
+                        () -> m_elevator.isAnyLevelSet()));
 
             this.m_scoreCancel = new SequentialCommandGroup(
                 m_elevator.runOnce(() -> m_scoreLeft.cancel()),
@@ -217,24 +213,10 @@ public class RobotContainer {
         // DRIVE CONTROLLERS BINDINGS
 
         // Bumper Buttons for Scoring Sequence
-        Controller.kDriveController.rightBumper().onTrue(
-                new ConditionalCommand(
-                        new ConditionalCommand(
-                                buildScoreOffsetCommand(false),
-                                buildScoreBumperedUpCommand(false, 0.15),
-                                () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber + 0.1)),
-                        new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
-                        () -> m_elevator.isAnyLevelSet()));
+        Controller.kDriveController.rightBumper().onTrue(m_scoreRight);
 
         // Bumper Buttons for Scoring Sequence
-        Controller.kDriveController.leftBumper().onTrue(
-                new ConditionalCommand(
-                        new ConditionalCommand(
-                                buildScoreOffsetCommand(true),
-                                buildScoreBumperedUpCommand(true, 0.15),
-                                () -> m_Limelight.getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber + 0.1)),
-                        new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
-                        () -> m_elevator.isAnyLevelSet()));
+        Controller.kDriveController.leftBumper().onTrue(m_scoreLeft);
 
         // Toggle Robot Oriented Drive
         Controller.kDriveController.back()
