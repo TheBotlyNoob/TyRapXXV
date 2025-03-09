@@ -48,6 +48,7 @@ import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
+import frc.robot.Commands.DriveDistance2;
 import frc.robot.Commands.DriveLeftOrRight;
 import frc.robot.Commands.DriveFixedVelocity;
 import frc.robot.Commands.DriveOffset;
@@ -344,13 +345,13 @@ public class RobotContainer {
                                 // new StopDrive(m_swerve),
                                 // new StationaryWait(m_swerve, 0.06),
                                 // new DriveDistance(m_swerve, () -> 0.3, 0).withTimeout(0.6),
-                                new DriveDistance(m_swerve, () -> (m_Limelight.getzDistanceMeters() - .42), 0)
+                                new DriveDistance2(m_swerve, () -> (m_Limelight.getzDistanceMeters() - .42), 0)
                                         .withTimeout(1),
                                 new StopDrive(m_swerve)),
                         new GoToFlagLevel(m_elevator)),
                 new EjectCoral(m_coral),
                 new StationaryWait(m_swerve, .5),
-                new DriveDistance(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
                 new StopDrive(m_swerve),
                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
     }
@@ -363,7 +364,7 @@ public class RobotContainer {
                         // right
                         new GoToFlagLevel(m_elevator).withTimeout(2.5),
                         new SequentialCommandGroup(
-                                new DriveDistance(m_swerve, () -> 0.15, 0).withTimeout(forwardTimeout),
+                                new DriveDistance2(m_swerve, () -> 0.15, 0).withTimeout(forwardTimeout),
                                 // new DriveFixedVelocity(m_swerve, 0, () -> 0.5).withTimeout(0.2),
                                 new DriveFixedVelocity(m_swerve, 180, () -> 0.25).withTimeout(.1),
                                 new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
@@ -371,7 +372,7 @@ public class RobotContainer {
                 new StopDrive(m_swerve),
                 new EjectCoral(m_coral),
                 new StationaryWait(m_swerve, .5),
-                new DriveDistance(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
                 new StopDrive(m_swerve),
                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
     }
@@ -392,7 +393,7 @@ public class RobotContainer {
                 new StopDrive(m_swerve),
                 new EjectCoral(m_coral),
                 new StationaryWait(m_swerve, .5),
-                new DriveDistance(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
                 new StopDrive(m_swerve),
                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
     }
@@ -406,6 +407,20 @@ public class RobotContainer {
                         new GoToFlagLevel(m_elevator)),
                 new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8),
                 new StopDrive(m_swerve),
+                new PrintCommand("Remove algae complete"));
+    }
+
+    public SequentialCommandGroup buildRemoveAlgaeAutoCommand() {
+        m_elevator.setLevelFlag(ElevatorLevel.LEVEL3);
+        return new SequentialCommandGroup(
+                new PrintCommand("Running remove algae"),
+                new ParallelCommandGroup(
+                        m_coral.wristExtendCommand(),
+                        new DriveOffset(m_swerve, m_Limelight, .7, 0.0),
+                        new GoToFlagLevel(m_elevator)),
+                new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8),
+                new StopDrive(m_swerve),
+                new DriveFixedVelocity(m_swerve, 180, () -> 2).withTimeout(0.2),
                 new PrintCommand("Remove algae complete"));
     }
 
@@ -441,7 +456,7 @@ public class RobotContainer {
                 getAutonomousCommand(pathToCoralStn, false),
                 new StopDrive(m_swerve),
                 new StationaryWait(m_swerve, .05),
-                new DriveDistance(m_swerve, () -> .15, 180).withTimeout(0.5),
+                new DriveDistance2(m_swerve, () -> .15, 180).withTimeout(0.5),
                 new StopDrive(m_swerve),
                 new StationaryWait(m_swerve, .5),
                 getAutonomousCommand(pathCoralToReef, false),
@@ -460,7 +475,7 @@ public class RobotContainer {
                 buildScoreBumperedUpCommand(false, .25),
                 new StationaryWait(m_swerve, 0.5), // Testing purposes
                 getAutonomousCommand(pathToCoralStn, false),
-                new DriveDistance(m_swerve, () -> .1, 180).withTimeout(0.3),
+                new DriveDistance2(m_swerve, () -> .1, 180).withTimeout(0.3),
                 new StopDrive(m_swerve),
                 new StationaryWait(m_swerve, 1.0),
                 getAutonomousCommand(pathCoralToReef, false),
@@ -492,7 +507,8 @@ public class RobotContainer {
                     new StationaryWait(m_swerve, .2),
                     // buildScoreBumperedUpAutoCommand(false, 1.5),
                     buildScoreOffsetCommand(false),
-                    m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
+                    m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)), 
+                    buildRemoveAlgaeAutoCommand());
             start.schedule();
         }
 
