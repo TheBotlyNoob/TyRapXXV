@@ -331,6 +331,10 @@ public class ElevatorSubsystem extends SubsystemBase {
         return currentPosition;
     }
 
+    public void holdCurrentPosition(){
+        desiredPosition = currentPosition;
+    }
+
     public double getCurrentVelocity() {
         return currentVelocity;
     }

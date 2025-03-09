@@ -1,19 +1,20 @@
 package frc.robot.Commands;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems.CoralSubsystem;
 
-public class EjectCoral extends Command {
+public class StopCoral extends Command {
     CoralSubsystem co;
 
-    public EjectCoral(CoralSubsystem co) {
+    public StopCoral(CoralSubsystem co) {
         this.co = co;
-        addRequirements(co);
     }
 
     @Override
     public void initialize() {
-        System.out.println("Eject coral");
-        co.ejectCoral();
+        System.out.println("Stopping the coral.");
+        co.stopMotorGrabber();
+        co.stopMotorWrist();
     }
 
     @Override
