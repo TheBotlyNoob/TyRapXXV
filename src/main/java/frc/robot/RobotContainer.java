@@ -240,7 +240,8 @@ public class RobotContainer {
 
         //Triger Buttons 
         Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
-        Controller.kManipulatorController.rightBumper().onTrue(buildRemoveAlgaeCommand());
+        Controller.kManipulatorController.rightBumper().onTrue(new ConditionalCommand(buildRemoveAlgaeCommand(), new RumbleManip(.5), ()-> m_elevator.isValidAlgaeLevel()));
+
 
         // Back Button and Start button for Climber Mode Toggle
         Controller.kManipulatorController.back()
