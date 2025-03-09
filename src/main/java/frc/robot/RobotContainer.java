@@ -87,8 +87,6 @@ public class RobotContainer {
     private SwerveModuleSB[] mSwerveModuleTelem;
 
     Command m_driveCommand;
-    Command m_driveDistanceCommand;
-    Command m_goToFlagLevelCommand;
     
     SequentialCommandGroup m_scoreCancel;
     SequentialCommandGroup m_scoreLeft;
@@ -132,9 +130,6 @@ public class RobotContainer {
 
         //working on
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
-
-        this.m_driveDistanceCommand = new DriveDistance(m_swerve, () -> 0.14,0);
-        this.m_goToFlagLevelCommand = new GoToFlagLevel(m_elevator);
 
         this.m_scoreLeft = new SequentialCommandGroup(
                 new DriveOffset(m_swerve, m_Limelight, true),

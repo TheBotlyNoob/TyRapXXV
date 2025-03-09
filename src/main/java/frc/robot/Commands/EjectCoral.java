@@ -4,7 +4,6 @@ import frc.robot.Subsystems.CoralSubsystem;
 
 public class EjectCoral extends Command {
     CoralSubsystem co;
-    private boolean cancelFlag;
 
     public EjectCoral(CoralSubsystem co) {
         this.co = co;
@@ -20,9 +19,4 @@ public class EjectCoral extends Command {
     public boolean isFinished() {
         return true;
     }
-
-    public void stopComand(){
-        cancelFlag = true;
-    }
 }
-
