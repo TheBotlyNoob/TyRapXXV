@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Commands.EjectCoral;
+import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Utils.MotorPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
@@ -161,11 +162,11 @@ public class CoralSubsystem extends SubsystemBase {
     }
 
     public Command wristExtendCommand() {
-        return new RunCommand(() -> extendManipulator(), this).withTimeout(0.5);
+        return new MoveCoralManipulator(this, true).withTimeout(0.8);
     }
 
     public Command wristRetractCommand() {
-        return new RunCommand(() -> retractManipulator(), this).withTimeout(0.5);
+        return new MoveCoralManipulator(this, false).withTimeout(0.8);
     }
 
     public void reinit() {
@@ -221,10 +222,13 @@ public class CoralSubsystem extends SubsystemBase {
             m_coralGrabberMotor.set(0.0);
             if (ejectActive) {
                 state = CoralState.EJECTING;
+                timer.start();
+            } else if (!irDetected) {
+                // We thought we were holding a piece but no longer see one
+                state = CoralState.INTAKING;
             }
         } else if (state == CoralState.EJECTING) {
             m_coralGrabberMotor.set(0.5);
-            timer.start();
             if (timer.get() > 2 && !irDetected) {
                 state = CoralState.WAITING;
                 ejectActive = false;

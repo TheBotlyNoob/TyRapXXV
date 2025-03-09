@@ -87,6 +87,7 @@ public class DriveOffset extends Command {
             this.ll = ll;
             this.isLeft = isLeft;
             this.useDashboardEntries = true;
+            this.id = 999999999;
             addRequirements(dt);
             // 2D transform between robot and camera frames
             // Currently get offset from SparkJrConstants, but can change later
@@ -122,7 +123,10 @@ public class DriveOffset extends Command {
     @Override
     public void initialize() {
         // Set id
-        if (id != 999999999) {
+        if (id == 999999999) {
+                LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, new int[] {});
+        }
+        else {
                 LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, new int[] { id });
                 System.out.println("Set ID");
         }

@@ -11,20 +11,20 @@
         "x": 7.418,
         "y": 4.0
       },
-      "isLocked": false,
+      "isLocked": true,
       "linkedName": "Start4"
     },
     {
       "anchor": {
-        "x": 5.9,
+        "x": 6.1,
         "y": 4.0
       },
       "prevControl": {
-        "x": 6.15,
+        "x": 6.35,
         "y": 4.0
       },
       "nextControl": null,
-      "isLocked": false,
+      "isLocked": true,
       "linkedName": "Reef3"
     }
   ],

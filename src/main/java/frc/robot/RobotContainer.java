@@ -6,18 +6,13 @@ package frc.robot;
 
 import java.io.IOException;
 import java.util.Optional;
-import static edu.wpi.first.units.Units.Seconds;
 
-import com.ctre.phoenix6.configs.GyroTrimConfigs;
 import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FileVersionException;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -33,7 +28,6 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -209,50 +203,17 @@ public class RobotContainer {
                         new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
                         () -> m_elevator.isAnyLevelSet()));
 
-        // Bumper Buttons for Scoring Sequence
-        /*
-         * Controller.kDriveController.leftBumper().onTrue(
-         * new ConditionalCommand(
-         * new ConditionalCommand(
-         * new SequentialCommandGroup(
-         * new PrintCommand("Running offset score routine"),
-         * new DriveOffset(m_swerve, m_Limelight, true),
-         * new StopDrive(m_swerve),
-         * new StationaryWait(m_swerve, 0.06),
-         * new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(0.5),
-         * new StopDrive(m_swerve),
-         * new GoToFlagLevel(m_elevator),
-         * new EjectCoral(m_coral),
-         * new WaitCommand(1),
-         * m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-         * new SequentialCommandGroup(
-         * new PrintCommand("Running drive left right score"),
-         * new ParallelCommandGroup(
-         * new GoToFlagLevel(m_elevator).withTimeout(1.5),
-         * new DriveDistance(m_swerve, () -> 0.15,0).withTimeout(.2).andThen(
-         * new DriveLeftOrRight(m_swerve, m_Limelight, true),
-         * new StopDrive(m_swerve)
-         * )
-         * ),
-         * new StopDrive(m_swerve),
-         * new EjectCoral(m_coral),
-         * new WaitCommand(.5),
-         * new DriveDistance(m_swerve, () -> 0.1,180).withTimeout(.5),
-         * m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND))),
-         * () -> m_Limelight.getzDistanceMeters() >
-         * (Offsets.cameraOffsetFromFrontBumber+0.1)),
-         * new PrintCommand("level has not been set"),
-         * () -> m_elevator.isAnyLevelSet()));
-         */
 
         // Toggle Robot Oriented Drive
         Controller.kDriveController.back()
                 .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
 
-            //reset Field Orient Command 
-            Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
-            Controller.kDriveController.x().onTrue(m_coral.wristExtendCommand());
-            Controller.kDriveController.b().onTrue(m_coral.wristRetractCommand());
+        //reset Field Orient Command 
+        Controller.kDriveController.y().onTrue((new ResetOdoCommand(m_swerve)));
+
+        // Coral extend and retract
+        Controller.kDriveController.x().onTrue(m_coral.wristExtendCommand());
+        Controller.kDriveController.b().onTrue(m_coral.wristRetractCommand());
 
         // Trigger Buttons for Algae Intake and Eject
         Controller.kDriveController.leftTrigger().whileTrue(new EjectAlgae(m_algae));
@@ -277,13 +238,15 @@ public class RobotContainer {
         Controller.kManipulatorController.leftBumper()
                 .onTrue(m_climber.runOnce(() -> m_climber.toggleGrabArms()));
 
-            //Triger Buttons 
-            Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
-            Controller.kManipulatorController.rightBumper().onTrue(buildRemoveAlgaeCommand());
+        //Triger Buttons 
+        Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
+        Controller.kManipulatorController.rightBumper().onTrue(buildRemoveAlgaeCommand());
 
-        // Back Button for Climber Mode Toggle
+        // Back Button and Start button for Climber Mode Toggle
         Controller.kManipulatorController.back()
-                .onTrue(m_climber.runOnce(() -> m_climber.toggleClimbMode()));
+                .onTrue(m_climber.runOnce(() -> m_climber.setClimbMode()));
+        Controller.kManipulatorController.start()
+                .onTrue(m_climber.runOnce(() -> m_climber.setCoralMode()));
 
         // X, A, B, Y for Elevator Level Flags
         Controller.kManipulatorController.x()
@@ -378,11 +341,13 @@ public class RobotContainer {
                 new DriveOffset(m_swerve, m_Limelight, isLeft),
                 new StopDrive(m_swerve),
                 // new StationaryWait(m_swerve, 0.06),
-                new DriveDistance(m_swerve, () -> 0.15, 0).withTimeout(0.5),
+                new DriveDistance(m_swerve, () -> 0.3, 0).withTimeout(0.6),
                 new StopDrive(m_swerve),
                 new GoToFlagLevel(m_elevator),
                 new EjectCoral(m_coral),
-                new WaitCommand(.7),
+                new StationaryWait(m_swerve, .5),
+                new DriveDistance(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                new StopDrive(m_swerve),
                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
     }
 
@@ -525,19 +490,20 @@ public class RobotContainer {
         if (auto.equals("BlueLeftTwoPiece")) { // For testing
             start = buildTwoPieceAuto("Starting1Reef2",
                     20, "Reef2Player1",
-                    "Player2Reef5", 19, 0.16);
+                    "Player1Reef5", 19, 0.16);
             start.schedule();
         } else if (auto.equals("BlueRight2Piece")) {
             start = buildTwoPieceAuto("Starting7Reef4",
-                    16, "Reef4Player2",
-                    "Player1Reef1", 17, 0.16);
+                    20, "Reef4Player2",
+                    "Player2Reef5", 8, 0.16);
             start.schedule();
         } else if (auto.equals("OnePieceAuto")) {
-            m_elevator.setLevelFlag(ElevatorLevel.LEVEL3);
+            m_elevator.setLevelFlag(ElevatorLevel.LEVEL4);
             start = new SequentialCommandGroup(m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                     getAutonomousCommand("OnePieceAuto", true),
-                    new StationaryWait(m_swerve, 2),
-                    buildScoreBumperedUpAutoCommand(false, 1.5),
+                    new StationaryWait(m_swerve, .2),
+                    //buildScoreBumperedUpAutoCommand(false, 1.5),
+                    buildScoreOffsetCommand(false),
                     m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
             start.schedule();
         }

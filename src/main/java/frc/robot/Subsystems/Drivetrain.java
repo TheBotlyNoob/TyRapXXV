@@ -385,16 +385,18 @@ public class Drivetrain extends SubsystemBase {
             {
                 doRejectUpdate = true;
             }
-            if(mt2.tagCount == 0)
-            {
-                doRejectUpdate = true;
-            }
-            if(!doRejectUpdate)
-            {
-                m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
-                m_odometry.addVisionMeasurement(
-                    mt2.pose,
-                    mt2.timestampSeconds);
+            if(mt2 != null) {
+                if(mt2.tagCount == 0)
+                {
+                    doRejectUpdate = true;
+                }
+                if(!doRejectUpdate)
+                {
+                    m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+                    m_odometry.addVisionMeasurement(
+                        mt2.pose,
+                        mt2.timestampSeconds);
+                }
             }
         }
 

@@ -22,10 +22,9 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         m_container.getDrivetrain().setFieldRelative(true);
-
         m_container.clearDefaultCommand();
         m_container.setAutoDefaultCommand();
-        //m_container.getAutonomousCommand().schedule();
+        m_container.reinitialize();
         m_container.startAutonomous();
     }
 
