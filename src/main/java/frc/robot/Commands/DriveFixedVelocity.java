@@ -3,6 +3,7 @@ package frc.robot.Commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Controller;
 import frc.robot.Subsystems.Drivetrain;
@@ -52,7 +53,7 @@ public class DriveFixedVelocity extends Command {
                 .calculate(xSpeed);
         double actualYSpeed = m_yspeedLimiter
                 .calculate(ySpeed);
-        dt.drive(actualXSpeed, actualYSpeed, 0.0);
+        dt.driveChassisSpeeds(new ChassisSpeeds(actualXSpeed, actualYSpeed, 0));
     }
 
     @Override

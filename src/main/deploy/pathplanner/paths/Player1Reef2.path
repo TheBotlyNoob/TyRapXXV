@@ -1,0 +1,102 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.1992500000000001,
+        "y": 6.989
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.7277443181818184,
+        "y": 6.380732954545455
+      },
+      "isLocked": false,
+      "linkedName": "Player1"
+    },
+    {
+      "anchor": {
+        "x": 2.660394910247314,
+        "y": 6.676255184404585
+      },
+      "prevControl": {
+        "x": 2.215651781247627,
+        "y": 6.569050677065786
+      },
+      "nextControl": {
+        "x": 3.1410511363636364,
+        "y": 6.792116477272727
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 4.217982954545454,
+        "y": 6.911775568181818
+      },
+      "prevControl": {
+        "x": 3.6396306818181814,
+        "y": 7.0114914772727275
+      },
+      "nextControl": {
+        "x": 4.702784272517596,
+        "y": 6.828189134048689
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.294914772727273,
+        "y": 6.522883522727272
+      },
+      "prevControl": {
+        "x": 5.015710227272726,
+        "y": 6.762201704545454
+      },
+      "nextControl": {
+        "x": 5.484728923318597,
+        "y": 6.360185679363281
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.245056818181819,
+        "y": 5.326292613636363
+      },
+      "prevControl": {
+        "x": 5.693735334317432,
+        "y": 5.988627566027028
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Reef2"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -119.99999999999999
+  },
+  "reversed": false,
+  "folder": "PlayerReef",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": -55.0
+  },
+  "useDefaultConstraints": true
+}

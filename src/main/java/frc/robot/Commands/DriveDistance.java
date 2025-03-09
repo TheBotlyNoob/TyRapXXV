@@ -16,31 +16,31 @@ import frc.robot.Constants.*;
 
 // This Command will use the current position in odometry to drive straight at 
 // a specifie distance and direction. 
-// Command will set drivetrain speeds until odometry indicates the robot is at the desired position
+// Command will set Drivetrain speeds until odometry indicates the robot is at the desired position
 // This is for more precise positioning, like when we need to be close to an AprilTag
 public class DriveDistance extends Command {
     // Drivetrain Object
     Drivetrain dt;
 
     // Shuffleboard
-    private static GenericEntry desiredPosXEntry = Shuffleboard.getTab("DriveDistance").add("desiredPoseX", 0)
+    protected static GenericEntry desiredPosXEntry = Shuffleboard.getTab("DriveDistance").add("desiredPoseX", 0)
             .getEntry();
-    private static GenericEntry desiredPosYEntry = Shuffleboard.getTab("DriveDistance").add("desiredPoseY", 0)
+    protected static GenericEntry desiredPosYEntry = Shuffleboard.getTab("DriveDistance").add("desiredPoseY", 0)
             .getEntry();
-    private static GenericEntry rangeMEntry = Shuffleboard.getTab("DriveDistance").add("rangeM", 0).getEntry();
-    private static GenericEntry bearingEntry = Shuffleboard.getTab("DriveDistance").add("bearing", 0).getEntry();
-    private static GenericEntry currentXVelEntry = Shuffleboard.getTab("DriveDistance").add("currentXVel", 0)
+    protected static GenericEntry rangeMEntry = Shuffleboard.getTab("DriveDistance").add("rangeM", 0).getEntry();
+    protected static GenericEntry bearingEntry = Shuffleboard.getTab("DriveDistance").add("bearing", 0).getEntry();
+    protected static GenericEntry currentXVelEntry = Shuffleboard.getTab("DriveDistance").add("currentXVel", 0)
             .getEntry();
-    private static GenericEntry currentYVelEntry = Shuffleboard.getTab("DriveDistance").add("currentYVel", 0)
+    protected static GenericEntry currentYVelEntry = Shuffleboard.getTab("DriveDistance").add("currentYVel", 0)
             .getEntry();
-    private static GenericEntry timeEntry = Shuffleboard.getTab("DriveDistance").add("time", 0).getEntry();
-    private static GenericEntry minVelEntry = Shuffleboard.getTab("DriveDistance")
+    protected static GenericEntry timeEntry = Shuffleboard.getTab("DriveDistance").add("time", 0).getEntry();
+    protected static GenericEntry minVelEntry = Shuffleboard.getTab("DriveDistance")
             .add("minVelEntry", LimelightConstants.minVelocity).getEntry();
-    private static GenericEntry maxVelEntry = Shuffleboard.getTab("DriveDistance")
+    protected static GenericEntry maxVelEntry = Shuffleboard.getTab("DriveDistance")
             .add("maxVelEntry", LimelightConstants.maxVelocity).getEntry();
-    private static GenericEntry maxAccEntry = Shuffleboard.getTab("DriveDistance")
+    protected static GenericEntry maxAccEntry = Shuffleboard.getTab("DriveDistance")
             .add("maxAccEntry", LimelightConstants.maxAccMSS).getEntry();
-    private static GenericEntry maxDccEntry = Shuffleboard.getTab("DriveDistance")
+    protected static GenericEntry maxDccEntry = Shuffleboard.getTab("DriveDistance")
             .add("maxDccEntry", LimelightConstants.maxDccMSS).getEntry();
     protected static GenericEntry desiredDisEntry = Shuffleboard.getTab("DriveDistance")
             .add("desiredDis", 1.5).getEntry();
@@ -48,22 +48,22 @@ public class DriveDistance extends Command {
             .add("desiredAng", 0).getEntry();
 
     // Variables
-    private double currentVel;
-    private double desiredDistance;
-    private double desiredAngle;
-    private ChassisSpeeds calcVel;
-    private ChassisSpeeds chassisSpeed;
-    private double chassisMagnitude;
-    private double minVel;
-    private double maxVel;
-    private Pose2d currentPose;
-    private Pose2d desiredPose;
-    private double rangeM;
-    private double bearingDeg;
-    private TrapezoidProfile profile;
-    private TrapezoidProfile.State initial;
-    private TrapezoidProfile.State goal;
-    private double threshold;
+    protected double currentVel;
+    protected double desiredDistance;
+    protected double desiredAngle;
+    protected ChassisSpeeds calcVel;
+    protected ChassisSpeeds chassisSpeed;
+    protected double chassisMagnitude;
+    protected double minVel;
+    protected double maxVel;
+    protected Pose2d currentPose;
+    protected Pose2d desiredPose;
+    protected double rangeM;
+    protected double bearingDeg;
+    protected TrapezoidProfile profile;
+    protected TrapezoidProfile.State initial;
+    protected TrapezoidProfile.State goal;
+    protected double threshold;
     protected boolean useDashboardEntries = false;
     protected DoubleSupplier distanceSupplier;
 
@@ -110,7 +110,8 @@ public class DriveDistance extends Command {
             desiredPosYEntry.setValue(desiredPose.getY());
             // Create a new Trapezoid profile
             profile = new TrapezoidProfile(
-                    new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(LimelightConstants.maxAccMSS)));
+                    //new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(LimelightConstants.maxAccMSS)));
+                    new TrapezoidProfile.Constraints(maxVel, maxAccEntry.getDouble(3)));
         } catch (Exception e) {
             System.out.println("Exception initializing DriveDistance");
             e.printStackTrace();

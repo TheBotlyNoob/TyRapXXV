@@ -29,6 +29,12 @@ public class Constants {
 
         // Limelight
         public static final String kFrontLimelightName = "limelight-c";
+        public static final int[] allAprilIDs = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+                18, 19, 20, 21, 22 };
+        public static final int[] reefAprilIDs = new int[] { 6, 7, 8, 9, 10, 11, 17,
+                18, 19, 20, 21, 22 };
+        public static final int[] algaeAprilIDs = new int[] { 3, 4, 5, 14, 15, 16 };
+        public static final int[] playerAprilIDs = new int[] { 1, 2, 12, 13 };
     }
     public static class Climber {
         // TODO
@@ -46,15 +52,15 @@ public class Constants {
         public static final double kMinEncoderPos = 0.218;
     }
     public static class Coral {
-        public static final double kWristMotorVoltage = 4.5;
-        public static final double kWristMotorVoltageReverse = 6.0;
+        public static final double kWristMotorVoltage = 6.0;
+        public static final double kWristMotorVoltageReverse = 8.0;
         // down -4.4
         // up +6
         public static final double kCoralFeederMotorVoltage = .5;
         public static final double kMaxEncoderPos = .255;
         public static final double kMinEncoderPos = .062;
         public static final double kLimitEncoderPos = .037; //HARD STOP
-
+        public static final int wristCounterLimit = 5;
     }
 
     public static class MechID {
@@ -74,7 +80,7 @@ public class Constants {
         public static final double kRightJoyStickDeadband = 0.06;
     }
 
-    public static class DriveTrainConstants {
+    public static class DrivetrainConstants {
         // Distance in meters
         public static final double kDistanceMiddleToFrontMotor = 0.339852;
         public static final double kDistanceMiddleToSideMotor = 0.289052;
@@ -88,7 +94,7 @@ public class Constants {
         public static final int kYRight = -1;
 
         // ITS TUNED. NO TOUCH!
-        public static final double[] turnPID = { 1.5, 0.2, 0.0 };
+        public static final double[] turnPID = { 4.5, 1.0, 0.0 };
         public static final double[] drivePID = { 2, 0.0, 0.0 };
         public static final double[] turnFeedForward = { 0.3, 0.2 };
         public static final double[] driveFeedForward = { 0.17, 2.255 };
@@ -116,7 +122,7 @@ public class Constants {
         public static final double kRateLimitXSpeed = 150.0;
         public static final double kRateLimitYSpeed = 150.0;
         public static final double kRateLimitRot = 70.0;
-        public static final double kMaxNecessarySpeed = DriveTrainConstants.kMaxPossibleSpeed * 0.8;
+        public static final double kMaxNecessarySpeed = DrivetrainConstants.kMaxPossibleSpeed * 0.8;
 
         public static final CommandXboxController kDriveController = new CommandXboxController(kDriveControllerID);
         public static final CommandXboxController kManipulatorController = new CommandXboxController(
@@ -142,6 +148,7 @@ public class Constants {
     }
 
     public static class LimelightConstants {
+        public static final int defaultPipeline = 2;
         // For CenterOnTag
         public static final double minXVelocity = 0.1;
         public static final double maxXVelocity = 1.0;
@@ -157,23 +164,24 @@ public class Constants {
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
         // For ProportionalController & DriveDistance as well
-        public static final double maxAccMSS = 4;
-        public static final double maxDccMSS = 3;
-        public static final double minVelocity = 0.15;
+        public static final double maxAccMSS = 3;
+        public static final double maxDccMSS = 8;
+        public static final double minVelocity = 0.05;
         public static final double maxVelocity = 5.0;
         public static final double offset = 0.0;
         public static final double proportion = 2;
         public static final double threshold = .02;
+        public static final double driveDistanceProp = 3;
         // For DriveOffset
         public static final double driveOffsetXOffset = 0.7;
-        public static final double driveOffsetYOffset = 0.16;
-        public static final double driveOffsetMaxAccMSS = 1.2;
-        public static final double driveOffsetMaxDccMSS = 3;
+        public static final double driveOffsetYOffset = 0.17;
+        public static final double driveOffsetMaxAccMSS = 2.5;
+        public static final double driveOffsetMaxDccMSS = 8;
         public static final double driveOffsetMinVel = 0.1;
-        public static final double driveOffsetMaxVel = 1.5;
-        public static final double driveOffsetAngleError = 0.015;
-        public static final double driveOffsetRangeMThreshold = 0.02;
-        public static final double driveOffsetKp = 2.0;
+        public static final double driveOffsetMaxVel = 3.0;
+        public static final double driveOffsetAngleError = 0.04;
+        public static final double driveOffsetRangeMThreshold = 0.01;
+        public static final double driveOffsetKp = 3.0;
     }
     public static final class SensorID {
         public static final int kIRSensorPort = 7; 
@@ -181,10 +189,10 @@ public class Constants {
     public class Elevator {
         public static class Heights {
             public static final double kGround = 0.0;
-            public static final double kLevel1 = 3.5;
-            public static final double kLevel2 = 5.5;
+            public static final double kLevel1 = 5.3; //3.5
+            public static final double kLevel2 = 6.1;
             public static final double kLevel3 = 12.85;
-            public static final double kLevel4 = 24.92;
+            public static final double kLevel4 = 24.5;
         }
 
         public static class PID {
@@ -200,8 +208,8 @@ public class Constants {
             public static final double kA = 0.0; // volts per acceleration (V/(m/s^2))
         }
 
-        public static final double kMaxVelocity = 2.5;
-        public static final double kMaxAcceleration = 2.0;
+        public static final double kMaxVelocity = 3.5;
+        public static final double kMaxAcceleration = 3.0;
         public static final double kDecelProp = 0.4;
 
         public static final double kElevatorGearRatio = 0;

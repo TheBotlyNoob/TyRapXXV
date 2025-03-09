@@ -32,7 +32,7 @@ public class Limelight extends SubsystemBase {
   double zDistanceMeters;
   Pose3d pose3D;
   protected int timeSinceValid = 0;
-  private LinearFilter filteredYawDegrees = LinearFilter.movingAverage(6);
+  private LinearFilter filteredYawDegrees = LinearFilter.movingAverage(10);
 
   public Limelight() {
     System.out.println("-------- Start Limelight\n");

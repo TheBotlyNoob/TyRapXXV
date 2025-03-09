@@ -1,0 +1,25 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Player2Reef6"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef6Player2"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "PlayerReefPlayer",
+  "choreoAuto": false
+}

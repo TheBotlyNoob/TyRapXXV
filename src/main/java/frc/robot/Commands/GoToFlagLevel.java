@@ -5,6 +5,7 @@ import frc.robot.Subsystems.ElevatorSubsystem;
 
 public class GoToFlagLevel extends Command {
     ElevatorSubsystem el;
+
     public GoToFlagLevel(ElevatorSubsystem el) {
         this.el = el;
     }
@@ -16,9 +17,9 @@ public class GoToFlagLevel extends Command {
 
     @Override
     public boolean isFinished() {
-        if (Math.abs(el.getCurrentPosition() - el.getDesiredPosition()) < 0.2){
-            if (Math.abs(el.getCurrentVelocity()) < 0.2){
-                System.out.println("elevator has reached desired level");
+        if (Math.abs(el.getCurrentPosition() - el.getDesiredPosition()) < 0.3) {
+            if (Math.abs(el.getCurrentVelocity()) < 0.2) {
+                System.out.println("Elevator has reached desired level");
                 return true;
             }
         }

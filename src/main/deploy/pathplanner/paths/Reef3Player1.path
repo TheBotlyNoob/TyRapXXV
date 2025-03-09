@@ -1,0 +1,118 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 6.1,
+        "y": 4.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 7.147442286188305,
+        "y": 4.0
+      },
+      "isLocked": false,
+      "linkedName": "Reef3"
+    },
+    {
+      "anchor": {
+        "x": 6.631107954545453,
+        "y": 5.316321022727273
+      },
+      "prevControl": {
+        "x": 7.028051760579124,
+        "y": 4.935990747963194
+      },
+      "nextControl": {
+        "x": 6.234164148511783,
+        "y": 5.696651297491352
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.145340909090908,
+        "y": 6.572741477272728
+      },
+      "prevControl": {
+        "x": 6.002897727272726,
+        "y": 6.183849431818182
+      },
+      "nextControl": {
+        "x": 4.271918385343235,
+        "y": 6.968828435716441
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.3105681818181814,
+        "y": 6.911775568181818
+      },
+      "prevControl": {
+        "x": 3.739346590909091,
+        "y": 6.911775568181818
+      },
+      "nextControl": {
+        "x": 2.93573184563385,
+        "y": 6.911775568181818
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.4629829545454545,
+        "y": 6.722315340909091
+      },
+      "prevControl": {
+        "x": 2.722244318181818,
+        "y": 6.82203125
+      },
+      "nextControl": {
+        "x": 2.2296465529946894,
+        "y": 6.632570571081874
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.1992500000000001,
+        "y": 6.989
+      },
+      "prevControl": {
+        "x": 1.536150851002359,
+        "y": 6.492514535364945
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Player1"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -55.0
+  },
+  "reversed": false,
+  "folder": "ReefPlayer",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 180.0
+  },
+  "useDefaultConstraints": true
+}

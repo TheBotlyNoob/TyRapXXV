@@ -1,0 +1,102 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 2.8,
+        "y": 4.0
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.9999999999999998,
+        "y": 4.0
+      },
+      "isLocked": false,
+      "linkedName": "Reef6"
+    },
+    {
+      "anchor": {
+        "x": 2.3433238636363636,
+        "y": 5.077002840909091
+      },
+      "prevControl": {
+        "x": 2.2631331521554414,
+        "y": 4.622588809183867
+      },
+      "nextControl": {
+        "x": 2.4031534090909092,
+        "y": 5.416036931818183
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.3433238636363636,
+        "y": 5.95450284090909
+      },
+      "prevControl": {
+        "x": 2.3964565819704173,
+        "y": 5.595856992147584
+      },
+      "nextControl": {
+        "x": 2.3034375,
+        "y": 6.223735795459532
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.1438920454545456,
+        "y": 6.582713068181818
+      },
+      "prevControl": {
+        "x": 2.2934659090909095,
+        "y": 6.353366477272727
+      },
+      "nextControl": {
+        "x": 2.0073251003178143,
+        "y": 6.792115717391471
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.1992500000000001,
+        "y": 6.989
+      },
+      "prevControl": {
+        "x": 1.4811217822267342,
+        "y": 6.576025063249203
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Player1"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -55.0
+  },
+  "reversed": false,
+  "folder": "ReefPlayer",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 0.0
+  },
+  "useDefaultConstraints": true
+}

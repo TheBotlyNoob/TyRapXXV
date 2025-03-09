@@ -17,15 +17,16 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         m_container = new RobotContainer();
         FollowPathCommand.warmupCommand().schedule();
+        m_container.getDrivetrain().resetGyro();
     }
 
     @Override
     public void autonomousInit() {
         m_container.getDrivetrain().setFieldRelative(true);
-
         m_container.clearDefaultCommand();
         m_container.setAutoDefaultCommand();
-        m_container.getAutonomousCommand().schedule();
+        m_container.reinitialize();
+        m_container.startAutonomous();
     }
 
     @Override
@@ -33,8 +34,9 @@ public class Robot extends TimedRobot {
         m_container.getDrivetrain().setFieldRelative(true);
         m_container.clearDefaultCommand();
         m_container.setTeleDefaultCommand();
-        m_container.updateConstants();
+        m_container.reinitialize();
         m_container.configureBindings();
+        m_container.turnRumbleOff();
     }
 
     @Override
@@ -43,6 +45,11 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+    }
+
+    @Override
+    public void disabledInit() {
+        m_container.turnRumbleOff();
     }
 
     @Override
@@ -65,7 +72,7 @@ public class Robot extends TimedRobot {
        // m_container.getDrivetrain().setFieldRelative(true);
        //m_container.clearDefaultCommand();
         //m_container.setTeleDefaultCommand();
-        m_container.updateConstants();
+        m_container.reinitialize();
         m_container.configureTestBindings();
     }
     @Override

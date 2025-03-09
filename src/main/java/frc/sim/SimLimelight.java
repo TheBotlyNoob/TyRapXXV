@@ -11,16 +11,16 @@ import frc.robot.Constants.LimelightConstants;
 public class SimLimelight extends Limelight {
 
     protected Vector<SimTarget> targets;
-    protected SimDrivetrain drivetrain;
+    protected SimDrivetrain Drivetrain;
     protected Pose3d cameraPosOnBot = new Pose3d(0.3, 0.0, 0.0, new Rotation3d(0.0, 0.0, 0.0));
     protected boolean useErrors;
 
     protected final double SIGMA_ROTATION_DEG = 1.0;
     protected final double SIGMA_POSITION_METERS = 0.002;
 
-    public SimLimelight(SimDrivetrain drivetrain, Vector<SimTarget> targets, boolean useErrors)
+    public SimLimelight(SimDrivetrain Drivetrain, Vector<SimTarget> targets, boolean useErrors)
     {
-        this.drivetrain = drivetrain;
+        this.Drivetrain = Drivetrain;
         this.targets = targets;
         this.useErrors = useErrors;
     }
@@ -38,7 +38,7 @@ public class SimLimelight extends Limelight {
         // Calculate the target pose in the camera's reference frame
 
         // First get the camera position
-        Transform3d transformOriginToRobot = new Transform3d(new Pose3d(), drivetrain.getSimPose());
+        Transform3d transformOriginToRobot = new Transform3d(new Pose3d(), Drivetrain.getSimPose());
         //System.out.println("cameraTransform:" + transformOriginToRobot.toString());
 
         Pose3d cameraPose = cameraPosOnBot.plus(transformOriginToRobot);

@@ -1,0 +1,102 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 1.1797500000000003,
+        "y": 1.0804999999999996
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 1.638611149080837,
+        "y": 1.735821635431193
+      },
+      "isLocked": false,
+      "linkedName": "Player2"
+    },
+    {
+      "anchor": {
+        "x": 2.722244318181818,
+        "y": 1.5511987193867336
+      },
+      "prevControl": {
+        "x": 2.440963600561799,
+        "y": 1.5754600376711434
+      },
+      "nextControl": {
+        "x": 3.0014488636363637,
+        "y": 1.5271164772727275
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.9786647727272726,
+        "y": 1.5511987193867336
+      },
+      "prevControl": {
+        "x": 3.4800852272727263,
+        "y": 1.5656862311423367
+      },
+      "nextControl": {
+        "x": 4.578411630248036,
+        "y": 1.53377153103147
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.1054545454545455,
+        "y": 1.6567471590909089
+      },
+      "prevControl": {
+        "x": 4.8903557982578025,
+        "y": 1.5293402167588996
+      },
+      "nextControl": {
+        "x": 5.384659090909092,
+        "y": 1.8221251442496291
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.274971590909091,
+        "y": 2.7237073863636363
+      },
+      "prevControl": {
+        "x": 5.609230915202994,
+        "y": 2.1086702296628537
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": "Reef4"
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": 120.96375653207359
+  },
+  "reversed": false,
+  "folder": "PlayerReef",
+  "idealStartingState": {
+    "velocity": 0,
+    "rotation": 55.0
+  },
+  "useDefaultConstraints": true
+}

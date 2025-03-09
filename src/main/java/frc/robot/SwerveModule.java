@@ -10,6 +10,7 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.LimitSwitchConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -31,8 +32,8 @@ import frc.robot.Constants.*;
 
 public class SwerveModule {
 
-    private static final double kModuleMaxAngularVelocity = 8 * Math.PI;
-    private static final double kModuleMaxAngularAcceleration = 20 * Math.PI; // radians per second squared this was
+    private static final double kModuleMaxAngularVelocity = 32 * Math.PI;
+    private static final double kModuleMaxAngularAcceleration = 40 * Math.PI; // radians per second squared this was
                                                                               // 2PI
 
     /**
@@ -76,6 +77,7 @@ public class SwerveModule {
 
     private double m_turningLastSpeed = 0;
     private double m_turningLastTime = Timer.getFPGATimestamp();
+    private double actualTurnVelocityRps = 0.0;
 
     private final SimpleMotorFeedforward m_driveFeedforward;
     private final SimpleMotorFeedforward m_turnFeedforward;
@@ -151,7 +153,7 @@ public class SwerveModule {
          */
         m_turningMotor = new SparkMax(turningMotorChannel, MotorType.kBrushless);
         SparkMaxConfig turningConfig = new SparkMaxConfig();
-        turningConfig.inverted(DriveTrainConstants.kInvertTurn); //m_turningMotor.setInverted(true);
+        turningConfig.inverted(DrivetrainConstants.kInvertTurn); //m_turningMotor.setInverted(true);
         turningConfig.smartCurrentLimit(40); //m_turningMotor.setSmartCurrentLimit(40);
         turningConfig.idleMode(IdleMode.kBrake); //m_turningMotor.setIdleMode(IdleMode.kBrake);
         LimitSwitchConfig limitConfig = new LimitSwitchConfig();
@@ -198,6 +200,10 @@ public class SwerveModule {
 
     public SparkMax getTurnMotor() {
         return m_turningMotor;
+    }
+
+    public double getActualTurnRateRps() {
+        return actualTurnVelocityRps;
     }
 
     /**
@@ -256,18 +262,19 @@ public class SwerveModule {
     // and a ProfiledPIDController
     public void goToPosition(double goalPosition) {
         double targetVelocity = m_turningPIDController.getSetpoint().velocity;
+        double time = Timer.getFPGATimestamp();
         double targetAcceleration = (targetVelocity - this.m_turningLastSpeed)
-                / (Timer.getFPGATimestamp() - this.m_turningLastTime);
+                / (time - this.m_turningLastTime);
 
-        double actualVelocity = 2 * Math.PI * m_turningEncoder.getVelocity().getValueAsDouble();
+        actualTurnVelocityRps = 2 * Math.PI * m_turningEncoder.getVelocity().getValueAsDouble();
 
         double pidVal = m_turningPIDController.calculate(this.getActualTurningPosition(), goalPosition);
         double FFVal = m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity,
                 targetAcceleration);
 
         m_turningMotor.setVoltage(pidVal + FFVal);
-        this.m_turningLastSpeed = actualVelocity;
-        this.m_turningLastTime = Timer.getFPGATimestamp();
+        this.m_turningLastSpeed = actualTurnVelocityRps;
+        this.m_turningLastTime = time;
     }
 
     /**
@@ -291,13 +298,13 @@ public class SwerveModule {
 
         final double driveFeedforward = m_driveFeedforward.calculate(state.speedMetersPerSecond);
 
+        this.goToPosition(state.angle.getRadians());
+        
         if (desiredState.speedMetersPerSecond < 0.01) {
             m_driveMotor.setVoltage(0);
         } else {
             m_driveMotor.setVoltage(driveOutput + driveFeedforward);
         }
-
-        this.goToPosition(state.angle.getRadians());
         m_desiredState = state;
     }
     
@@ -308,4 +315,14 @@ public class SwerveModule {
     public SimpleMotorFeedforward getDriveFeedForward() {
         return m_driveFeedforward;
     }
+
+    public ProfiledPIDController getTurnPidController() {
+        return m_turningPIDController;
+    }
+
+    public SimpleMotorFeedforward getTurnFeedForward() {
+        return m_turnFeedforward;
+    }
+
+
 }

@@ -22,11 +22,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.TrapezoidController;
+import frc.robot.Utils.SafeableSubsystem;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.XboxController;
 
-public class ElevatorSubsystem extends SubsystemBase {
-    public enum ElevatorLevel{ 
+public class ElevatorSubsystem extends SafeableSubsystem {
+    public enum ElevatorLevel {
         /**
          * The ground level of the elevator, where the human player can load coral.
          */
@@ -131,9 +134,9 @@ public class ElevatorSubsystem extends SubsystemBase {
             }
         }
     }
-
     private ElevatorLevel m_level = ElevatorLevel.GROUND;
     private ElevatorLevel m_levelFlag = ElevatorLevel.GROUND;
+    protected boolean isAnyLevelSet = false;
 
     private final NetworkTable m_table;
     private final StringPublisher m_table_level;
@@ -269,16 +272,32 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public void setLevelFlag(ElevatorLevel level) {
         m_levelFlag = level;
+        isAnyLevelSet = true;
         System.out.println("Setting elevator level flag to: " + m_levelFlag);
     }
 
     public void setLevelUsingFlag() {
-        //m_level = m_levelFlag;
-        //m_table_level.set(m_level.toString());
+        // m_level = m_levelFlag;
+        // m_table_level.set(m_level.toString());
         this.setLevel(m_levelFlag);
         System.out.println("Moving elevator using the flag to: " + m_level);
     }
-  
+
+    public ElevatorLevel getLevelFlag() {
+        return m_levelFlag;
+    }
+
+    public boolean isValidAlgaeLevel(){
+        if(m_levelFlag == ElevatorLevel.LEVEL1 || m_levelFlag == ElevatorLevel.LEVEL3){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isAnyLevelSet(){
+        return isAnyLevelSet;
+    }
+
     public void levelUp() {
         int currentLevel = ElevatorLevel.toInt(m_level);
         if (currentLevel < ElevatorLevel.toInt(ElevatorLevel.LEVEL4)) {
@@ -313,13 +332,21 @@ public class ElevatorSubsystem extends SubsystemBase {
         return currentPosition;
     }
 
+    public void holdCurrentPosition(){
+        desiredPosition = currentPosition;
+    }
+
     public double getCurrentVelocity() {
         return currentVelocity;
     }
 
     public void resetEncoder() {
-        encoder.setPosition(0);
-        setLevel(ElevatorLevel.GROUND);
+        if (isAtBottom()) {
+            encoder.setPosition(0);
+            setLevel(ElevatorLevel.GROUND);
+        } else {
+            System.err.println("Tried to reset elevator encoder when not at ground level");
+        }
     }
 
     public void updateConstants() {
@@ -339,11 +366,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         outputVoltage = voltage;
         if (voltage > 0.0) {
             targetVelocity = 0.1;
-        } else if (voltage < 0.0)
-        {
+        } else if (voltage < 0.0) {
             targetVelocity = -0.1;
-        } else 
-        {
+        } else {
             targetVelocity = 0.0;
         }
         handleLimits();
@@ -392,6 +417,10 @@ public class ElevatorSubsystem extends SubsystemBase {
             outputVoltage = 0.4;
         }
     }
+    
+    public void makeSafe() {
+        setLevel(ElevatorLevel.GROUND);
+    }
 
     @Override
     public void periodic() {
@@ -412,11 +441,27 @@ public class ElevatorSubsystem extends SubsystemBase {
             }
 
             if (m_manualMode) {
+                if (currentPosition >= ElevatorLevel.LEVEL4.toHeight()){
+                    m_level = ElevatorLevel.LEVEL4;
+                } 
+                else if (currentPosition >= ElevatorLevel.LEVEL3.toHeight()){
+                    m_level = ElevatorLevel.LEVEL3;
+                }
+                else if (currentPosition >= ElevatorLevel.LEVEL2.toHeight()){
+                    m_level = ElevatorLevel.LEVEL2;
+                }
+                else if (currentPosition >= ElevatorLevel.LEVEL1.toHeight()){
+                    m_level = ElevatorLevel.LEVEL1;
+                }
+                else {
+                    m_level = ElevatorLevel.GROUND;
+                }
+                m_table_level.set(m_level.toString());
                 desiredPosition = currentPosition;
                 targetVelocity = m_manualSpeed;
             }
             // Enforce a velocity limit for safety until tuning complete
-            targetVelocity = MathUtil.clamp(targetVelocity, -1, 1.2);
+            targetVelocity = MathUtil.clamp(targetVelocity, -2, 1.8);
 
             double targetAcceleration = (targetVelocity - this.m_lastSpeed);
 
@@ -434,10 +479,10 @@ public class ElevatorSubsystem extends SubsystemBase {
             if (currentPosition < 1.0) {
                 outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 6.0);
             } else if (currentPosition > Constants.Elevator.kElevatorMaxPos - 1.5) {
-                outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 1.0);
+                outputVoltage = MathUtil.clamp(outputVoltage, -2.0, 1.0);
             }
             else {
-                outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 4.0);
+                outputVoltage = MathUtil.clamp(outputVoltage, -2.0, 6.0);
             }
             outputVoltagePostClampPub.set(outputVoltage);
             desiredVelocityPub.set(targetVelocity);
