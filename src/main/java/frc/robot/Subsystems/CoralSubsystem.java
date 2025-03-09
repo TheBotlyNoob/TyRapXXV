@@ -18,6 +18,7 @@ import frc.robot.Commands.EjectCoral;
 import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Utils.MotorPublisher;
+import frc.robot.Utils.SafeableSubsystem;
 import edu.wpi.first.networktables.DoubleEntry;
 
 /*
@@ -26,7 +27,7 @@ import edu.wpi.first.networktables.DoubleEntry;
  * IR sensor 
  * holde break logic
  */
-public class CoralSubsystem extends SubsystemBase {
+public class CoralSubsystem extends SafeableSubsystem {
     private final NetworkTable m_table;
 
     private final SparkMax m_wristMotor;
@@ -225,7 +226,7 @@ public class CoralSubsystem extends SubsystemBase {
                 timer.start();
             } else if (!irDetected) {
                 // We thought we were holding a piece but no longer see one
-                state = CoralState.INTAKING;
+                state = CoralState.WAITING;
             }
         } else if (state == CoralState.EJECTING) {
             m_coralGrabberMotor.set(0.5);
@@ -236,5 +237,11 @@ public class CoralSubsystem extends SubsystemBase {
         }
 
         lastWristEncoderVal = m_wristEncoder.getPosition();
+    }
+
+    @Override
+    public void makeSafe() {
+        retractManipulator();
+        stopMotorGrabber();
     }
 }
