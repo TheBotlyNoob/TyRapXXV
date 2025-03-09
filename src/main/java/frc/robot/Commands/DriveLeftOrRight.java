@@ -1,7 +1,10 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import frc.robot.Constants;
+import frc.robot.Constants.ID;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.LimelightHelpers;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.CoordinateUtilities;
@@ -24,6 +27,7 @@ public class DriveLeftOrRight extends DriveDistance {
     
     @Override
     public void initialize() {
+        LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.reefAprilIDs);
         if (ll.getTimeSinceValid() == 0) {
             double yDis = -1 * ll.getxDistanceMeters();
             yError = yDis - offsetGoal;
@@ -52,7 +56,7 @@ public class DriveLeftOrRight extends DriveDistance {
                 e.printStackTrace();
             }
         }
-        
+        LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.allAprilIDs);
     }
     
 }

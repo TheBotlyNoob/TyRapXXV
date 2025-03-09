@@ -2,7 +2,10 @@ package frc.robot.Commands;
 
 import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Vector;
+import frc.robot.Constants;
+import frc.robot.Constants.ID;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.LimelightHelpers;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.CoordinateUtilities;
@@ -26,6 +29,7 @@ public class DriveLeftOrRight2 extends DriveDistance2 {
     
     @Override
     public void initialize() {
+        LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.reefAprilIDs);
         double yDis = -1 * ll.getxDistanceMeters();
         yError = yDis - offsetGoal;
         try {
@@ -71,5 +75,6 @@ public class DriveLeftOrRight2 extends DriveDistance2 {
             System.out.println("Exception initializing DriveLeftOrRight");
             e.printStackTrace();
         }
+        LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.allAprilIDs);
     }
 }

@@ -7,25 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Starting6Reef4"
+            "pathName": "Starting2Reef2"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Reef4Player2"
+            "pathName": "Reef2Player1"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Player2Reef5"
+            "pathName": "Player1Reef1"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": null,
+  "folder": "MultiStepAutos",
   "choreoAuto": false
 }
