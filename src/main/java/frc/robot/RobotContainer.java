@@ -263,7 +263,7 @@ public class RobotContainer {
         // Triger Buttons
         Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
         Controller.kManipulatorController.rightBumper().onTrue(new ConditionalCommand(buildRemoveAlgaeCommand(),
-                new RumbleManip(.5), () -> m_elevator.isValidAlgaeLevel()));
+                new RumbleManip(.5), () -> (m_elevator.isValidAlgaeLevel() && m_leds.canSeeValidTag())));
 
         // Back Button and Start button for Climber Mode Toggle
         Controller.kManipulatorController.back()
@@ -512,7 +512,7 @@ public class RobotContainer {
         m_coral.reinit();
         String auto = autoChooser.getSelected();
         SequentialCommandGroup start;
-        if (auto.equals("BlueLeftTwoPiece")) { // For testing
+        if (auto.equals("BlueLeft2Piece")) { // For testing
             start = buildTwoPieceAuto("Starting2Reef2",
                     22, "Reef2Player1",
                     "Player1Reef1", 17, 0.16);
@@ -532,6 +532,8 @@ public class RobotContainer {
                     m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)), 
                     buildRemoveAlgaeAutoCommand());
             start.schedule();
+        } else {
+            System.err.println("Invalid auto routine specified");
         }
 
         /*
@@ -575,11 +577,12 @@ public class RobotContainer {
                 Optional<Alliance> ally = DriverStation.getAlliance();
                 waypoints = path.getWaypoints();
                 first = waypoints.get(0);
-                // if (ally.isPresent()) {
-                //     if (ally.get() == Alliance.Red) {
-                //         first.flip();
-                //     }
-                // }
+                if (ally.isPresent()) {
+                     if (ally.get() == Alliance.Red) {
+                        System.out.println("Flipping start location for red");
+                        first = first.flip();
+                     }
+                }
                 if (pose.isPresent()) {
                     m_swerve.resetStartingTranslation(first.anchor());
                     System.out.println(first.toString());

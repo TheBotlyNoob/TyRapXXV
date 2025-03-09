@@ -211,11 +211,14 @@ public class Drivetrain extends SubsystemBase {
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
             if (alliance.get() == DriverStation.Alliance.Blue) {
+                System.out.println("Initializing gyro to 180 for BLUE");
                 m_gyro.setYaw(180.0);
             } else {
+                System.out.println("Initializing gyro to 0 for RED");
                 m_gyro.setYaw(0);
             }
         } else {
+            System.out.println("Initializing gyro to 0 for default");
             m_gyro.setYaw(0);
         }
     }
@@ -244,16 +247,17 @@ public class Drivetrain extends SubsystemBase {
      * Resets robot position on the field
      */
     public void resetOdo() {
+        System.out.println("Calling resetOdo with no arguments");
         if (DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue1)
                 || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue2)
                 || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue3)) {
             m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
-                            new Rotation2d()));
+                            new Rotation2d(Math.PI)));
         } else {
             m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
-                            new Rotation2d(Math.PI)));
+                            new Rotation2d()));
         }
     }
 
@@ -264,6 +268,7 @@ public class Drivetrain extends SubsystemBase {
      */
     public void resetOdo(Pose2d pose) {
         if (pose != null) {
+            System.out.println("Calling resetOdo with pose " + pose);
             m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(), pose);
         }
     }
@@ -315,9 +320,12 @@ public class Drivetrain extends SubsystemBase {
         Rotation2d rot = Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
-            if (alliance.get() == DriverStation.Alliance.Blue) {
-                rot.rotateBy(Rotation2d.k180deg);
+            if (alliance.get() == DriverStation.Alliance.Red) {
+                rot = rot.rotateBy(Rotation2d.k180deg);
+            } else {
             }
+        } else {
+            System.err.println("Alliance not set");
         }
         return rot;
     }
@@ -352,7 +360,7 @@ public class Drivetrain extends SubsystemBase {
 
         ChassisSpeeds chassisSpeeds = fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
-                        getGyroYawRotation2d())
+                    getPlayerStationRelativeYaw2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
         driveChassisSpeeds(chassisSpeeds);
 
