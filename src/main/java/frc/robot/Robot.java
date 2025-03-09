@@ -17,6 +17,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         m_container = new RobotContainer();
         FollowPathCommand.warmupCommand().schedule();
+        m_container.getDrivetrain().resetGyro();
     }
 
     @Override

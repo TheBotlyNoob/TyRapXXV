@@ -136,7 +136,6 @@ public class Drivetrain extends SubsystemBase {
         // Zero at beginning of match. Zero = whatever direction the robot (more
         // specifically the gyro) is facing
         this.m_gyro = gyro;
-        this.resetGyro();
         m_driveTab.add("field", field);
 
         m_swerveModules.add(m_frontLeft);
@@ -205,7 +204,16 @@ public class Drivetrain extends SubsystemBase {
      * Resets Orientation of the robot
      */
     public void resetGyro() {
-        m_gyro.setYaw(0);
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            if (alliance.get() == DriverStation.Alliance.Blue) {
+                m_gyro.setYaw(180.0);
+            } else {
+                m_gyro.setYaw(0);
+            }
+        } else {
+            m_gyro.setYaw(0);
+        }
     }
 
     public SwerveModule getBackLeftSwerveModule() {
@@ -299,6 +307,17 @@ public class Drivetrain extends SubsystemBase {
         return Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
     }
 
+    public Rotation2d getPlayerStationRelativeYaw2d() {
+        Rotation2d rot = Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
+        var alliance = DriverStation.getAlliance();
+        if (alliance.isPresent()) {
+            if (alliance.get() == DriverStation.Alliance.Blue) {
+                rot.rotateBy(Rotation2d.k180deg);
+            }
+        }
+        return rot;
+    }
+
     public ChassisSpeeds getCommandeChassisSpeeds() {
         return commandedChassisSpeeds;
     }
@@ -372,7 +391,7 @@ public class Drivetrain extends SubsystemBase {
 
     /** Updates the field relative position of the robot. */
     public void updateOdometry() {
-                Rotation2d rotationYaw = getGyroYawRotation2d();
+        Rotation2d rotationYaw = getGyroYawRotation2d();
         m_odometry.update(
                 rotationYaw,
                 getModulePositions());

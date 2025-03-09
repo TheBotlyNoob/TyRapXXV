@@ -158,24 +158,24 @@ public class Constants {
         public static final double maxAngAccMSS = 8;
         public static final double maxAngDccMSS = 16;
         // For ProportionalController & DriveDistance as well
-        public static final double maxAccMSS = 1.5;
+        public static final double maxAccMSS = 3;
         public static final double maxDccMSS = 8;
         public static final double minVelocity = 0.05;
         public static final double maxVelocity = 5.0;
         public static final double offset = 0.0;
         public static final double proportion = 2;
         public static final double threshold = .02;
-        public static final double driveDistanceProp = 2;
+        public static final double driveDistanceProp = 3;
         // For DriveOffset
         public static final double driveOffsetXOffset = 0.7;
         public static final double driveOffsetYOffset = 0.17;
-        public static final double driveOffsetMaxAccMSS = 1.2;
-        public static final double driveOffsetMaxDccMSS = 3;
+        public static final double driveOffsetMaxAccMSS = 2.5;
+        public static final double driveOffsetMaxDccMSS = 8;
         public static final double driveOffsetMinVel = 0.1;
-        public static final double driveOffsetMaxVel = 1.5;
+        public static final double driveOffsetMaxVel = 3.0;
         public static final double driveOffsetAngleError = 0.02;
         public static final double driveOffsetRangeMThreshold = 0.01;
-        public static final double driveOffsetKp = 2.0;
+        public static final double driveOffsetKp = 3.0;
     }
     public static final class SensorID {
         public static final int kIRSensorPort = 7; 
