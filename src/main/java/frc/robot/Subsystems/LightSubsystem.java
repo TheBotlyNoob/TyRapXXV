@@ -25,9 +25,7 @@ public class LightSubsystem extends SubsystemBase {
     private static LEDPattern yellow = LEDPattern.solid(Color.kYellow);
     private static LEDPattern purple = LEDPattern.solid(Color.kPurple);
     private static LEDPattern gray = LEDPattern.solid(Color.kGray);
-    private static LEDPattern orange = LEDPattern.solid(Color.kOrange);<<<<<<<HEAD=======
-
-    >>>>>>>0d 2b7f2 (make color different when climb mode)
+    private static LEDPattern orange = LEDPattern.solid(Color.kOrange);
 
     private static final double[] validID = { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
 

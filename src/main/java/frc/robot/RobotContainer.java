@@ -147,8 +147,6 @@ public class RobotContainer {
         led.setLength(5);
         AddressableLEDBuffer ledBuf = new AddressableLEDBuffer(5);
 
-        this.m_leds = new LightSubsystem(led, ledBuf, m_Limelight, m_coral, m_elevator);
-
         // Xbox controllers return negative values when we push forward.
         this.m_driveCommand = new Drive(m_swerve);
         this.m_swerve.setDefaultCommand(this.m_driveCommand);
@@ -157,6 +155,8 @@ public class RobotContainer {
         this.m_safeable = m_safeable;
         this.m_climber = new ClimberSubsystem(m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
                 NetworkTableInstance.getDefault(), m_safeable);
+        
+        this.m_leds = new LightSubsystem(led, ledBuf, m_Limelight, m_coral, m_elevator, m_climber);
 
         autoChooser = new SendableChooser<>(); // Default auto will be `Commands.none()'
 
