@@ -15,6 +15,7 @@ public class LightSubsystem extends SubsystemBase {
     protected final Limelight ll;
     protected final CoralSubsystem coral;
     protected final ElevatorSubsystem elevator;
+    protected final ClimberSubsystem climber;
     protected final Timer timer;
     protected double lastRecordedTime;
     protected int counter;
@@ -24,12 +25,15 @@ public class LightSubsystem extends SubsystemBase {
     private static LEDPattern yellow = LEDPattern.solid(Color.kYellow);
     private static LEDPattern purple = LEDPattern.solid(Color.kPurple);
     private static LEDPattern gray = LEDPattern.solid(Color.kGray);
-    private static LEDPattern orange = LEDPattern.solid(Color.kOrange);
+    private static LEDPattern orange = LEDPattern.solid(Color.kOrange);<<<<<<<HEAD=======
+
+    >>>>>>>0d 2b7f2 (make color different when climb mode)
+
     private static final double[] validID = { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
 
     public LightSubsystem(AddressableLED leds, AddressableLEDBuffer ledBuf, Limelight ll,
             CoralSubsystem coral,
-            ElevatorSubsystem elevator) {
+            ElevatorSubsystem elevator, ClimberSubsystem climb) {
         leds.start();
         this.timer = new Timer();
         lastRecordedTime = timer.get();
@@ -41,6 +45,7 @@ public class LightSubsystem extends SubsystemBase {
         this.ll = ll;
         this.coral = coral;
         this.elevator = elevator;
+        this.climber = climb;
     }
 
     public boolean canSeeValidTag() {
@@ -56,28 +61,36 @@ public class LightSubsystem extends SubsystemBase {
 
     public void flashColor() {
         if (counter % 2 == 0) {
-            black.applyTo(ledBuf);
+            if (!climber.isClimbMode() && canSeeValidTag()) {
+                black.applyTo(ledBuf);
+            } else if (climber.isClimbMode()) {
+                blue.applyTo(ledBuf);
+            }
         }
     }
 
     @Override
     public void periodic() {
-        switch (elevator.getLevelFlag()) {
-            case LEVEL1:
-                gray.applyTo(ledBuf);
-                break;
-            case LEVEL2:
-                purple.applyTo(ledBuf);
-                break;
-            case LEVEL3:
-                yellow.applyTo(ledBuf);
-                break;
-            case LEVEL4:
-                blue.applyTo(ledBuf);
-                break;
-            case GROUND:
-                orange.applyTo(ledBuf);
-                break;
+        if (climber.isClimbMode()) {
+            orange.applyTo(ledBuf);
+        } else {
+            switch (elevator.getLevelFlag()) {
+                case LEVEL1:
+                    gray.applyTo(ledBuf);
+                    break;
+                case LEVEL2:
+                    purple.applyTo(ledBuf);
+                    break;
+                case LEVEL3:
+                    yellow.applyTo(ledBuf);
+                    break;
+                case LEVEL4:
+                    blue.applyTo(ledBuf);
+                    break;
+                case GROUND:
+                    orange.applyTo(ledBuf);
+                    break;
+            }
         }
 
         if (timer.get() - lastRecordedTime >= 0.25) {
@@ -85,9 +98,7 @@ public class LightSubsystem extends SubsystemBase {
             counter++;
         }
 
-        if (canSeeValidTag()) {
-            flashColor();
-        }
+        flashColor();
 
         led.setData(ledBuf);
     }
