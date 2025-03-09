@@ -24,7 +24,8 @@ public class LightSubsystem extends SubsystemBase {
     private static LEDPattern yellow = LEDPattern.solid(Color.kYellow);
     private static LEDPattern purple = LEDPattern.solid(Color.kPurple);
     private static LEDPattern gray = LEDPattern.solid(Color.kGray);
-    private static final double[] validID = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+    private static LEDPattern orange = LEDPattern.solid(Color.kOrange);
+    private static final double[] validID = { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
 
     public LightSubsystem(AddressableLED leds, AddressableLEDBuffer ledBuf, Limelight ll,
             CoralSubsystem coral,
@@ -44,24 +45,24 @@ public class LightSubsystem extends SubsystemBase {
 
     public boolean canSeeValidTag() {
         double id = LimelightHelpers.getFiducialID(Constants.ID.kFrontLimelightName);
-        for (int i = 0; i < validID.length; i++){
-            if (validID[i] == id){
-                //System.out.println("detected reef apriltag id: " + id);
+        for (int i = 0; i < validID.length; i++) {
+            if (validID[i] == id) {
+                // System.out.println("detected reef apriltag id: " + id);
                 return true;
             }
         }
         return false;
     }
 
-    public void flashColor(){
-        if (counter % 2 == 0){
+    public void flashColor() {
+        if (counter % 2 == 0) {
             black.applyTo(ledBuf);
         }
     }
 
     @Override
     public void periodic() {
-        switch (elevator.getLevelFlag()){
+        switch (elevator.getLevelFlag()) {
             case LEVEL1:
                 gray.applyTo(ledBuf);
                 break;
@@ -75,16 +76,16 @@ public class LightSubsystem extends SubsystemBase {
                 blue.applyTo(ledBuf);
                 break;
             case GROUND:
-                black.applyTo(ledBuf);
+                orange.applyTo(ledBuf);
                 break;
         }
 
-        if (timer.get() - lastRecordedTime >= 0.25){
+        if (timer.get() - lastRecordedTime >= 0.25) {
             lastRecordedTime = timer.get();
             counter++;
         }
 
-        if (canSeeValidTag()){
+        if (canSeeValidTag()) {
             flashColor();
         }
 
