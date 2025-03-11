@@ -128,7 +128,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(-90));
+        this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(0));
         this.m_swerve = new Drivetrain(m_gyro);
 
         SwerveModuleSB[] swerveModuleTelem = {
@@ -476,7 +476,8 @@ public class RobotContainer {
     public SequentialCommandGroup buildTwoPieceAuto(String pathToReef, int tag1,
             String pathToCoralStn, String pathCoralToReef, int tag2, double forwardDistM) {
         return new SequentialCommandGroup(
-                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)),
+                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                new StopDrive(m_swerve),
                 getAutonomousCommand(pathToReef, true),
                 new StationaryWait(m_swerve, 0.05),
                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
@@ -498,7 +499,7 @@ public class RobotContainer {
     public SequentialCommandGroup buildTwoPieceAutoBumpered(String pathToReef, int tag1,
             String pathToCoralStn, String pathCoralToReef, int tag2, double forwardDistM) {
         return new SequentialCommandGroup(
-                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(true)),
+                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                 getAutonomousCommand(pathToReef, true),
                 new StationaryWait(m_swerve, 0.5), // Testing purposes
                 buildScoreBumperedUpCommand(false, .25),
