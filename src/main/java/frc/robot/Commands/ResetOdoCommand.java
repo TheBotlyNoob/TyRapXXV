@@ -12,7 +12,6 @@ public class ResetOdoCommand extends InstantCommand {
     
     @Override
     public void execute() {
-        dt.resetGyro();
         dt.resetOdo();
     }
 }

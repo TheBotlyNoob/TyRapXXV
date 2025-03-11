@@ -9,6 +9,7 @@ import com.pathplanner.lib.commands.FollowPathCommand;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Commands.StopDrive;
 
 public class Robot extends TimedRobot {
     private RobotContainer m_container;
@@ -17,11 +18,12 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         m_container = new RobotContainer();
         FollowPathCommand.warmupCommand().schedule();
-        m_container.getDrivetrain().resetGyro();
     }
 
     @Override
     public void autonomousInit() {
+        m_container.getDrivetrain().resetGyro();
+        m_container.getDrivetrain().resetOdo();
         m_container.getDrivetrain().setFieldRelative(true);
         m_container.clearDefaultCommand();
         m_container.setAutoDefaultCommand();
@@ -31,6 +33,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
+        StopDrive stop = new StopDrive(m_container.getDrivetrain());
+        stop.schedule();
         m_container.getDrivetrain().setFieldRelative(true);
         m_container.clearDefaultCommand();
         m_container.setTeleDefaultCommand();

@@ -253,7 +253,7 @@ public class Drivetrain extends SubsystemBase {
                 || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue3)) {
             m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
-                            new Rotation2d(Math.PI)));
+                            new Rotation2d()));  
         } else {
             m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
