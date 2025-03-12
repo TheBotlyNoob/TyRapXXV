@@ -56,11 +56,19 @@ public class Constants {
         public static final double kWristMotorVoltageReverse = 8.0;
         // down -4.4
         // up +6
-        public static final double kCoralFeederMotorVoltage = .5;
+        public static final double kCoralEjectVoltage = .5;
+        public static final double kCoralEjectVoltageLevel4 = .5;
         public static final double kMaxEncoderPos = .255;
         public static final double kMinEncoderPos = .062;
-        public static final double kLimitEncoderPos = .037; //HARD STOP
+        //public static final double kLimitEncoderPos = .037; //HARD STOP
         public static final int wristCounterLimit = 5;
+        public static final int kWristMaxRolloverCount = 1;
+        public static final double kWristPropRetracting = 10.0;
+        public static final double kWristPropExtending = 8.0;
+        public static final double kWristMinPosition = 0.0;
+        public static final double kWristMaxPosition = kMaxEncoderPos + kWristMaxRolloverCount - kMinEncoderPos;
+        public static final double kWristPositionTolerance = 0.01; // Rotations
+        //public static final double kWristManualSpeedRotationsPerSec = 0.25;
     }
 
     public static class MechID {
