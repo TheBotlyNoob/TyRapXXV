@@ -494,8 +494,8 @@ public class RobotContainer {
                 autoChooser.addOption("OnePieceAuto", "OnePieceAuto"); // Permanent choice
                 autoChooser.addOption("Player1Reef1", "Player1Reef1"); // Testing
                 autoChooser.addOption("Reef2Player1", "Reef2Player1");
-                autoChooser.addOption("BlueLeft2Piece", "BlueLeft2Piece"); // Permanent choice
-                autoChooser.addOption("BlueRight2Piece", "BlueRight2Piece"); // Permanent choice
+                autoChooser.addOption("Left2Piece", "Left2Piece"); // Permanent choice
+                autoChooser.addOption("Right2Piece", "Right2Piece"); // Permanent choice
                 // For multi-step, create name to be name of multi-step, then have object be the
                 // name of the first step
                 // MultiStep example below
@@ -551,15 +551,32 @@ public class RobotContainer {
                 m_coral.reinit();
                 String auto = autoChooser.getSelected();
                 SequentialCommandGroup start;
-                if (auto.equals("BlueLeft2Piece")) { // For testing
+                Optional<Alliance> ally = DriverStation.getAlliance();
+                if (auto.equals("Left2Piece")) { // For testing
+                        int tag1 = 20;
+                        int tag2 = 19;
+                        if (ally.isPresent()) {
+                                if (ally.get() == Alliance.Red) {
+                                        tag1 = 11;
+                                        tag2 = 6;
+                                }
+                        }
                         start = buildTwoPieceAuto("Starting2Reef2",
-                                        22, "Reef2Player1",
-                                        "Player1Reef1", 17, 0.16);
+                                        tag1, "Reef2Player1",
+                                        "Player1Reef1", tag2, 0.16);
                         start.schedule();
-                } else if (auto.equals("BlueRight2Piece")) {
+                } else if (auto.equals("Right2Piece")) {
+                        int tag1 = 22;
+                        int tag2 = 17;
+                        if (ally.isPresent()) {
+                                if (ally.get() == Alliance.Red) {
+                                        tag1 = 9;
+                                        tag2 = 8;
+                                }
+                        }
                         start = buildTwoPieceAuto("Starting6Reef4",
-                                        22, "Reef4Player2",
-                                        "Player2Reef5", 17, 0.16);
+                                        tag1, "Reef4Player2",
+                                        "Player2Reef5", tag2, 0.16);
                         start.schedule();
                 } else if (auto.equals("OnePieceAuto")) {
                         m_elevator.setLevelFlag(ElevatorLevel.LEVEL4);
