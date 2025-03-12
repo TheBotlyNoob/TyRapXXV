@@ -114,7 +114,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             }
         }
 
-        public void setDashboard(double height){
+        public void setDashboard(double height) {
             switch (this) {
                 case GROUND:
                     ground = Constants.Elevator.Heights.kGround;
@@ -156,12 +156,14 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                     return String.format("GROUND (%.2f rotations)", ground);
             }
         }
+
         double ground = Constants.Elevator.Heights.kGround;
         double level1 = Constants.Elevator.Heights.kLevel1;
         double level2 = Constants.Elevator.Heights.kLevel2;
         double level3 = Constants.Elevator.Heights.kLevel3;
         double level4 = Constants.Elevator.Heights.kLevel4;
     }
+
     private ElevatorLevel m_level = ElevatorLevel.GROUND;
     private ElevatorLevel m_levelFlag = ElevatorLevel.GROUND;
     protected boolean isAnyLevelSet = false;
@@ -327,14 +329,14 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         return m_levelFlag;
     }
 
-    public boolean isValidAlgaeLevel(){
-        if(m_levelFlag == ElevatorLevel.LEVEL1 || m_levelFlag == ElevatorLevel.LEVEL3){
+    public boolean isValidAlgaeLevel() {
+        if (m_levelFlag == ElevatorLevel.LEVEL1 || m_levelFlag == ElevatorLevel.LEVEL3) {
             return true;
         }
         return false;
     }
 
-    public boolean isAnyLevelSet(){
+    public boolean isAnyLevelSet() {
         return isAnyLevelSet;
     }
 
@@ -372,7 +374,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         return currentPosition;
     }
 
-    public void holdCurrentPosition(){
+    public void holdCurrentPosition() {
         desiredPosition = currentPosition;
     }
 
@@ -461,7 +463,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             outputVoltage = 0.4;
         }
     }
-    
+
     public void makeSafe() {
         setLevel(ElevatorLevel.GROUND);
     }
@@ -485,19 +487,15 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             }
 
             if (m_manualMode) {
-                if (currentPosition >= ElevatorLevel.LEVEL4.toHeight()){
+                if (currentPosition >= ElevatorLevel.LEVEL4.toHeight()) {
                     m_level = ElevatorLevel.LEVEL4;
-                } 
-                else if (currentPosition >= ElevatorLevel.LEVEL3.toHeight()){
+                } else if (currentPosition >= ElevatorLevel.LEVEL3.toHeight()) {
                     m_level = ElevatorLevel.LEVEL3;
-                }
-                else if (currentPosition >= ElevatorLevel.LEVEL2.toHeight()){
+                } else if (currentPosition >= ElevatorLevel.LEVEL2.toHeight()) {
                     m_level = ElevatorLevel.LEVEL2;
-                }
-                else if (currentPosition >= ElevatorLevel.LEVEL1.toHeight()){
+                } else if (currentPosition >= ElevatorLevel.LEVEL1.toHeight()) {
                     m_level = ElevatorLevel.LEVEL1;
-                }
-                else {
+                } else {
                     m_level = ElevatorLevel.GROUND;
                 }
                 m_table_level.set(m_level.toString());
@@ -505,7 +503,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                 targetVelocity = m_manualSpeed;
             }
             // Enforce a velocity limit for safety until tuning complete
-            targetVelocity = MathUtil.clamp(targetVelocity, -2, 1.8);
+            targetVelocity = MathUtil.clamp(targetVelocity, -2.5, 1.8);
 
             double targetAcceleration = (targetVelocity - this.m_lastSpeed);
 
@@ -520,13 +518,12 @@ public class ElevatorSubsystem extends SafeableSubsystem {
 
             this.m_lastDesiredPosition = desiredPosition;
             outputVoltagePreClampPub.set(outputVoltage);
-            if (currentPosition < 1.0) {
+            if (currentPosition < 3) {
                 outputVoltage = MathUtil.clamp(outputVoltage, -1.0, 6.0);
             } else if (currentPosition > Constants.Elevator.kElevatorMaxPos - 1.5) {
                 outputVoltage = MathUtil.clamp(outputVoltage, -2.0, 1.0);
-            }
-            else {
-                outputVoltage = MathUtil.clamp(outputVoltage, -2.0, 6.0);
+            } else {
+                outputVoltage = MathUtil.clamp(outputVoltage, -4.0, 6.0);
             }
             outputVoltagePostClampPub.set(outputVoltage);
             desiredVelocityPub.set(targetVelocity);
