@@ -9,9 +9,10 @@ public class ResetOdoCommand extends InstantCommand {
     public ResetOdoCommand(Drivetrain dt) {
         this.dt = dt;
     }
-    
+
     @Override
     public void execute() {
+        dt.resetGyro();
         dt.resetOdo();
     }
 }
