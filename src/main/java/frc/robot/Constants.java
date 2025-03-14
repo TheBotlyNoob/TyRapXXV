@@ -63,6 +63,8 @@ public class Constants {
         public static final double kMinEncoderPos = .062;
         public static final double kLimitEncoderPos = .037; // HARD STOP
         public static final int wristCounterLimit = 5;
+
+        public static final double kHoldVoltage = 2.5;
     }
 
     public static class MechID {

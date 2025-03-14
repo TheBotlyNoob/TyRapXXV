@@ -15,24 +15,29 @@ public class MoveCoralManipulator extends Command {
 
     @Override
     public void initialize() {
-        //System.out.println("MoveCoralManipulator initialized");
+        // System.out.println("MoveCoralManipulator initialized");
     }
 
     @Override
     public void execute() {
         if (extend) {
             co.extendManipulator();
-            //System.out.println("Manipulator is being extended");
+            // System.out.println("Manipulator is being extended");
         } else {
             co.retractManipulator();
-            //System.out.println("Manipulator is being retracted");
+            // System.out.println("Manipulator is being retracted");
         }
     }
 
     @Override
     public void end(boolean interrupted) {
         co.stopMotorWrist();
-        //System.out.println("Manipulator stopped, holding position.");
+        System.out.println("Manipulator stopped, holding position. Extended?: " + extend);
+        if (extend) {
+            co.holdWristExtended();
+        } else {
+            co.holdWristRetracted();
+        }
     }
 
     @Override

@@ -120,11 +120,13 @@ public class CoralSubsystem extends SafeableSubsystem {
         double voltage = kWristMotorVoltageReverse.get();
         // double speed = kWristMotorSpeedReverse.get();
         // m_wristMotor.set(-speed);
-        /*if (m_wristEncoder.getPosition() <= Constants.Coral.kMinEncoderPos) {
-            stopMotorWrist();
-        } else {
-            m_wristMotor.setVoltage(-voltage);
-        }*/
+        /*
+         * if (m_wristEncoder.getPosition() <= Constants.Coral.kMinEncoderPos) {
+         * stopMotorWrist();
+         * } else {
+         * m_wristMotor.setVoltage(-voltage);
+         * }
+         */
 
         m_wristMotor.setVoltage(-voltage);
 
@@ -133,11 +135,13 @@ public class CoralSubsystem extends SafeableSubsystem {
     public void forwardMotor() {
         double voltage = kWristMotorVoltageForward.get();
         // double speed = kWristMotorSpeedForward.get();
-        /*if (m_wristEncoder.getPosition() >= Constants.Coral.kMaxEncoderPos) {
-            stopMotorWrist();
-        } else {
-            m_wristMotor.setVoltage(voltage);
-        }*/
+        /*
+         * if (m_wristEncoder.getPosition() >= Constants.Coral.kMaxEncoderPos) {
+         * stopMotorWrist();
+         * } else {
+         * m_wristMotor.setVoltage(voltage);
+         * }
+         */
 
         m_wristMotor.setVoltage(voltage);
 
@@ -152,6 +156,14 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     public void stopMotorGrabber() {
         m_coralGrabberMotor.set(0.0);
+    }
+
+    public void holdWristRetracted() {
+        m_coralGrabberMotor.set(-Constants.Coral.kHoldVoltage);
+    }
+
+    public void holdWristExtended() {
+        m_coralGrabberMotor.set(Constants.Coral.kHoldVoltage);
     }
 
     public void extendManipulator() {
