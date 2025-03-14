@@ -31,7 +31,6 @@ public class MoveCoralManipulator extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        co.stopMotorWrist();
         System.out.println("Manipulator stopped, holding position. Extended?: " + extend);
         if (extend) {
             co.holdWristExtended();
