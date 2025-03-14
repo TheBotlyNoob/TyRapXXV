@@ -195,13 +195,13 @@ public class CoralSubsystem extends SafeableSubsystem {
         m_irSensorPub.set(irDetected ? 1.0 : 0.0);
 
         if (lastWristEncoderVal == m_wristEncoder.getPosition()) {
-            counter++;
+            wristCounter++;
             if (counter >= Constants.Coral.wristCounterLimit) {
                 wristStopped = true;
             }
         } else {
             wristStopped = false;
-            counter = 0;
+            wristCounter = 0;
         }
 
         if (state == CoralState.WAITING) {
@@ -241,7 +241,8 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     @Override
     public void makeSafe() {
-        retractManipulator();
+        Command retract = this.wristRetractCommand();
+        retract.schedule();
         stopMotorGrabber();
     }
 }
