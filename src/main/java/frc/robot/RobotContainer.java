@@ -476,7 +476,7 @@ public class RobotContainer {
         public SequentialCommandGroup buildRemoveAlgaeAutoCommand() {
                 return new SequentialCommandGroup(
                                 new PrintCommand("Running remove algae"),
-                                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)),
+                                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
                                 new ParallelCommandGroup(
                                                 m_coral.wristExtendCommand(),
                                                 new DriveOffset(m_swerve, m_Limelight, .7, 0.0),
@@ -682,6 +682,10 @@ public class RobotContainer {
         public void turnRumbleOff() {
                 Controller.kManipulatorController.setRumble(RumbleType.kLeftRumble, 0.0);
                 Controller.kManipulatorController.setRumble(RumbleType.kRightRumble, 0.0);
+        }
+
+        public ElevatorSubsystem getElevator() {
+                return m_elevator;
         }
 
         public void setPIDConstants() {
