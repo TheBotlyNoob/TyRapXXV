@@ -513,11 +513,11 @@ public class RobotContainer {
                                 new StationaryWait(m_swerve, 0.05),
                                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
                                 buildScoreOffsetCommand(true),
-                                new StationaryWait(m_swerve, .4),
+                                new StationaryWait(m_swerve, .2),
                                 getAutonomousCommand(pathToCoralStn, false),
                                 new StopDrive(m_swerve),
-                                new StationaryWait(m_swerve, .05),
-                                new DriveDistance2(m_swerve, () -> .4, 180).withTimeout(0.5),
+                                //new StationaryWait(m_swerve, .05),
+                                new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
                                 new StopDrive(m_swerve),
                                 new StationaryWait(m_swerve, .4),
                                 getAutonomousCommand(pathCoralToReef, false),
@@ -548,7 +548,6 @@ public class RobotContainer {
         }
 
         public void startAutonomous() {
-                m_coral.reinit();
                 String auto = autoChooser.getSelected();
                 SequentialCommandGroup start;
                 Optional<Alliance> ally = DriverStation.getAlliance();
