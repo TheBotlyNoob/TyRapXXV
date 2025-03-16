@@ -425,7 +425,7 @@ public class RobotContainer {
                                                                 .withTimeout(1),
                                                 new StopDrive(m_swerve))),
                             new EjectCoral(m_coral),
-                            new StationaryWait(m_swerve, .5),
+                            new StationaryWait(m_swerve, .4),
                             new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
                             new StopDrive(m_swerve),
                             m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
@@ -530,10 +530,9 @@ public class RobotContainer {
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                                 new StopDrive(m_swerve),
                                 getAutonomousCommand(pathToReef, true),
-                                new StationaryWait(m_swerve, 0.05),
                                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
                                 buildScoreOffsetAutoCommand(true),
-                                new StationaryWait(m_swerve, .2),
+                                new StationaryWait(m_swerve, .1),
                                 getAutonomousCommand(pathToCoralStn, false),
                                 new StopDrive(m_swerve),
                                 //new StationaryWait(m_swerve, .05),
@@ -542,7 +541,7 @@ public class RobotContainer {
                                 new StationaryWait(m_swerve, .4),
                                 getAutonomousCommand(pathCoralToReef, false),
                                 new StopDrive(m_swerve),
-                                new StationaryWait(m_swerve, .05),
+                                //new StationaryWait(m_swerve, .05),
                                 buildScoreOffsetCommand(false),
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
         }
