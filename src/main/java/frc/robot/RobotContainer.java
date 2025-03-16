@@ -411,6 +411,26 @@ public class RobotContainer {
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
 
+        protected SequentialCommandGroup buildScoreOffsetAutoCommand(boolean isLeft) {
+            return new SequentialCommandGroup(
+                            new PrintCommand("Running offset score routine"),
+                            new DriveOffset(m_swerve, m_Limelight, isLeft),
+                            new ParallelCommandGroup(
+                                        new GoToFlagLevel(m_elevator),
+                                        new SequentialCommandGroup(
+                                                new DriveDistance2(m_swerve,
+                                                    () -> (m_Limelight.getzDistanceMeters()
+                                                                        - .42),
+                                                                0)
+                                                                .withTimeout(1),
+                                                new StopDrive(m_swerve))),
+                            new EjectCoral(m_coral),
+                            new StationaryWait(m_swerve, .5),
+                            new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                            new StopDrive(m_swerve),
+                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
+    }
+
         protected SequentialCommandGroup buildScoreBumperedUpCommand(boolean isLeft, double forwardTimeout) {
                 return new SequentialCommandGroup(
                                 new PrintCommand("Running drive left right score"),
@@ -512,7 +532,7 @@ public class RobotContainer {
                                 getAutonomousCommand(pathToReef, true),
                                 new StationaryWait(m_swerve, 0.05),
                                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
-                                buildScoreOffsetCommand(true),
+                                buildScoreOffsetAutoCommand(true),
                                 new StationaryWait(m_swerve, .2),
                                 getAutonomousCommand(pathToCoralStn, false),
                                 new StopDrive(m_swerve),
