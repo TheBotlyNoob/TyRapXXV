@@ -176,7 +176,6 @@ public class RobotContainer {
 
                 m_competitionTab.add("Drivetrain", this.m_swerve);
 
-                // configureBindings();
                 NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
 
                 this.m_scoreLeft = new SequentialCommandGroup(
