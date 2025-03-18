@@ -17,12 +17,13 @@ import com.pathplanner.lib.util.FileVersionException;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.hal.AllianceStationID;
+import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
@@ -36,7 +37,6 @@ import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.*;
@@ -50,7 +50,6 @@ import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.SafeableSubsystem;
 import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Commands.AlgaeIntake;
-import frc.robot.Commands.CenterOnTag;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveDistance2;
@@ -118,6 +117,8 @@ public class RobotContainer {
         private GenericEntry m_fixedSpeed = m_competitionTab.add("Fixed Speed", 0).getEntry();
         private SwerveModuleSB[] mSwerveModuleTelem;
 
+        protected UsbCamera climbCamera;
+
         Command m_driveCommand;
 
         boolean bindingsConfigured = false;
@@ -142,7 +143,9 @@ public class RobotContainer {
 
                 this.m_Limelight = new Limelight();
                 this.m_Limelight.setLimelightPipeline(LimelightConstants.defaultPipeline);
-                CameraServer.startAutomaticCapture(); // Start USB webcam capture for climb
+                climbCamera = CameraServer.startAutomaticCapture(); // Start USB webcam capture for climb
+                climbCamera.setFPS(18);
+                climbCamera.setPixelFormat(PixelFormat.kMJPEG);
                 this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
 
                 // this.m_range = new RangeSensor(0);
@@ -408,6 +411,26 @@ public class RobotContainer {
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
 
+        protected SequentialCommandGroup buildScoreOffsetAutoCommand(boolean isLeft) {
+            return new SequentialCommandGroup(
+                            new PrintCommand("Running offset score routine"),
+                            new DriveOffset(m_swerve, m_Limelight, isLeft),
+                            new ParallelCommandGroup(
+                                        new GoToFlagLevel(m_elevator),
+                                        new SequentialCommandGroup(
+                                                new DriveDistance2(m_swerve,
+                                                    () -> (m_Limelight.getzDistanceMeters()
+                                                                        - .42),
+                                                                0)
+                                                                .withTimeout(1),
+                                                new StopDrive(m_swerve))),
+                            new EjectCoral(m_coral),
+                            new StationaryWait(m_swerve, .4),
+                            new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                            new StopDrive(m_swerve),
+                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
+    }
+
         protected SequentialCommandGroup buildScoreBumperedUpCommand(boolean isLeft, double forwardTimeout) {
                 return new SequentialCommandGroup(
                                 new PrintCommand("Running drive left right score"),
@@ -473,7 +496,7 @@ public class RobotContainer {
         public SequentialCommandGroup buildRemoveAlgaeAutoCommand() {
                 return new SequentialCommandGroup(
                                 new PrintCommand("Running remove algae"),
-                                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)),
+                                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
                                 new ParallelCommandGroup(
                                                 m_coral.wristExtendCommand(),
                                                 new DriveOffset(m_swerve, m_Limelight, .7, 0.0),
@@ -489,11 +512,8 @@ public class RobotContainer {
         }
 
         private void configurePathPlanner() {
-                autoChooser.addOption("Starting2Reef2", "Starting2Reef2"); // Testing
-                autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
+                //autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
                 autoChooser.addOption("OnePieceAuto", "OnePieceAuto"); // Permanent choice
-                autoChooser.addOption("Player1Reef1", "Player1Reef1"); // Testing
-                autoChooser.addOption("Reef2Player1", "Reef2Player1");
                 autoChooser.addOption("Left2Piece", "Left2Piece"); // Permanent choice
                 autoChooser.addOption("Right2Piece", "Right2Piece"); // Permanent choice
                 // For multi-step, create name to be name of multi-step, then have object be the
@@ -510,19 +530,18 @@ public class RobotContainer {
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                                 new StopDrive(m_swerve),
                                 getAutonomousCommand(pathToReef, true),
-                                new StationaryWait(m_swerve, 0.05),
                                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
-                                buildScoreOffsetCommand(true),
-                                new StationaryWait(m_swerve, .4),
+                                buildScoreOffsetAutoCommand(true),
+                                new StationaryWait(m_swerve, .1),
                                 getAutonomousCommand(pathToCoralStn, false),
                                 new StopDrive(m_swerve),
-                                new StationaryWait(m_swerve, .05),
-                                new DriveDistance2(m_swerve, () -> .15, 180).withTimeout(0.3),
+                                //new StationaryWait(m_swerve, .05),
+                                new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
                                 new StopDrive(m_swerve),
-                                new StationaryWait(m_swerve, .5),
+                                new StationaryWait(m_swerve, .4),
                                 getAutonomousCommand(pathCoralToReef, false),
                                 new StopDrive(m_swerve),
-                                new StationaryWait(m_swerve, .05),
+                                //new StationaryWait(m_swerve, .05),
                                 buildScoreOffsetCommand(false),
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
         }
@@ -548,7 +567,6 @@ public class RobotContainer {
         }
 
         public void startAutonomous() {
-                m_coral.reinit();
                 String auto = autoChooser.getSelected();
                 SequentialCommandGroup start;
                 Optional<Alliance> ally = DriverStation.getAlliance();
@@ -579,9 +597,9 @@ public class RobotContainer {
                                         "Player2Reef5", tag2, 0.16);
                         start.schedule();
                 } else if (auto.equals("OnePieceAuto")) {
-                        m_elevator.setLevelFlag(ElevatorLevel.LEVEL4);
                         start = new SequentialCommandGroup(
                                         m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                                        m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
                                         getAutonomousCommand("OnePieceAuto", true),
                                         new StationaryWait(m_swerve, .2),
                                         // buildScoreBumperedUpAutoCommand(false, 1.5),
@@ -683,6 +701,10 @@ public class RobotContainer {
         public void turnRumbleOff() {
                 Controller.kManipulatorController.setRumble(RumbleType.kLeftRumble, 0.0);
                 Controller.kManipulatorController.setRumble(RumbleType.kRightRumble, 0.0);
+        }
+
+        public ElevatorSubsystem getElevator() {
+                return m_elevator;
         }
 
         public void setPIDConstants() {

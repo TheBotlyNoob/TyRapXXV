@@ -67,6 +67,7 @@ public class CoralSubsystem extends SafeableSubsystem {
     };
 
     protected CoralState state = CoralState.WAITING;
+    protected boolean enabled = false;
 
     public CoralSubsystem(NetworkTableInstance nt, ElevatorSubsystem el) {
         this.el = el;
@@ -179,6 +180,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         } else {
             state = CoralState.WAITING;
         }
+        enabled = true;
     }
 
     public CoralState getState() {
@@ -194,14 +196,18 @@ public class CoralSubsystem extends SafeableSubsystem {
         boolean irDetected = !m_irSensor.get();
         m_irSensorPub.set(irDetected ? 1.0 : 0.0);
 
+        if (!enabled) {
+            return;
+        }
+
         if (lastWristEncoderVal == m_wristEncoder.getPosition()) {
-            counter++;
+            wristCounter++;
             if (counter >= Constants.Coral.wristCounterLimit) {
                 wristStopped = true;
             }
         } else {
             wristStopped = false;
-            counter = 0;
+            wristCounter = 0;
         }
 
         if (state == CoralState.WAITING) {
@@ -241,7 +247,8 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     @Override
     public void makeSafe() {
-        retractManipulator();
+        Command retract = this.wristRetractCommand();
+        retract.schedule();
         stopMotorGrabber();
     }
 }
