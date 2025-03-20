@@ -167,6 +167,7 @@ task(eventDeploy) {
 createVersionFile.dependsOn(eventDeploy)
 */
 
+project.compileJava.dependsOn(createVersionFile)
 // Create version file
 gversion {
     srcDir       = "src/main/java/"

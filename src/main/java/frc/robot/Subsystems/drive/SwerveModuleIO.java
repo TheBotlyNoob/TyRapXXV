@@ -40,6 +40,10 @@ public interface SwerveModuleIO {
          * The distance the wheel thinks it has gone accross the floor.
          */
         public Distance drivingMotorDistance = Units.Meters.of(0.0);
+
+        public Voltage driveMotorAppliedVoltage = Units.Volts.of(0.0);
+
+        public Voltage turningMotorAppliedVoltage = Units.Volts.of(0.0);
     }
 
     /** Updates the set of loggable inputs. */

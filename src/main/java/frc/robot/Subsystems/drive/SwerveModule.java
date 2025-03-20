@@ -56,7 +56,7 @@ public class SwerveModule {
     private final SimpleMotorFeedforward m_turnFeedforward;
 
     protected final SwerveModuleIO m_io;
-    protected final SwerveModuleIO.SwerveModuleIOInputsAutoLogged m_inputs = new SwerveModuleIO.SwerveModuleIOInputsAutoLogged();
+    protected final SwerveModuleIOInputsAutoLogged m_inputs = new SwerveModuleIOInputsAutoLogged();
 
     private SwerveModuleState m_desiredState = new SwerveModuleState();
 

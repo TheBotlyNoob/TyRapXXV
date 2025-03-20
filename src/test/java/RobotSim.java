@@ -27,7 +27,7 @@ public class RobotSim {
     protected double TOLERANCE_METERS = 0.01;
     protected double TOLERANCE_DEGREES = 0.5;
 
-    SimDrivetrain m_drive = new SimDrivetrain();
+    SimDrivetrain m_drive;
     SimLimelight m_limelight;
     // SimElevator m_elevator = new SimElevator();
     // SimCoralManipulator m_CoralManipulator = new SimCoralManipulator(m_elevator);

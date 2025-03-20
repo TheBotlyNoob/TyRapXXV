@@ -13,7 +13,10 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     private final SwerveModuleSimulation m_simulator;
 
     private final GenericMotorController m_driveMotor;
+    private Voltage driveVolts = Units.Volts.of(0.0);
+
     private final GenericMotorController m_turningMotor;
+    private Voltage turnVolts = Units.Volts.of(0.0);
 
     public SwerveModuleIOSim(SwerveModuleSimulation module) {
         m_simulator = module;
@@ -29,18 +32,22 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
         inputs.driveMotorAngularVelocity = m_simulator.getDriveWheelFinalSpeed();
         inputs.drivingMotorDistance = Units.Meters.of(m_simulator.getDriveWheelFinalPosition().in(Units.Rotations)
                 * Constants.Modules.kDriveEncoderRot2Meter);
+        inputs.driveMotorAppliedVoltage = driveVolts;
         inputs.drivingMotorPosition = m_simulator.getDriveWheelFinalPosition();
         inputs.turningMotorPosition = m_simulator.getSteerAbsoluteAngle();
         inputs.turningMotorAngularVelocity = m_simulator.getSteerAbsoluteEncoderSpeed();
+        inputs.turningMotorAppliedVoltage = turnVolts;
     }
 
     @Override
     public void setDriveVoltage(Voltage voltage) {
+        driveVolts = voltage;
         m_driveMotor.requestVoltage(voltage);
     }
 
     @Override
     public void setTurnVoltage(Voltage voltage) {
+        turnVolts = voltage;
         m_turningMotor.requestVoltage(voltage);
     }
 }

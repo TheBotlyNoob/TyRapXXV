@@ -17,18 +17,22 @@ import com.pathplanner.lib.util.FileVersionException;
 import com.revrobotics.AbsoluteEncoder;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -45,7 +49,13 @@ import frc.robot.Subsystems.AlgaeGrabberSubsystem;
 import frc.robot.Subsystems.LightSubsystem;
 import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.drive.Drivetrain;
+import frc.robot.Subsystems.drive.GyroIO;
+import frc.robot.Subsystems.drive.GyroIOPigeon2;
+import frc.robot.Subsystems.drive.GyroIOSim;
 import frc.robot.Subsystems.drive.SwerveModule;
+import frc.robot.Subsystems.drive.SwerveModuleIO;
+import frc.robot.Subsystems.drive.SwerveModuleIOSim;
+import frc.robot.Subsystems.drive.SwerveModuleIOSpark;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
@@ -68,7 +78,16 @@ import frc.robot.Commands.RotateWheels;
 import frc.robot.Commands.StationaryWait;
 import frc.robot.Commands.StopCoral;
 import frc.robot.Commands.StopDrive;
+
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.json.simple.parser.ParseException;
+import org.littletonrobotics.junction.Logger;
+
 import frc.robot.Commands.RumbleManip;
 import frc.robot.Commands.StopElevator;
 
@@ -128,12 +147,77 @@ public class RobotContainer {
     SequentialCommandGroup m_scoreLeft;
     SequentialCommandGroup m_scoreRight;
 
+    Optional<SwerveDriveSimulation> driveSim = Optional.empty();
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
         this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(0));
-        this.m_swerve = new Drivetrain(m_gyro);
+        switch (Constants.RobotMode.currentMode) {
+            case REAL:
+                this.m_swerve = new Drivetrain(new GyroIOPigeon2(m_gyro),
+                        new SwerveModuleIOSpark(ID.kFrontLeftDrive, ID.kFrontLeftTurn, ID.kFrontLeftCANCoder,
+                                Offsets.kFrontLeftOffset, DrivetrainConstants.sparkFlex, true),
+                        new SwerveModuleIOSpark(ID.kFrontRightDrive, ID.kFrontRightTurn, ID.kFrontRightCANCoder,
+                                Offsets.kBackRightOffset,
+                                DrivetrainConstants.sparkFlex, false),
+                        new SwerveModuleIOSpark(ID.kBackLeftDrive, ID.kBackLeftTurn, ID.kBackLeftCANCoder,
+                                Offsets.kBackLeftOffset,
+                                DrivetrainConstants.sparkFlex, false),
+                        new SwerveModuleIOSpark(ID.kBackRightDrive, ID.kBackRightTurn, ID.kBackRightCANCoder,
+                                Offsets.kBackLeftOffset,
+                                DrivetrainConstants.sparkFlex, false));
+                break;
+            case SIM:
+                final DriveTrainSimulationConfig simConf = DriveTrainSimulationConfig.Default()
+                        .withGyro(COTS.ofPigeon2())
+                        .withSwerveModule(new SwerveModuleSimulationConfig(
+                                DCMotor.getNeoVortex(1), // drive motor
+                                DCMotor.getNEO(1), // steer motor
+                                1 / Constants.Modules.kDriveMotorGearRatio, // drive motor gear ratio
+                                12.8, // steer motor gear ratio
+                                Units.Volts.of(0.1), // drive friction, in voltage
+                                Units.Volts.of(0.1), // steer friction, in voltage
+                                Units.Meters.of(Constants.Modules.kWheelDiameterMeters / 2), // wheel radius
+                                Units.KilogramSquareMeters.of(0.03), // steer rotational inertia
+                                1.2 // wheel coefficient of friction
+                        ))
+                        .withBumperSize(Units.Meters.of(Constants.Modules.kBumperLengthMeters),
+                                Units.Meters.of(Constants.Modules.kBumperWidthMeters))
+                        .withTrackLengthTrackWidth(Units.Inches.of(24), Units.Inches.of(24));
+
+                Pose2d initialPose = new Pose2d(6, 3, new Rotation2d());
+
+                final SwerveDriveSimulation sim = new SwerveDriveSimulation(simConf, initialPose);
+
+                SimulatedArena.getInstance().addDriveTrainSimulation(sim);
+
+                this.m_swerve = new Drivetrain(new GyroIOSim(sim.getGyroSimulation()),
+                        new SwerveModuleIOSim(sim.getModules()[0]),
+                        new SwerveModuleIOSim(sim.getModules()[1]),
+                        new SwerveModuleIOSim(sim.getModules()[2]),
+                        new SwerveModuleIOSim(sim.getModules()[3]));
+                this.m_swerve.resetOdo(initialPose);
+                driveSim = Optional.of(sim);
+
+                break;
+            case REPLAY:
+            default:
+                m_swerve = new Drivetrain(
+                        new GyroIO() {
+                        },
+                        new SwerveModuleIO() {
+                        },
+                        new SwerveModuleIO() {
+                        },
+                        new SwerveModuleIO() {
+                        },
+                        new SwerveModuleIO() {
+                        });
+                break;
+
+        }
 
         this.m_Limelight = new Limelight();
         this.m_Limelight.setLimelightPipeline(LimelightConstants.defaultPipeline);
@@ -717,6 +801,20 @@ public class RobotContainer {
             m.getTurnFeedForward().setKs(m_turnFFStatic.getDouble(DrivetrainConstants.turnFeedForward[0]));
             m.getTurnFeedForward().setKv(m_turnFFVel.getDouble(DrivetrainConstants.turnFeedForward[1]));
         }
+    }
+
+    public void simulationPeriodic() {
+        if (Constants.RobotMode.currentMode == Constants.RobotMode.Mode.SIM) {
+            SimulatedArena.getInstance().simulationPeriodic();
+            Logger.recordOutput(
+                    "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+            Logger.recordOutput(
+                    "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
+            if (driveSim.isPresent()) {
+                Logger.recordOutput("FieldSimulation/SimPose", driveSim.get().getSimulatedDriveTrainPose());
+            }
+        }
+
     }
 
     public void reportTelemetry() {

@@ -189,3 +189,5 @@ compile_commands.json
 .devenv/
 .direnv/
 .apt_generated/
+
+src/main/java/frc/robot/BuildConstants.java

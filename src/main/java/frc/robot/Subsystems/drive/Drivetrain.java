@@ -9,6 +9,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
@@ -25,18 +29,19 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 
 public class Drivetrain extends SubsystemBase {
@@ -56,59 +61,15 @@ public class Drivetrain extends SubsystemBase {
             DrivetrainConstants.kDistanceMiddleToFrontMotor * DrivetrainConstants.kXBackward,
             DrivetrainConstants.kDistanceMiddleToSideMotor * DrivetrainConstants.kYRight);
 
-    protected final SwerveModule m_frontLeft = new SwerveModule(new SwerveModuleIOSpark(
-            ID.kFrontLeftDrive,
-            ID.kFrontLeftTurn,
-            ID.kFrontLeftCANCoder,
-            Offsets.kFrontLeftOffset,
-            DrivetrainConstants.sparkFlex,
-            true), // Pass inverstion value
-            "FrontLeft",
-            DrivetrainConstants.turnPID,
-            DrivetrainConstants.drivePID,
-            DrivetrainConstants.turnFeedForward,
-            DrivetrainConstants.driveFeedForward);
+    protected final SwerveModule m_frontLeft;
+    protected final SwerveModule m_frontRight;
+    protected final SwerveModule m_backLeft;
+    protected final SwerveModule m_backRight;
 
-    protected final SwerveModule m_frontRight = new SwerveModule(new SwerveModuleIOSpark(
-            ID.kFrontRightDrive,
-            ID.kFrontRightTurn,
-            ID.kFrontRightCANCoder,
-            Offsets.kFrontRightOffset,
-            DrivetrainConstants.sparkFlex,
-            false),
-            "FrontRight",
-            DrivetrainConstants.turnPID,
-            DrivetrainConstants.drivePID,
-            DrivetrainConstants.turnFeedForward,
-            DrivetrainConstants.driveFeedForward);
-    protected final SwerveModule m_backLeft = new SwerveModule(new SwerveModuleIOSpark(
-            ID.kBackLeftDrive,
-            ID.kBackLeftTurn,
-            ID.kBackLeftCANCoder,
-            Offsets.kBackLeftOffset,
-            DrivetrainConstants.sparkFlex,
-            false),
-            "BackLeft",
-            DrivetrainConstants.turnPID,
-            DrivetrainConstants.drivePID,
-            DrivetrainConstants.turnFeedForward,
-            DrivetrainConstants.driveFeedForward);
-
-    protected final SwerveModule m_backRight = new SwerveModule(new SwerveModuleIOSpark(
-            ID.kBackRightDrive,
-            ID.kBackRightTurn,
-            ID.kBackRightCANCoder,
-            Offsets.kBackRightOffset,
-            DrivetrainConstants.sparkFlex,
-            true),
-            "BackRight",
-            DrivetrainConstants.turnPID,
-            DrivetrainConstants.drivePID,
-            DrivetrainConstants.turnFeedForward,
-            DrivetrainConstants.driveFeedForward);
     protected final SwerveModule[] m_swerveModules = new SwerveModule[4];
 
-    protected final Pigeon2 m_gyro;
+    protected final GyroIO m_gyroIo;
+    protected final GyroIOInputsAutoLogged m_gyroInputs = new GyroIOInputsAutoLogged();
 
     protected boolean fieldRelative = true;
     protected final ShuffleboardTab m_driveTab = Shuffleboard.getTab("drive subsystem");
@@ -127,6 +88,7 @@ public class Drivetrain extends SubsystemBase {
 
     protected final SwerveDrivePoseEstimator m_odometry;
     protected int counter = 0;
+
     protected boolean enableVisionPoseInputs;
 
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
@@ -134,13 +96,25 @@ public class Drivetrain extends SubsystemBase {
 
     protected ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    protected final Field2d field = new Field2d();
+    private SwerveModule makeSwerveMod(String name, SwerveModuleIO io) {
+        return new SwerveModule(io,
+                name,
+                DrivetrainConstants.turnPID,
+                DrivetrainConstants.drivePID,
+                DrivetrainConstants.turnFeedForward,
+                DrivetrainConstants.driveFeedForward);
+    }
 
-    public Drivetrain(Pigeon2 gyro) {
+    public Drivetrain(GyroIO gyro, SwerveModuleIO frontLeft, SwerveModuleIO frontRight, SwerveModuleIO backLeft,
+            SwerveModuleIO backRight) {
         // Zero at beginning of match. Zero = whatever direction the robot (more
         // specifically the gyro) is facing
-        this.m_gyro = gyro;
-        m_driveTab.add("field", field);
+        this.m_gyroIo = gyro;
+
+        m_frontLeft = makeSwerveMod("FrontLeft", frontLeft);
+        m_frontRight = makeSwerveMod("FrontRight", frontRight);
+        m_backLeft = makeSwerveMod("BackLeft", backLeft);
+        m_backRight = makeSwerveMod("BackRight", backRight);
 
         m_swerveModules[0] = m_frontLeft;
         m_swerveModules[1] = m_frontRight;
@@ -198,10 +172,6 @@ public class Drivetrain extends SubsystemBase {
         m_odometry.resetTranslation(newTranslation);
     }
 
-    public Pigeon2 getGyro() {
-        return m_gyro;
-    }
-
     /**
      * Resets Orientation of the robot
      */
@@ -210,14 +180,14 @@ public class Drivetrain extends SubsystemBase {
         if (alliance.isPresent()) {
             if (alliance.get() == DriverStation.Alliance.Blue) {
                 System.out.println("Initializing gyro to 180 for BLUE");
-                m_gyro.setYaw(180.0);
+                m_gyroIo.setYaw(Rotation2d.fromDegrees(180.0));
             } else {
                 System.out.println("Initializing gyro to 0 for RED");
-                m_gyro.setYaw(0);
+                m_gyroIo.setYaw(Rotation2d.fromDegrees(0.0));
             }
         } else {
             System.out.println("Initializing gyro to 0 for default");
-            m_gyro.setYaw(0);
+            m_gyroIo.setYaw(Rotation2d.fromDegrees(0.0));
         }
     }
 
@@ -311,11 +281,11 @@ public class Drivetrain extends SubsystemBase {
      * @return chasis angle in Rotation2d
      */
     public Rotation2d getGyroYawRotation2d() {
-        return Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
+        return m_gyroInputs.yawPosition;
     }
 
     public Rotation2d getPlayerStationRelativeYaw2d() {
-        Rotation2d rot = Rotation2d.fromDegrees(m_gyro.getYaw().getValueAsDouble());
+        Rotation2d rot = m_gyroInputs.yawPosition;
         var alliance = DriverStation.getAlliance();
         if (alliance.isPresent()) {
             if (alliance.get() == DriverStation.Alliance.Red) {
@@ -368,10 +338,12 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void driveChassisSpeeds(ChassisSpeeds chassisSpeeds) {
-        m_driveCommandedRotationSpeed.setDouble(Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
+        m_driveCommandedRotationSpeed
+                .setDouble(Units.RadiansPerSecond.of(chassisSpeeds.omegaRadiansPerSecond).in(Units.DegreesPerSecond));
         commandedChassisSpeeds = chassisSpeeds;
     }
 
+    @AutoLogOutput
     public Pose2d getRoboPose2d() {
         return m_odometry.getEstimatedPosition();
     }
@@ -411,8 +383,9 @@ public class Drivetrain extends SubsystemBase {
             LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
                     .getBotPoseEstimate_wpiBlue_MegaTag2(ID.kFrontLimelightName);
             boolean doRejectUpdate = false;
-            if (Math.abs(m_gyro.getAngularVelocityZWorld().getValueAsDouble()) > 360) // if our angular velocity is too
-                                                                                      // large, ignore vision updates
+            if (Math.abs(m_gyroInputs.yawVelocity.in(Units.DegreesPerSecond)) > 360) // if our angular
+            // velocity is too
+            // large, ignore vision updates
             {
                 doRejectUpdate = true;
             }
@@ -438,12 +411,17 @@ public class Drivetrain extends SubsystemBase {
         // Converting module speeds to chassis speeds
         m_chassisSpeeds = m_kinematics.toChassisSpeeds(
                 frontLeftState, frontRightState, backLeftState, backRightState);
-
-        field.setRobotPose(getRoboPose2d());
     }
 
     @Override
     public void periodic() {
+        m_gyroIo.updateInputs(m_gyroInputs);
+        Logger.processInputs("Drivetrain/Gyro", m_gyroInputs);
+
+        for (SwerveModule module : getSwerveModules()) {
+            module.periodic();
+        }
+
         updateOdometry();
 
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(commandedChassisSpeeds);
@@ -456,6 +434,7 @@ public class Drivetrain extends SubsystemBase {
             m_frontLeft.setDesiredState(swerveModuleStates[0]);
             latch.countDown();
         });
+        latch.countDown();
         executorService.execute(() -> {
             m_frontRight.setDesiredState(swerveModuleStates[1]);
             latch.countDown();

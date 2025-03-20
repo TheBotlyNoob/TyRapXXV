@@ -121,6 +121,11 @@ public class Robot extends LoggedRobot {
     }
 
     @Override
+    public void simulationPeriodic() {
+        m_container.simulationPeriodic();
+    }
+
+    @Override
     public void disabledPeriodic() {
         // Uncomment these lines in order to output the swerve turn encoder values (to
         // obtain offsets)

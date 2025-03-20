@@ -113,6 +113,10 @@ public class Constants {
         public static final double kDriveMotorGearRatio = 1 / 6.75;
         public static final double kDriveEncoderRot2Meter = kDriveMotorGearRatio * Math.PI * kWheelDiameterMeters;
         public static final double kDriveEncoderRPM2MeterPerSec = kDriveEncoderRot2Meter / 60;
+
+        // Meters
+        public static final double kBumperLengthMeters = 0.965;
+        public static final double kBumperWidthMeters = 0.863;
     }
 
     public static class Controller {
