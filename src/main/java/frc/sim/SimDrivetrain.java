@@ -20,7 +20,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.Units;
-import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.drive.Drivetrain;
 
 public class SimDrivetrain extends Drivetrain {
 
@@ -64,5 +64,13 @@ public class SimDrivetrain extends Drivetrain {
                 .map((m) -> new SwerveModulePosition(m.getDriveWheelFinalPosition().in(Units.Radians),
                         new Rotation2d(m.getSteerAbsoluteAngle())))
                 .toArray();
+    }
+
+    public Pose3d getSimPose() {
+        return currentPose;
+    }
+
+    public void setSimPose(Pose3d pose) {
+        currentPose = pose;
     }
 }

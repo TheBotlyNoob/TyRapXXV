@@ -367,6 +367,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         return m_pidController;
     }
 
+    public SparkFlex getMotorLeader() {
+        return m_motorLeader;
+    }
+
     public ElevatorLevel getLevel() {
         return m_level;
     }

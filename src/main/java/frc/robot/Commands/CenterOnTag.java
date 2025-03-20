@@ -5,7 +5,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.LimelightConstants;
-import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.drive.Drivetrain;
 import frc.robot.Subsystems.Limelight;
 
 // Used to get a general location, not exact

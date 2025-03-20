@@ -1,8 +1,8 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.SwerveModule;
-import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.drive.SwerveModule;
+import frc.robot.Subsystems.drive.Drivetrain;
 
 public class RotateWheels extends Command {
     protected Drivetrain dt;
@@ -19,5 +19,5 @@ public class RotateWheels extends Command {
             sm.goToPosition(desiredPositionRad);
         }
     }
-    
+
 }

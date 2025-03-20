@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.Subsystems;
+package frc.robot.Subsystems.drive;
 
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
@@ -38,7 +38,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
 import frc.robot.LimelightHelpers;
-import frc.robot.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -57,52 +56,57 @@ public class Drivetrain extends SubsystemBase {
             DrivetrainConstants.kDistanceMiddleToFrontMotor * DrivetrainConstants.kXBackward,
             DrivetrainConstants.kDistanceMiddleToSideMotor * DrivetrainConstants.kYRight);
 
-    protected final SwerveModule m_frontLeft = new SwerveModule("FrontLeft",
+    protected final SwerveModule m_frontLeft = new SwerveModule(new SwerveModuleIOSpark(
             ID.kFrontLeftDrive,
             ID.kFrontLeftTurn,
             ID.kFrontLeftCANCoder,
             Offsets.kFrontLeftOffset,
+            DrivetrainConstants.sparkFlex,
+            true), // Pass inverstion value
+            "FrontLeft",
             DrivetrainConstants.turnPID,
             DrivetrainConstants.drivePID,
             DrivetrainConstants.turnFeedForward,
-            DrivetrainConstants.driveFeedForward,
-            DrivetrainConstants.sparkFlex,
-            true // Pass inverstion value
-    );
-    protected final SwerveModule m_frontRight = new SwerveModule("FrontRight",
+            DrivetrainConstants.driveFeedForward);
+
+    protected final SwerveModule m_frontRight = new SwerveModule(new SwerveModuleIOSpark(
             ID.kFrontRightDrive,
             ID.kFrontRightTurn,
             ID.kFrontRightCANCoder,
             Offsets.kFrontRightOffset,
+            DrivetrainConstants.sparkFlex,
+            false),
+            "FrontRight",
             DrivetrainConstants.turnPID,
             DrivetrainConstants.drivePID,
             DrivetrainConstants.turnFeedForward,
-            DrivetrainConstants.driveFeedForward,
-            DrivetrainConstants.sparkFlex,
-            false);
-    protected final SwerveModule m_backLeft = new SwerveModule("BackLeft",
+            DrivetrainConstants.driveFeedForward);
+    protected final SwerveModule m_backLeft = new SwerveModule(new SwerveModuleIOSpark(
             ID.kBackLeftDrive,
             ID.kBackLeftTurn,
             ID.kBackLeftCANCoder,
             Offsets.kBackLeftOffset,
+            DrivetrainConstants.sparkFlex,
+            false),
+            "BackLeft",
             DrivetrainConstants.turnPID,
             DrivetrainConstants.drivePID,
             DrivetrainConstants.turnFeedForward,
-            DrivetrainConstants.driveFeedForward,
-            DrivetrainConstants.sparkFlex,
-            false);
-    protected final SwerveModule m_backRight = new SwerveModule("BackRight",
+            DrivetrainConstants.driveFeedForward);
+
+    protected final SwerveModule m_backRight = new SwerveModule(new SwerveModuleIOSpark(
             ID.kBackRightDrive,
             ID.kBackRightTurn,
             ID.kBackRightCANCoder,
             Offsets.kBackRightOffset,
+            DrivetrainConstants.sparkFlex,
+            true),
+            "BackRight",
             DrivetrainConstants.turnPID,
             DrivetrainConstants.drivePID,
             DrivetrainConstants.turnFeedForward,
-            DrivetrainConstants.driveFeedForward,
-            DrivetrainConstants.sparkFlex,
-            true);
-    protected final Vector<SwerveModule> m_swerveModules = new Vector<SwerveModule>(4);
+            DrivetrainConstants.driveFeedForward);
+    protected final SwerveModule[] m_swerveModules = new SwerveModule[4];
 
     protected final Pigeon2 m_gyro;
 
@@ -138,10 +142,10 @@ public class Drivetrain extends SubsystemBase {
         this.m_gyro = gyro;
         m_driveTab.add("field", field);
 
-        m_swerveModules.add(m_frontLeft);
-        m_swerveModules.add(m_frontRight);
-        m_swerveModules.add(m_backLeft);
-        m_swerveModules.add(m_backRight);
+        m_swerveModules[0] = m_frontLeft;
+        m_swerveModules[1] = m_frontRight;
+        m_swerveModules[2] = m_backLeft;
+        m_swerveModules[3] = m_backRight;
 
         m_odometry = new SwerveDrivePoseEstimator(
                 m_kinematics,
@@ -173,17 +177,11 @@ public class Drivetrain extends SubsystemBase {
                                     DrivetrainConstants.turnPID[1],
                                     DrivetrainConstants.turnPID[2])),
                     ppConfig,
-                    () -> {
-                        // Boolean supplier that controls when the path will be mirrored for the red
-                        // alliance
-                        // This will flip the path being followed to the red side of the field.
-                        // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-                        var alliance = DriverStation.getAlliance();
-                        if (alliance.isPresent()) {
-                            return alliance.get() == DriverStation.Alliance.Red;
-                        }
-                        return false;
-                    },
+                    // Boolean supplier that controls when the path will be mirrored for the red
+                    // alliance
+                    // This will flip the path being followed to the red side of the field.
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                    () -> DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue) == DriverStation.Alliance.Red,
                     this // Reference to this subsystem to set requirements
             );
         } catch (Exception e) {
@@ -191,7 +189,7 @@ public class Drivetrain extends SubsystemBase {
             e.printStackTrace();
         }
     }
-    
+
     public void resetStartingPose(Pose2d newPose) {
         m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(), newPose);
     }
@@ -239,7 +237,7 @@ public class Drivetrain extends SubsystemBase {
         return m_frontRight;
     }
 
-    public Vector<SwerveModule> getSwerveModules() {
+    public SwerveModule[] getSwerveModules() {
         return m_swerveModules;
     }
 
@@ -253,7 +251,7 @@ public class Drivetrain extends SubsystemBase {
                 || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue3)) {
             m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
-                            new Rotation2d()));  
+                            new Rotation2d()));
         } else {
             m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
@@ -360,7 +358,7 @@ public class Drivetrain extends SubsystemBase {
 
         ChassisSpeeds chassisSpeeds = fieldRelative
                 ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rotSpeed,
-                    getPlayerStationRelativeYaw2d())
+                        getPlayerStationRelativeYaw2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
         driveChassisSpeeds(chassisSpeeds);
 
@@ -410,23 +408,23 @@ public class Drivetrain extends SubsystemBase {
         counter++;
         if (counter % 10 == 0 && enableVisionPoseInputs) {
             LimelightHelpers.SetRobotOrientation(ID.kFrontLimelightName, rotationYaw.getDegrees(), 0, 0, 0, 0, 0);
-            LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(ID.kFrontLimelightName);
+            LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
+                    .getBotPoseEstimate_wpiBlue_MegaTag2(ID.kFrontLimelightName);
             boolean doRejectUpdate = false;
-            if(Math.abs(m_gyro.getAngularVelocityZWorld().getValueAsDouble()) > 360) // if our angular velocity is too large, ignore vision updates
+            if (Math.abs(m_gyro.getAngularVelocityZWorld().getValueAsDouble()) > 360) // if our angular velocity is too
+                                                                                      // large, ignore vision updates
             {
                 doRejectUpdate = true;
             }
-            if(mt2 != null) {
-                if(mt2.tagCount == 0)
-                {
+            if (mt2 != null) {
+                if (mt2.tagCount == 0) {
                     doRejectUpdate = true;
                 }
-                if(!doRejectUpdate)
-                {
-                    m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+                if (!doRejectUpdate) {
+                    m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
                     m_odometry.addVisionMeasurement(
-                        mt2.pose,
-                        mt2.timestampSeconds);
+                            mt2.pose,
+                            mt2.timestampSeconds);
                 }
             }
         }

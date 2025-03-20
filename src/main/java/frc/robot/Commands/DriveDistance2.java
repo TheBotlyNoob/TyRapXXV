@@ -6,7 +6,7 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.drive.Drivetrain;
 import frc.robot.Utils.CoordinateUtilities;
 import frc.robot.Utils.TrapezoidController;
 import edu.wpi.first.math.Nat;

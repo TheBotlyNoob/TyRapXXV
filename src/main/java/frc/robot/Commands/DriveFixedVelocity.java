@@ -6,7 +6,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Controller;
-import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.drive.Drivetrain;
 
 public class DriveFixedVelocity extends Command {
     Drivetrain dt;

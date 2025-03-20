@@ -1,7 +1,7 @@
 package frc.robot.Commands;
 
 // Imports
-import frc.robot.Subsystems.Drivetrain;
+import frc.robot.Subsystems.drive.Drivetrain;
 import java.util.function.DoubleSupplier;
 
 // This Command uses DriveDistance Command and the range sensor to drive until the range is a certain value or has gone too far
