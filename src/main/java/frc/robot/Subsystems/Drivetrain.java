@@ -214,19 +214,21 @@ public class Drivetrain extends SubsystemBase {
         return allianceChooser.getSelected();
     }
 
+    public Alliance getDriverStationAlliance(){
+        return DriverStation.getAlliance().get();
+    }
+
     /**
      * Resets Orientation of the robot
      */
     public void resetGyro() {
-        StatusCode code;
-        if (getAlliance() == DriverStation.Alliance.Blue) {
+        if (getAlliance() == Alliance.Blue) {
             System.out.println("Initializing gyro to 180 for BLUE");
-            code = m_gyro.setYaw(180.0);
+            m_gyro.setYaw(180.0);
         } else {
             System.out.println("Initializing gyro to 0 for RED");
-            code = m_gyro.setYaw(0);
+            m_gyro.setYaw(0);
         }
-        System.out.println("Gyro init status code: " + code);
     }
 
     public double getExpectedStartGyro() {

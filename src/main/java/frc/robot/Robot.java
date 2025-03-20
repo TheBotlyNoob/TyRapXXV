@@ -17,16 +17,16 @@ import frc.robot.Commands.StopDrive;
 
 public class Robot extends TimedRobot {
     private RobotContainer m_container;
-    //protected boolean gryoReset;
     protected boolean gyroCorrect;
     protected Alliance currentAlliance;
 
     @Override
     public void robotInit() {
-        //gryoReset = false;
         gyroCorrect = false;
         m_container = new RobotContainer();
         currentAlliance = m_container.getDrivetrain().getAlliance();
+        m_container.getDrivetrain().resetGyro();
+        
         FollowPathCommand.warmupCommand().schedule();
         DataLogManager.start();
         DriverStation.startDataLog(DataLogManager.getLog());
@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-        //m_container.getDrivetrain().resetGyro();
+        m_container.getDrivetrain().resetGyro();
         m_container.getDrivetrain().resetOdo();
         m_container.getDrivetrain().setFieldRelative(true);
         m_container.clearDefaultCommand();
@@ -51,6 +51,8 @@ public class Robot extends TimedRobot {
         m_container.clearDefaultCommand();
         m_container.setTeleDefaultCommand();
         m_container.reinitialize();
+        m_container.getElevator().holdCurrentPosition(); //see what this does
+        //m_container.getElevator().setLevel(ElevatorLevel.GROUND);
         m_container.configureBindings();
         m_container.turnRumbleOff();
     }
@@ -84,23 +86,23 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        if (currentAlliance != m_container.getDrivetrain().getAlliance()) {
-            currentAlliance = m_container.getDrivetrain().getAlliance();
-            System.out.println("Alliance changed to " + currentAlliance);
-            gyroCorrect = false;
-        }
-        if (!gyroCorrect) {
-            double expectedGyro = m_container.getDrivetrain().getExpectedStartGyro();
-            double currentGyro = m_container.getDrivetrain().getGyroYawRotation2d().getDegrees();
-            System.out.println("Expected Gyro: " + expectedGyro + " current: " + currentGyro);
-            if (Math.abs(expectedGyro - currentGyro) > 1.0) {
-                System.out.println("Gyro delta too large");
-                m_container.getDrivetrain().resetGyro();
-                System.out.println("Reset gyro from robot periodic");
-            } else {
-                gyroCorrect = true;
-            }
-        }
+        // if (currentAlliance != m_container.getDrivetrain().getDriverStationAlliance()) {
+        //     currentAlliance = m_container.getDrivetrain().getAlliance();
+        //     System.out.println("Alliance changed to " + currentAlliance);
+        //     gyroCorrect = false;
+        // }
+        // if (!gyroCorrect) {
+        //     double expectedGyro = m_container.getDrivetrain().getExpectedStartGyro();
+        //     double currentGyro = m_container.getDrivetrain().getGyroYawRotation2d().getDegrees();
+        //     System.out.println("Expected Gyro: " + expectedGyro + " current: " + currentGyro);
+        //     if (Math.abs(expectedGyro - currentGyro) > 1.0) {
+        //         System.out.println("Gyro delta too large");
+        //         m_container.getDrivetrain().resetGyro();
+        //         System.out.println("Reset gyro from robot periodic");
+        //     } else {
+        //         gyroCorrect = true;
+        //     }
+        // }
         // Uncomment these lines in order to output the swerve turn encoder values (to obtain offsets)
         //SmartDashboard.putNumber("BackLeft", m_container.getDrivetrain().getBackLeftSwerveModule().getRawTurningPositionRadians());
         //SmartDashboard.putNumber("BackRight", m_container.getDrivetrain().getBackRightSwerveModule().getRawTurningPositionRadians());
