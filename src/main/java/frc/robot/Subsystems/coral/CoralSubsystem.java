@@ -1,13 +1,17 @@
-package frc.robot.Subsystems;
+package frc.robot.Subsystems.coral;
 
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
+
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -16,9 +20,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Commands.EjectCoral;
 import frc.robot.Commands.MoveCoralManipulator;
+import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
+import frc.robot.Subsystems.coral.IrSensorIO;
 import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.SafeableSubsystem;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.DoubleEntry;
 
 /*
@@ -28,25 +35,17 @@ import edu.wpi.first.networktables.DoubleEntry;
  * holde break logic
  */
 public class CoralSubsystem extends SafeableSubsystem {
-    private final NetworkTable m_table;
-
-    private final SparkMax m_wristMotor;
     private final SparkMax m_coralGrabberMotor;
     private final ElevatorSubsystem el;
 
     private boolean pointedOut = false;
-    private double holdPosition = 0.0;
+    private Rotation2d holdPosition = new Rotation2d();
 
-    private final MotorPublisher m_wristMotorPublisher;
-    private final MotorPublisher m_coralGrabberMotorPublisher;
+    private final IrSensorIO m_irIo;
+    private final IrSensorIOInputsAutoLogged m_irInputs = new IrSensorIOInputsAutoLogged();
 
-    private final StringPublisher m_table_level;
-
-    protected final AbsoluteEncoder m_wristEncoder;
-    private final DoublePublisher m_wristEncoderPub;
-
-    private final DigitalInput m_irSensor;
-    private final DoublePublisher m_irSensorPub;
+    private final WristIO m_wristIo;
+    private final WristIOInputsAutoLogged m_wristInputs = new WristIOInputsAutoLogged();
 
     protected DoubleEntry kWristMotorVoltageForward;
     protected DoubleEntry kWristMotorVoltageReverse;
@@ -58,7 +57,7 @@ public class CoralSubsystem extends SafeableSubsystem {
     private boolean ejectActive = false;
     private Timer timer;
 
-    private double lastWristEncoderVal;
+    private Rotation2d lastWristEncoderVal;
     private boolean wristStopped = false;
     private int wristCounter = 0;
 
@@ -69,40 +68,17 @@ public class CoralSubsystem extends SafeableSubsystem {
     protected CoralState state = CoralState.WAITING;
     protected boolean enabled = false;
 
-    public CoralSubsystem(NetworkTableInstance nt, ElevatorSubsystem el) {
+    public CoralSubsystem(ElevatorSubsystem el, WristIO wristIo, IrSensorIO irIo) {
         this.el = el;
-        m_table = nt.getTable(getName());
-
-        m_table_level = m_table.getStringTopic("coral").publish();
+        m_irIo = irIo;
+        m_wristIo = wristIo;
 
         m_coralGrabberMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
-        m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushed);
-
-        kWristMotorVoltageForward = m_table.getDoubleTopic("wrist motor voltage forward")
-                .getEntry(Constants.Coral.kWristMotorVoltage);
-        kWristMotorVoltageReverse = m_table.getDoubleTopic("wrist motor voltage reverse")
-                .getEntry(Constants.Coral.kWristMotorVoltageReverse);
-
-        // kWristMotorSpeedForward = m_table.getDoubleTopic("wrist motor speed
-        // forward").getEntry(0.0);
-        // kWristMotorSpeedReverse = m_table.getDoubleTopic("wrist motor speed
-        // reverse").getEntry(0.0);
+        // m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId,
+        // MotorType.kBrushed);
 
         kWristMotorVoltageForward.set(Constants.Coral.kWristMotorVoltage);
         kWristMotorVoltageReverse.set(Constants.Coral.kWristMotorVoltageReverse);
-        // kWristMotorSpeedForward.set(0.0);
-        // kWristMotorSpeedReverse.set(0.0);
-
-        m_coralGrabberMotorPublisher = new MotorPublisher(m_coralGrabberMotor, m_table, "Grabber Motor");
-        m_wristMotorPublisher = new MotorPublisher(m_wristMotor, m_table, "Wrist Motor");
-
-        m_wristEncoder = m_coralGrabberMotor.getAbsoluteEncoder();
-        m_wristEncoderPub = nt.getDoubleTopic("Wrist Encoder").publish();
-
-        m_irSensor = new DigitalInput(Constants.SensorID.kIRSensorPort);
-        m_irSensorPub = nt.getDoubleTopic("IR Sensor").publish();
-
-        lastWristEncoderVal = m_wristEncoder.getPosition();
 
         timer = new Timer();
     }
@@ -121,33 +97,37 @@ public class CoralSubsystem extends SafeableSubsystem {
         double voltage = kWristMotorVoltageReverse.get();
         // double speed = kWristMotorSpeedReverse.get();
         // m_wristMotor.set(-speed);
-        /*if (m_wristEncoder.getPosition() <= Constants.Coral.kMinEncoderPos) {
-            stopMotorWrist();
-        } else {
-            m_wristMotor.setVoltage(-voltage);
-        }*/
+        /*
+         * if (m_wristEncoder.getPosition() <= Constants.Coral.kMinEncoderPos) {
+         * stopMotorWrist();
+         * } else {
+         * m_wristMotor.setVoltage(-voltage);
+         * }
+         */
 
-        m_wristMotor.setVoltage(-voltage);
+        m_wristIo.setVoltage(Units.Volts.of(-voltage));
 
     }
 
     public void forwardMotor() {
         double voltage = kWristMotorVoltageForward.get();
         // double speed = kWristMotorSpeedForward.get();
-        /*if (m_wristEncoder.getPosition() >= Constants.Coral.kMaxEncoderPos) {
-            stopMotorWrist();
-        } else {
-            m_wristMotor.setVoltage(voltage);
-        }*/
+        /*
+         * if (m_wristEncoder.getPosition() >= Constants.Coral.kMaxEncoderPos) {
+         * stopMotorWrist();
+         * } else {
+         * m_wristMotor.setVoltage(voltage);
+         * }
+         */
 
-        m_wristMotor.setVoltage(voltage);
+        m_wristIo.setVoltage(Units.Volts.of(voltage));
 
         // m_wristMotor.set(speed);
     }
 
     public void stopMotorWrist() {
-        holdPosition = m_wristEncoder.getPosition();
-        m_wristMotor.setVoltage(0.0);
+        holdPosition = m_wristInputs.absoluteEncoderPosition;
+        m_wristIo.setVoltage(Units.Volts.of(0.0));
         // m_wristMotor.set(0.0);
     }
 
@@ -172,8 +152,7 @@ public class CoralSubsystem extends SafeableSubsystem {
     }
 
     public void reinit() {
-        boolean irDetected = !m_irSensor.get();
-        if (irDetected) {
+        if (m_irInputs.isBlocked) {
             state = CoralState.HOLDING;
             el.setLevel(ElevatorLevel.LEVEL1);
             m_coralGrabberMotor.set(0.0);
@@ -189,18 +168,17 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     @Override
     public void periodic() {
-        m_wristMotorPublisher.update();
-        m_coralGrabberMotorPublisher.update();
-        m_wristEncoderPub.set(m_wristEncoder.getPosition());
+        m_irIo.updateInputs(m_irInputs);
+        Logger.processInputs("CoralSubsystem/IrSensor", m_irInputs);
 
-        boolean irDetected = !m_irSensor.get();
-        m_irSensorPub.set(irDetected ? 1.0 : 0.0);
+        m_wristIo.updateInputs(m_wristInputs);
+        Logger.processInputs("CoralSubsystem/Wrist", m_wristInputs);
 
         if (!enabled) {
             return;
         }
 
-        if (lastWristEncoderVal == m_wristEncoder.getPosition()) {
+        if (lastWristEncoderVal == m_wristInputs.absoluteEncoderPosition) {
             wristCounter++;
             if (counter >= Constants.Coral.wristCounterLimit) {
                 wristStopped = true;
@@ -211,7 +189,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         }
 
         if (state == CoralState.WAITING) {
-            if (irDetected) {
+            if (m_irInputs.isBlocked) {
                 state = CoralState.INTAKING;
                 counter = m_coralGrabberMotor.getEncoder().getPosition();
                 start = counter;
@@ -230,19 +208,19 @@ public class CoralSubsystem extends SafeableSubsystem {
             if (ejectActive) {
                 state = CoralState.EJECTING;
                 timer.start();
-            } else if (!irDetected) {
+            } else if (!m_irInputs.isBlocked) {
                 // We thought we were holding a piece but no longer see one
                 state = CoralState.WAITING;
             }
         } else if (state == CoralState.EJECTING) {
             m_coralGrabberMotor.set(0.5);
-            if (timer.get() > 2 && !irDetected) {
+            if (timer.get() > 2 && !m_irInputs.isBlocked) {
                 state = CoralState.WAITING;
                 ejectActive = false;
             }
         }
 
-        lastWristEncoderVal = m_wristEncoder.getPosition();
+        lastWristEncoderVal = m_wristInputs.absoluteEncoderPosition;
     }
 
     @Override

@@ -31,6 +31,7 @@ import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -60,7 +61,10 @@ import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.SafeableSubsystem;
-import frc.robot.Subsystems.CoralSubsystem;
+import frc.robot.Subsystems.coral.CoralSubsystem;
+import frc.robot.Subsystems.coral.IrSensorIOReal;
+import frc.robot.Subsystems.coral.WristIO;
+import frc.robot.Subsystems.coral.WristIOSpark;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
@@ -154,6 +158,9 @@ public class RobotContainer {
      */
     public RobotContainer() {
         this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(0));
+
+        this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
+
         switch (Constants.RobotMode.currentMode) {
             case REAL:
                 this.m_swerve = new Drivetrain(new GyroIOPigeon2(m_gyro),
@@ -168,6 +175,9 @@ public class RobotContainer {
                         new SwerveModuleIOSpark(ID.kBackRightDrive, ID.kBackRightTurn, ID.kBackRightCANCoder,
                                 Offsets.kBackLeftOffset,
                                 DrivetrainConstants.sparkFlex, false));
+
+                this.m_coral = new CoralSubsystem(m_elevator, new WristIOSpark(),
+                        new IrSensorIOReal(new DigitalInput(Constants.SensorID.kIRSensorPort)));
                 break;
             case SIM:
                 final DriveTrainSimulationConfig simConf = DriveTrainSimulationConfig.Default()
@@ -237,8 +247,6 @@ public class RobotContainer {
         this.m_algae = new AlgaeGrabberSubsystem(NetworkTableInstance.getDefault());
 
         // this.m_range = new RangeSensor(0);
-        this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
-        this.m_coral = new CoralSubsystem(NetworkTableInstance.getDefault(), m_elevator);
 
         AddressableLED led = new AddressableLED(0);
         led.setLength(5);

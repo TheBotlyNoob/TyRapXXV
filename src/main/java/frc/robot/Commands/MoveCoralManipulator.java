@@ -1,7 +1,7 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.CoralSubsystem;
+import frc.robot.Subsystems.coral.CoralSubsystem;
 
 public class MoveCoralManipulator extends Command {
     private final CoralSubsystem co;

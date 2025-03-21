@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
+import frc.robot.Subsystems.coral.CoralSubsystem;
 
 public class LightSubsystem extends SubsystemBase {
     protected final AddressableLED led;
