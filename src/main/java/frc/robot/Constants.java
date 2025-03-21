@@ -117,6 +117,9 @@ public class Constants {
         // Meters
         public static final double kBumperLengthMeters = 0.965;
         public static final double kBumperWidthMeters = 0.863;
+
+        public static final double kTrackLengthMeters = 0.680;
+        public static final double kTrackWidthMeters = 0.578;
     }
 
     public static class Controller {

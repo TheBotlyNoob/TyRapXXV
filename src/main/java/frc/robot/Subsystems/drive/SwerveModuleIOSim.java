@@ -21,19 +21,19 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
     public SwerveModuleIOSim(SwerveModuleSimulation module) {
         m_simulator = module;
 
-        m_driveMotor = m_simulator.useGenericMotorControllerForDrive().withCurrentLimit(Units.Amps.of(20));
-        m_turningMotor = m_simulator.useGenericControllerForSteer().withCurrentLimit(Units.Amps.of(20));
+        m_driveMotor = m_simulator.useGenericMotorControllerForDrive().withCurrentLimit(Units.Amps.of(60));
+        m_turningMotor = m_simulator.useGenericControllerForSteer().withCurrentLimit(Units.Amps.of(60));
     }
 
     @Override
     public void updateInputs(SwerveModuleIOInputs inputs) {
-        inputs.driveMotorVelocity = Units.MetersPerSecond.of(m_simulator.getDriveWheelFinalSpeed().in(Units.RPM)
+        inputs.driveMotorVelocity = Units.MetersPerSecond.of(m_simulator.getDriveEncoderUnGearedSpeed().in(Units.RPM)
                 * Constants.Modules.kDriveEncoderRPM2MeterPerSec);
-        inputs.driveMotorAngularVelocity = m_simulator.getDriveWheelFinalSpeed();
-        inputs.drivingMotorDistance = Units.Meters.of(m_simulator.getDriveWheelFinalPosition().in(Units.Rotations)
+        inputs.driveMotorAngularVelocity = m_simulator.getDriveEncoderUnGearedSpeed();
+        inputs.drivingMotorDistance = Units.Meters.of(m_simulator.getDriveEncoderUnGearedPosition().in(Units.Rotations)
                 * Constants.Modules.kDriveEncoderRot2Meter);
         inputs.driveMotorAppliedVoltage = driveVolts;
-        inputs.drivingMotorPosition = m_simulator.getDriveWheelFinalPosition();
+        inputs.drivingMotorPosition = m_simulator.getDriveEncoderUnGearedPosition();
         inputs.turningMotorPosition = m_simulator.getSteerAbsoluteAngle();
         inputs.turningMotorAngularVelocity = m_simulator.getSteerAbsoluteEncoderSpeed();
         inputs.turningMotorAppliedVoltage = turnVolts;

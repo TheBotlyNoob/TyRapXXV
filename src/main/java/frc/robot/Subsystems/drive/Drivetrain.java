@@ -30,18 +30,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
-import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 
 public class Drivetrain extends SubsystemBase {
@@ -71,11 +65,8 @@ public class Drivetrain extends SubsystemBase {
     protected final GyroIO m_gyroIo;
     protected final GyroIOInputsAutoLogged m_gyroInputs = new GyroIOInputsAutoLogged();
 
+    @AutoLogOutput
     protected boolean fieldRelative = true;
-    protected final ShuffleboardTab m_driveTab = Shuffleboard.getTab("drive subsystem");
-    protected final SimpleWidget m_fieldRelativeWidget = m_driveTab.add("drive field relative", fieldRelative);
-    protected final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0)
-            .getEntry();
 
     /**
      * The order that you initialize these is important! Later uses of functions
@@ -91,7 +82,9 @@ public class Drivetrain extends SubsystemBase {
 
     protected boolean enableVisionPoseInputs;
 
+    @AutoLogOutput(key = "Drivetrain/ChassisSpeeds")
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
+    @AutoLogOutput
     protected ChassisSpeeds commandedChassisSpeeds = new ChassisSpeeds();
 
     protected ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -251,7 +244,6 @@ public class Drivetrain extends SubsystemBase {
 
     public void setFieldRelative(boolean isFieldRelative) {
         fieldRelative = isFieldRelative;
-        m_fieldRelativeWidget.getEntry().setBoolean(fieldRelative);
     }
 
     public Command toggleFieldRelativeCommand() {
@@ -331,15 +323,9 @@ public class Drivetrain extends SubsystemBase {
                         getPlayerStationRelativeYaw2d())
                 : new ChassisSpeeds(xSpeed, ySpeed, rotSpeed);
         driveChassisSpeeds(chassisSpeeds);
-
-        SmartDashboard.putNumber("desired X speed", xSpeed);
-        SmartDashboard.putNumber("desired Y speed", ySpeed);
-        SmartDashboard.putNumber("dsired rot speed", rotSpeed);
     }
 
     public void driveChassisSpeeds(ChassisSpeeds chassisSpeeds) {
-        m_driveCommandedRotationSpeed
-                .setDouble(Units.RadiansPerSecond.of(chassisSpeeds.omegaRadiansPerSecond).in(Units.DegreesPerSecond));
         commandedChassisSpeeds = chassisSpeeds;
     }
 

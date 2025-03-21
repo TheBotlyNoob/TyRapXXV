@@ -176,6 +176,7 @@ public class RobotContainer {
                                 DCMotor.getNeoVortex(1), // drive motor
                                 DCMotor.getNEO(1), // steer motor
                                 1 / Constants.Modules.kDriveMotorGearRatio, // drive motor gear ratio
+                                // TODO: whats the true value of this?
                                 12.8, // steer motor gear ratio
                                 Units.Volts.of(0.1), // drive friction, in voltage
                                 Units.Volts.of(0.1), // steer friction, in voltage
@@ -185,9 +186,17 @@ public class RobotContainer {
                         ))
                         .withBumperSize(Units.Meters.of(Constants.Modules.kBumperLengthMeters),
                                 Units.Meters.of(Constants.Modules.kBumperWidthMeters))
-                        .withTrackLengthTrackWidth(Units.Inches.of(24), Units.Inches.of(24));
+                        .withTrackLengthTrackWidth(Units.Meters.of(Constants.Modules.kTrackLengthMeters),
+                                Units.Meters.of(Constants.Modules.kTrackWidthMeters));
 
-                Pose2d initialPose = new Pose2d(6, 3, new Rotation2d());
+                Pose2d initialPose = new Pose2d(0, 0, new Rotation2d());
+                try {
+                    // initial p
+                    initialPose = PathPlannerPath.fromPathFile("Starting6Reef4").getStartingHolonomicPose()
+                            .get();
+                } catch (IOException | ParseException e) {
+                    e.printStackTrace();
+                }
 
                 final SwerveDriveSimulation sim = new SwerveDriveSimulation(simConf, initialPose);
 

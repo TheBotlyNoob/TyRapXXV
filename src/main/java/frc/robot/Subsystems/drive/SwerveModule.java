@@ -199,6 +199,6 @@ public class SwerveModule {
 
     public void periodic() {
         m_io.updateInputs(m_inputs);
-        Logger.processInputs("Drivetrain/SwerveModule" + m_swerveModuleName, m_inputs);
+        Logger.processInputs("Drivetrain/SwerveModule/" + m_swerveModuleName, m_inputs);
     }
 }
