@@ -61,9 +61,20 @@ import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.SafeableSubsystem;
+import frc.robot.Subsystems.coral.ConfigIO;
+import frc.robot.Subsystems.coral.ConfigIONetworkTables;
+import frc.robot.Subsystems.coral.CoralConfigIONetworkTables;
+import frc.robot.Subsystems.coral.CoralGrabberIOSpark;
 import frc.robot.Subsystems.coral.CoralSubsystem;
+import frc.robot.Subsystems.coral.CoralWristIOSim;
+import frc.robot.Subsystems.coral.CoralWristIOSpark;
+import frc.robot.Subsystems.coral.GrabberIO;
+import frc.robot.Subsystems.coral.GrabberIOSpark;
+import frc.robot.Subsystems.coral.IrSensorIO;
 import frc.robot.Subsystems.coral.IrSensorIOReal;
+import frc.robot.Subsystems.coral.IrSensorIOSim;
 import frc.robot.Subsystems.coral.WristIO;
+import frc.robot.Subsystems.coral.WristIOSim;
 import frc.robot.Subsystems.coral.WristIOSpark;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
@@ -153,13 +164,16 @@ public class RobotContainer {
 
     Optional<SwerveDriveSimulation> driveSim = Optional.empty();
 
+    NetworkTableInstance nt = NetworkTableInstance.getDefault();
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
+
         this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(0));
 
-        this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());
+        this.m_elevator = new ElevatorSubsystem(nt);
 
         switch (Constants.RobotMode.currentMode) {
             case REAL:
@@ -176,8 +190,10 @@ public class RobotContainer {
                                 Offsets.kBackLeftOffset,
                                 DrivetrainConstants.sparkFlex, false));
 
-                this.m_coral = new CoralSubsystem(m_elevator, new WristIOSpark(),
-                        new IrSensorIOReal(new DigitalInput(Constants.SensorID.kIRSensorPort)));
+                this.m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIOSpark(), new CoralWristIOSpark(),
+                        new IrSensorIOReal(new DigitalInput(Constants.SensorID.kIRSensorPort)),
+                        new CoralConfigIONetworkTables(nt));
+
                 break;
             case SIM:
                 final DriveTrainSimulationConfig simConf = DriveTrainSimulationConfig.Default()
@@ -221,6 +237,11 @@ public class RobotContainer {
 
                 driveSim = Optional.of(sim);
 
+                this.m_coral = new CoralSubsystem(m_elevator, new GrabberIO() {
+                }, new CoralWristIOSim(),
+                        new IrSensorIOSim(),
+                        new CoralConfigIONetworkTables(nt));
+
                 break;
             case REPLAY:
             default:
@@ -235,6 +256,13 @@ public class RobotContainer {
                         },
                         new SwerveModuleIO() {
                         });
+
+                m_coral = new CoralSubsystem(m_elevator, new GrabberIO() {
+                }, new CoralWristIO() {
+                }, new IrSensorIO() {
+                }, new CoralConfigIO() {
+                });
+
                 break;
 
         }

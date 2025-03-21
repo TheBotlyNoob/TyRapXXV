@@ -4,7 +4,7 @@ import org.littletonrobotics.junction.AutoLog;
 
 public interface IrSensorIO {
     @AutoLog
-    public class IrSensorIOInputs {
+    public static class IrSensorIOInputs {
         public boolean isBlocked = false;
     }
 

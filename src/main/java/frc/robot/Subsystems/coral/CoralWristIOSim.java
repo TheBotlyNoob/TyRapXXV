@@ -9,16 +9,16 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
-public class WristIOSim implements WristIO {
+public class CoralWristIOSim implements CoralWristIO {
     private DCMotor gearbox = DCMotor.getNeo550(1);
     private DCMotorSim motor = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(gearbox, 4.0, 1 / Constants.Modules.kDriveMotorGearRatio), gearbox);
 
-    public WristIOSim() {
+    public CoralWristIOSim() {
     }
 
     @Override
-    public void updateInputs(WristIOInputs inputs) {
+    public void updateInputs(CoralWristIOInputs inputs) {
         inputs.absoluteEncoderPosition = new Rotation2d(motor.getAngularPosition());
     }
 

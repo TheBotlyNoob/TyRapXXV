@@ -6,13 +6,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
 
-public interface WristIO {
+public interface CoralWristIO {
     @AutoLog
-    public class WristIOInputs {
+    public static class CoralWristIOInputs {
         public Rotation2d absoluteEncoderPosition = new Rotation2d(Units.Radians.of(0.0));
     }
 
-    public default void updateInputs(WristIOInputs inputs) {
+    public default void updateInputs(CoralWristIOInputs inputs) {
     }
 
     public default void setVoltage(Voltage voltage) {
