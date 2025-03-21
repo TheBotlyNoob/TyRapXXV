@@ -117,8 +117,9 @@ public class SwerveModuleIOSpark implements SwerveModuleIO {
         inputs.driveMotorAngularVelocity = Units.RPM.of(inputs.driveMotorVelocity
                 .in(Units.MetersPerSecond) / Constants.Modules.kDriveEncoderRPM2MeterPerSec);
         inputs.drivingMotorDistance = Units.Meters
-                .of(m_driveMotor.getEncoder().getPosition() / Constants.Modules.kDriveEncoderRot2Meter);
-        inputs.drivingMotorPosition = Units.Radians.of(m_driveMotor.getEncoder().getPosition());
+                .of(m_driveMotor.getEncoder().getPosition());
+        inputs.drivingMotorPosition = Units.Rotations
+                .of(/* Meters */m_driveMotor.getEncoder().getPosition() / Constants.Modules.kDriveEncoderRot2Meter);
 
         inputs.turningMotorPosition = m_turningEncoder.getAbsolutePosition().getValue(); // angleModulus
                                                                                          // ensures

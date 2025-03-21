@@ -199,6 +199,7 @@ public class RobotContainer {
                         new SwerveModuleIOSim(sim.getModules()[2]),
                         new SwerveModuleIOSim(sim.getModules()[3]));
                 this.m_swerve.resetOdo(initialPose);
+
                 driveSim = Optional.of(sim);
 
                 break;
