@@ -262,6 +262,15 @@ public class Constants {
             REPLAY
         }
 
+        public static class RealMode {
+        }
+
+        public static class SimMode {
+        }
+
+        public static class ReplayMode {
+        }
+
         // change this to `Mode.REPLAY` to replay a log.
         public static final Mode simMode = Mode.SIM;
         public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;

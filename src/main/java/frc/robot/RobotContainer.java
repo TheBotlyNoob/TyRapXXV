@@ -47,6 +47,8 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.*;
+import frc.robot.Constants.RobotMode.Mode;
+import frc.robot.Constants.RobotMode.RealMode;
 import frc.robot.Subsystems.AlgaeGrabberSubsystem;
 import frc.robot.Subsystems.LightSubsystem;
 import frc.robot.Subsystems.ClimberSubsystem;
@@ -64,14 +66,15 @@ import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.SafeableSubsystem;
 import frc.robot.Subsystems.coral.CoralConfigIO;
 import frc.robot.Subsystems.coral.CoralConfigIONetworkTables;
+import frc.robot.Subsystems.coral.CoralDetectionIO;
+import frc.robot.Subsystems.coral.CoralDetectionIOReal;
+import frc.robot.Subsystems.coral.CoralDetectionIOSim;
 import frc.robot.Subsystems.coral.CoralGrabberIOSpark;
 import frc.robot.Subsystems.coral.CoralSubsystem;
 import frc.robot.Subsystems.coral.CoralWristIOSim;
 import frc.robot.Subsystems.coral.CoralWristIOSpark;
 import frc.robot.Subsystems.coral.CoralGrabberIO;
-import frc.robot.Subsystems.coral.IrSensorIO;
-import frc.robot.Subsystems.coral.IrSensorIOReal;
-import frc.robot.Subsystems.coral.IrSensorIOSim;
+import frc.robot.Subsystems.coral.CoralGrabberIOSim;
 import frc.robot.Subsystems.coral.CoralWristIO;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
@@ -115,15 +118,15 @@ import frc.robot.Commands.StopElevator;
  */
 public class RobotContainer {
     private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
-    private final Drivetrain m_swerve;
-    private final Limelight m_Limelight;
+    private Drivetrain m_swerve;
+    private Limelight m_Limelight;
     private SafeableSubsystem[] m_safeable;
-    private final AlgaeGrabberSubsystem m_algae;
-    private /* final */ ClimberSubsystem m_climber;
-    private final SendableChooser<String> autoChooser;
-    protected final ElevatorSubsystem m_elevator;
-    protected final CoralSubsystem m_coral;
-    protected final LightSubsystem m_leds;
+    private AlgaeGrabberSubsystem m_algae;
+    private ClimberSubsystem m_climber;
+    private SendableChooser<String> autoChooser;
+    protected ElevatorSubsystem m_elevator;
+    protected CoralSubsystem m_coral;
+    protected LightSubsystem m_leds;
 
     private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
     private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
@@ -175,88 +178,14 @@ public class RobotContainer {
 
         switch (Constants.RobotMode.currentMode) {
             case REAL:
-                this.m_swerve = new Drivetrain(new GyroIOPigeon2(m_gyro),
-                        new SwerveModuleIOSpark(ID.kFrontLeftDrive, ID.kFrontLeftTurn, ID.kFrontLeftCANCoder,
-                                Offsets.kFrontLeftOffset, DrivetrainConstants.sparkFlex, true),
-                        new SwerveModuleIOSpark(ID.kFrontRightDrive, ID.kFrontRightTurn, ID.kFrontRightCANCoder,
-                                Offsets.kBackRightOffset,
-                                DrivetrainConstants.sparkFlex, false),
-                        new SwerveModuleIOSpark(ID.kBackLeftDrive, ID.kBackLeftTurn, ID.kBackLeftCANCoder,
-                                Offsets.kBackLeftOffset,
-                                DrivetrainConstants.sparkFlex, false),
-                        new SwerveModuleIOSpark(ID.kBackRightDrive, ID.kBackRightTurn, ID.kBackRightCANCoder,
-                                Offsets.kBackLeftOffset,
-                                DrivetrainConstants.sparkFlex, false));
-
-                this.m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIOSpark(), new CoralWristIOSpark(),
-                        new IrSensorIOReal(new DigitalInput(Constants.SensorID.kIRSensorPort)),
-                        new CoralConfigIONetworkTables(nt));
-
+                initReal();
                 break;
             case SIM:
-                SimulatedArena.getInstance()
-                        .addGamePiece(new ReefscapeCoralOnField(new Pose2d(6, 4, new Rotation2d())));
-
-                final DriveTrainSimulationConfig simConf = DriveTrainSimulationConfig.Default()
-                        .withGyro(COTS.ofPigeon2())
-                        .withSwerveModule(new SwerveModuleSimulationConfig(
-                                DCMotor.getNeoVortex(1), // drive motor
-                                DCMotor.getNEO(1), // steer motor
-                                1 / Constants.Modules.kDriveMotorGearRatio, // drive motor gear ratio
-                                // TODO: whats the true value of this?
-                                12.8, // steer motor gear ratio
-                                Units.Volts.of(0.1), // drive friction, in voltage
-                                Units.Volts.of(0.1), // steer friction, in voltage
-                                Units.Meters.of(Constants.Modules.kWheelDiameterMeters / 2), // wheel radius
-                                Units.KilogramSquareMeters.of(0.03), // steer rotational inertia
-                                1.2 // wheel coefficient of friction
-                        ))
-                        .withBumperSize(Units.Meters.of(Constants.Modules.kBumperLengthMeters),
-                                Units.Meters.of(Constants.Modules.kBumperWidthMeters))
-                        .withTrackLengthTrackWidth(Units.Meters.of(Constants.Modules.kTrackLengthMeters),
-                                Units.Meters.of(Constants.Modules.kTrackWidthMeters));
-
-                Pose2d initialPose = new Pose2d(4, 4, new Rotation2d());
-
-                final SwerveDriveSimulation sim = new SwerveDriveSimulation(simConf, initialPose);
-
-                SimulatedArena.getInstance().addDriveTrainSimulation(sim);
-
-                this.m_swerve = new Drivetrain(new GyroIOSim(sim.getGyroSimulation()),
-                        new SwerveModuleIOSim(sim.getModules()[0]),
-                        new SwerveModuleIOSim(sim.getModules()[1]),
-                        new SwerveModuleIOSim(sim.getModules()[2]),
-                        new SwerveModuleIOSim(sim.getModules()[3]));
-                this.m_swerve.resetOdo(initialPose);
-
-                driveSim = Optional.of(sim);
-
-                this.m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIO() {
-                }, new CoralWristIOSim(),
-                        new IrSensorIOSim(),
-                        new CoralConfigIONetworkTables(nt));
-
+                initSim();
                 break;
             case REPLAY:
             default:
-                m_swerve = new Drivetrain(
-                        new GyroIO() {
-                        },
-                        new SwerveModuleIO() {
-                        },
-                        new SwerveModuleIO() {
-                        },
-                        new SwerveModuleIO() {
-                        },
-                        new SwerveModuleIO() {
-                        });
-
-                m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIO() {
-                }, new CoralWristIO() {
-                }, new IrSensorIO() {
-                }, new CoralConfigIO() {
-                });
-
+                initReplay();
                 break;
 
         }
@@ -327,6 +256,102 @@ public class RobotContainer {
                 new StopDrive(m_swerve),
                 new StopCoral(m_coral),
                 new StopElevator(m_elevator));
+    }
+
+    private void initReal() throws IllegalStateException {
+        if (Constants.RobotMode.currentMode != Mode.REAL) {
+            throw new IllegalStateException("initReal can only be called in REAL mode");
+        }
+
+        this.m_swerve = new Drivetrain(new GyroIOPigeon2(m_gyro),
+                new SwerveModuleIOSpark(ID.kFrontLeftDrive, ID.kFrontLeftTurn, ID.kFrontLeftCANCoder,
+                        Offsets.kFrontLeftOffset, DrivetrainConstants.sparkFlex, true),
+                new SwerveModuleIOSpark(ID.kFrontRightDrive, ID.kFrontRightTurn, ID.kFrontRightCANCoder,
+                        Offsets.kBackRightOffset,
+                        DrivetrainConstants.sparkFlex, false),
+                new SwerveModuleIOSpark(ID.kBackLeftDrive, ID.kBackLeftTurn, ID.kBackLeftCANCoder,
+                        Offsets.kBackLeftOffset,
+                        DrivetrainConstants.sparkFlex, false),
+                new SwerveModuleIOSpark(ID.kBackRightDrive, ID.kBackRightTurn, ID.kBackRightCANCoder,
+                        Offsets.kBackLeftOffset,
+                        DrivetrainConstants.sparkFlex, false));
+
+        this.m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIOSpark(), new CoralWristIOSpark(),
+                new CoralDetectionIOReal(),
+                new CoralConfigIONetworkTables(nt));
+    }
+
+    private void initSim() throws IllegalStateException {
+        if (Constants.RobotMode.currentMode != Mode.SIM) {
+            throw new IllegalStateException("initSim can only be called in SIM mode");
+        }
+
+        SimulatedArena.getInstance()
+                .addGamePiece(new ReefscapeCoralOnField(new Pose2d(6, 4, new Rotation2d())));
+
+        final DriveTrainSimulationConfig simConf = DriveTrainSimulationConfig.Default()
+                .withGyro(COTS.ofPigeon2())
+                .withSwerveModule(new SwerveModuleSimulationConfig(
+                        DCMotor.getNeoVortex(1), // drive motor
+                        DCMotor.getNEO(1), // steer motor
+                        1 / Constants.Modules.kDriveMotorGearRatio, // drive motor gear ratio
+                        // TODO: whats the true value of this?
+                        12.8, // steer motor gear ratio
+                        Units.Volts.of(0.1), // drive friction, in voltage
+                        Units.Volts.of(0.1), // steer friction, in voltage
+                        Units.Meters.of(Constants.Modules.kWheelDiameterMeters / 2), // wheel radius
+                        Units.KilogramSquareMeters.of(0.03), // steer rotational inertia
+                        1.2 // wheel coefficient of friction
+                ))
+                .withBumperSize(Units.Meters.of(Constants.Modules.kBumperLengthMeters),
+                        Units.Meters.of(Constants.Modules.kBumperWidthMeters))
+                .withTrackLengthTrackWidth(Units.Meters.of(Constants.Modules.kTrackLengthMeters),
+                        Units.Meters.of(Constants.Modules.kTrackWidthMeters));
+
+        Pose2d initialPose = new Pose2d(8, 4, new Rotation2d());
+
+        final SwerveDriveSimulation dtSim = new SwerveDriveSimulation(simConf, initialPose);
+
+        SimulatedArena.getInstance().addDriveTrainSimulation(dtSim);
+
+        m_swerve = new Drivetrain(new GyroIOSim(dtSim.getGyroSimulation()),
+                new SwerveModuleIOSim(dtSim.getModules()[0]),
+                new SwerveModuleIOSim(dtSim.getModules()[1]),
+                new SwerveModuleIOSim(dtSim.getModules()[2]),
+                new SwerveModuleIOSim(dtSim.getModules()[3]));
+        m_swerve.resetOdo(initialPose);
+
+        driveSim = Optional.of(dtSim);
+
+        CoralGrabberIOSim grabberIo = new CoralGrabberIOSim(dtSim);
+        m_coral = new CoralSubsystem(m_elevator, grabberIo, new CoralWristIOSim(),
+                new CoralDetectionIOSim(grabberIo.getIntakeSim()),
+                new CoralConfigIONetworkTables(nt));
+
+    }
+
+    private void initReplay() throws IllegalStateException {
+        if (Constants.RobotMode.currentMode != Mode.REPLAY) {
+            throw new IllegalStateException("initReplay can only be called in REPLAY mode");
+        }
+
+        m_swerve = new Drivetrain(
+                new GyroIO() {
+                },
+                new SwerveModuleIO() {
+                },
+                new SwerveModuleIO() {
+                },
+                new SwerveModuleIO() {
+                },
+                new SwerveModuleIO() {
+                });
+
+        m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIO() {
+        }, new CoralWristIO() {
+        }, new CoralDetectionIO() {
+        }, new CoralConfigIO() {
+        });
     }
 
     /**

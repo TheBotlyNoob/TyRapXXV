@@ -36,8 +36,8 @@ public class CoralSubsystem extends SafeableSubsystem {
     private boolean pointedOut = false;
     private Rotation2d holdPosition = new Rotation2d();
 
-    private final IrSensorIO m_irIo;
-    private final IrSensorIOInputsAutoLogged m_irInputs = new IrSensorIOInputsAutoLogged();
+    private final CoralDetectionIO m_detectionIo;
+    private final CoralDetectionIOInputsAutoLogged m_detectionInputs = new CoralDetectionIOInputsAutoLogged();
 
     private final CoralWristIO m_wristIo;
     private final CoralWristIOInputsAutoLogged m_wristInputs = new CoralWristIOInputsAutoLogged();
@@ -60,10 +60,11 @@ public class CoralSubsystem extends SafeableSubsystem {
     protected CoralState state = CoralState.WAITING;
     protected boolean enabled = false;
 
-    public CoralSubsystem(ElevatorSubsystem el, CoralGrabberIO grabberIo, CoralWristIO wristIo, IrSensorIO irIo,
+    public CoralSubsystem(ElevatorSubsystem el, CoralGrabberIO grabberIo, CoralWristIO wristIo,
+            CoralDetectionIO detectionIo,
             CoralConfigIO configIo) {
         this.el = el;
-        m_irIo = irIo;
+        m_detectionIo = detectionIo;
         m_wristIo = wristIo;
         m_configIo = configIo;
         m_grabberIo = grabberIo;
@@ -139,7 +140,7 @@ public class CoralSubsystem extends SafeableSubsystem {
     }
 
     public void reinit() {
-        if (m_irInputs.isBlocked) {
+        if (m_detectionInputs.hasCoral) {
             state = CoralState.HOLDING;
             el.setLevel(ElevatorLevel.LEVEL1);
             m_grabberIo.setSpeed(0.0);
@@ -159,8 +160,8 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     @Override
     public void periodic() {
-        m_irIo.updateInputs(m_irInputs);
-        Logger.processInputs("CoralSubsystem/IrSensor", m_irInputs);
+        m_detectionIo.updateInputs(m_detectionInputs);
+        Logger.processInputs("CoralSubsystem/Detection", m_detectionInputs);
 
         m_grabberIo.updateInputs(m_grabberInputs);
         Logger.processInputs("CoralSubsystem/Grabber", m_grabberInputs);
@@ -180,7 +181,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         }
 
         if (state == CoralState.WAITING) {
-            if (m_irInputs.isBlocked) {
+            if (m_detectionInputs.hasCoral) {
                 state = CoralState.INTAKING;
                 start = m_grabberInputs.relativeEncoderPosition;
             } else {
@@ -197,13 +198,13 @@ public class CoralSubsystem extends SafeableSubsystem {
             if (ejectActive) {
                 state = CoralState.EJECTING;
                 timer.start();
-            } else if (!m_irInputs.isBlocked) {
+            } else if (!m_detectionInputs.hasCoral) {
                 // We thought we were holding a piece but no longer see one
                 state = CoralState.WAITING;
             }
         } else if (state == CoralState.EJECTING) {
             m_grabberIo.setSpeed(0.5);
-            if (timer.get() > 2 && !m_irInputs.isBlocked) {
+            if (timer.get() > 2 && !m_detectionInputs.hasCoral) {
                 state = CoralState.WAITING;
                 ejectActive = false;
             }
