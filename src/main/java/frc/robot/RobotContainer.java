@@ -37,6 +37,7 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
@@ -61,21 +62,17 @@ import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.SafeableSubsystem;
-import frc.robot.Subsystems.coral.ConfigIO;
-import frc.robot.Subsystems.coral.ConfigIONetworkTables;
+import frc.robot.Subsystems.coral.CoralConfigIO;
 import frc.robot.Subsystems.coral.CoralConfigIONetworkTables;
 import frc.robot.Subsystems.coral.CoralGrabberIOSpark;
 import frc.robot.Subsystems.coral.CoralSubsystem;
 import frc.robot.Subsystems.coral.CoralWristIOSim;
 import frc.robot.Subsystems.coral.CoralWristIOSpark;
-import frc.robot.Subsystems.coral.GrabberIO;
-import frc.robot.Subsystems.coral.GrabberIOSpark;
+import frc.robot.Subsystems.coral.CoralGrabberIO;
 import frc.robot.Subsystems.coral.IrSensorIO;
 import frc.robot.Subsystems.coral.IrSensorIOReal;
 import frc.robot.Subsystems.coral.IrSensorIOSim;
-import frc.robot.Subsystems.coral.WristIO;
-import frc.robot.Subsystems.coral.WristIOSim;
-import frc.robot.Subsystems.coral.WristIOSpark;
+import frc.robot.Subsystems.coral.CoralWristIO;
 import frc.robot.Commands.AlgaeIntake;
 import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
@@ -100,6 +97,7 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 
@@ -196,6 +194,9 @@ public class RobotContainer {
 
                 break;
             case SIM:
+                SimulatedArena.getInstance()
+                        .addGamePiece(new ReefscapeCoralOnField(new Pose2d(6, 4, new Rotation2d())));
+
                 final DriveTrainSimulationConfig simConf = DriveTrainSimulationConfig.Default()
                         .withGyro(COTS.ofPigeon2())
                         .withSwerveModule(new SwerveModuleSimulationConfig(
@@ -215,14 +216,7 @@ public class RobotContainer {
                         .withTrackLengthTrackWidth(Units.Meters.of(Constants.Modules.kTrackLengthMeters),
                                 Units.Meters.of(Constants.Modules.kTrackWidthMeters));
 
-                Pose2d initialPose = new Pose2d(0, 0, new Rotation2d());
-                try {
-                    // initial p
-                    initialPose = PathPlannerPath.fromPathFile("Starting6Reef4").getStartingHolonomicPose()
-                            .get();
-                } catch (IOException | ParseException e) {
-                    e.printStackTrace();
-                }
+                Pose2d initialPose = new Pose2d(4, 4, new Rotation2d());
 
                 final SwerveDriveSimulation sim = new SwerveDriveSimulation(simConf, initialPose);
 
@@ -237,7 +231,7 @@ public class RobotContainer {
 
                 driveSim = Optional.of(sim);
 
-                this.m_coral = new CoralSubsystem(m_elevator, new GrabberIO() {
+                this.m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIO() {
                 }, new CoralWristIOSim(),
                         new IrSensorIOSim(),
                         new CoralConfigIONetworkTables(nt));
@@ -257,7 +251,7 @@ public class RobotContainer {
                         new SwerveModuleIO() {
                         });
 
-                m_coral = new CoralSubsystem(m_elevator, new GrabberIO() {
+                m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIO() {
                 }, new CoralWristIO() {
                 }, new IrSensorIO() {
                 }, new CoralConfigIO() {
@@ -787,6 +781,11 @@ public class RobotContainer {
                 }
                 if (pose.isPresent()) {
                     m_swerve.resetStartingTranslation(first.anchor());
+                    if (driveSim.isPresent()) {
+                        driveSim.get()
+                                .setSimulationWorldPose(new Pose2d(first.anchor(),
+                                        m_swerve.getGyroYawRotation2d()));
+                    }
                     System.out.println(first.toString());
                 } else {
                     System.out.println("Error getting PathPlanner pose");
@@ -860,6 +859,10 @@ public class RobotContainer {
                 Logger.recordOutput("FieldSimulation/SimPose", driveSim.get().getSimulatedDriveTrainPose());
             }
         }
+    }
+
+    public void periodic() {
+        reportTelemetry();
 
     }
 

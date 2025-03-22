@@ -2,12 +2,19 @@ package frc.robot.Subsystems.coral;
 
 import com.revrobotics.spark.SparkMax;
 
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.Commands.MoveCoralManipulator;
@@ -146,6 +153,10 @@ public class CoralSubsystem extends SafeableSubsystem {
         return state;
     }
 
+    public LoggedMechanismLigament2d mechanism() {
+        return new LoggedMechanismLigament2d(getName(), 4, 90, 2, new Color8Bit(Color.kDarkSlateBlue));
+    }
+
     @Override
     public void periodic() {
         m_irIo.updateInputs(m_irInputs);
@@ -159,6 +170,10 @@ public class CoralSubsystem extends SafeableSubsystem {
 
         m_configIo.updateInputs(m_configInputs);
         Logger.processInputs("CoralSubsystem/Config", m_configInputs);
+
+        LoggedMechanism2d coralMechanism = new LoggedMechanism2d(20, 20);
+        coralMechanism.getRoot("system", 4, 4).append(el.mechanism()).append(mechanism());
+        Logger.recordOutput("CoralSubsystem/MechanismView", coralMechanism);
 
         if (!enabled) {
             return;

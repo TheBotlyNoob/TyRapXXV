@@ -2,6 +2,12 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -25,6 +31,8 @@ import frc.robot.Utils.TrapezoidController;
 import frc.robot.Utils.SafeableSubsystem;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 
@@ -539,5 +547,9 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         m_encoder.set(encoder.getPosition());
         m_bottomlimitSwitch.set(isAtBottom());
         m_toplimitSwitch.set(isAtTop());
+    }
+
+    public LoggedMechanismLigament2d mechanism() {
+        return new LoggedMechanismLigament2d(getName(), currentPosition, 0.0);
     }
 }
