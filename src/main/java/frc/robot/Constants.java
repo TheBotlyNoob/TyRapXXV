@@ -204,10 +204,11 @@ public class Constants {
             public static final double kLevel1 = 5.3; // 3.5
             public static final double kLevel2 = 6.1;
             public static final double kLevel3 = 12.85;
-            public static final double kLevel4 = 24.5;
+            public static final double kLevel4 = 24.5; // TODO: 24.6 could work also, needs testing
         }
 
         public static class PID {
+            // TODO: tune
             public static final double kP = 0.0; // not tuned
             public static final double kI = 0.0; // not tuned
             public static final double kD = 0.0; // not tuned
@@ -237,7 +238,7 @@ public class Constants {
     public static class AlgaeGrabber {
         public static final double kMotorCurrentThreshold = 1.0;
         public static final double kIntakeSpeed = 0.60;
-        public static final double kEjectSpeed = 0.90;
+        public static final double kEjectSpeed = 0.75; // FIXME: make sure this is correct--copied from Orlando branch
 
         public static final int kSolenoidCANID1 = 0;
         public static final int kSolenoidCANID2 = 1;

@@ -70,7 +70,7 @@ public class SwerveModuleIOSpark implements SwerveModuleIO {
         // TODO: moved this code outside of the if. Did that change behavior? (it
         // shouldn't)
         m_driveMotor.getEncoder().setPosition(0);
-        driveConfig.smartCurrentLimit(40); // m_driveMotor.setSmartCurrentLimit(40);
+        driveConfig.smartCurrentLimit(60); // m_driveMotor.setSmartCurrentLimit(40);
         driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter); // m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
         driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); // m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
         driveConfig.idleMode(IdleMode.kBrake); // m_driveMotor.setIdleMode(IdleMode.kBrake);
@@ -85,7 +85,7 @@ public class SwerveModuleIOSpark implements SwerveModuleIO {
 
         SparkMaxConfig turningConfig = new SparkMaxConfig();
         turningConfig.inverted(DrivetrainConstants.kInvertTurn); // m_turningMotor.setInverted(true);
-        turningConfig.smartCurrentLimit(40); // m_turningMotor.setSmartCurrentLimit(40);
+        turningConfig.smartCurrentLimit(60); // m_turningMotor.setSmartCurrentLimit(40);
         turningConfig.idleMode(IdleMode.kBrake); // m_turningMotor.setIdleMode(IdleMode.kBrake);
         LimitSwitchConfig limitConfig = new LimitSwitchConfig();
         limitConfig.forwardLimitSwitchEnabled(false);

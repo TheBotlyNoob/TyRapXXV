@@ -28,6 +28,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -114,12 +116,7 @@ public class Drivetrain extends SubsystemBase {
         m_odometry = new SwerveDrivePoseEstimator(
                 m_kinematics,
                 getGyroYawRotation2d(),
-                new SwerveModulePosition[] {
-                        m_frontLeft.getPosition(),
-                        m_frontRight.getPosition(),
-                        m_backLeft.getPosition(),
-                        m_backRight.getPosition()
-                },
+                getModulePositions(),
                 new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
 
         // Load the RobotConfig from the PathPlanner GUI settings
@@ -217,9 +214,7 @@ public class Drivetrain extends SubsystemBase {
      */
     public void resetOdo() {
         System.out.println("Calling resetOdo with no arguments");
-        if (DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue1)
-                || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue2)
-                || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue3)) {
+        if (DriverStation.getAlliance().map((al) -> al == Alliance.Blue).orElse(false)) {
             m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
                             new Rotation2d()));
@@ -374,6 +369,8 @@ public class Drivetrain extends SubsystemBase {
                 }
                 if (!doRejectUpdate) {
                     m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
+                    // TODO: read these docs and decide whether we should use Timer.getTimestamp or
+                    // Timer.getFPGATimestamp
                     m_odometry.addVisionMeasurement(
                             mt2.pose,
                             mt2.timestampSeconds);
