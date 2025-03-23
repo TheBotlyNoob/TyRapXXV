@@ -4,16 +4,14 @@
 
 package frc.robot.Subsystems.drive;
 
-import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
@@ -30,13 +28,12 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
-import frc.robot.LimelightHelpers;
+import frc.robot.Utils.LimelightHelpers;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -205,6 +202,17 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
+     * Module positions in the form of SwerveModulePositions (Module orientation and
+     * the distance the wheel has travelled across the ground)
+     * 
+     * @return SwerveModulePosition[]
+     */
+    public SwerveModulePosition[] getModulePositions() {
+        return Stream.of(getSwerveModules()).map((mod) -> mod.getPosition())
+                .toArray(SwerveModulePosition[]::new);
+    }
+
+    /**
      * Resets robot position on the field
      */
     public void resetOdo() {
@@ -250,21 +258,6 @@ public class Drivetrain extends SubsystemBase {
         return runOnce(() -> {
             this.setFieldRelative(!this.fieldRelative);
         });
-    }
-
-    /**
-     * Module positions in the form of SwerveModulePositions (Module orientation and
-     * the distance the wheel has travelled across the ground)
-     * 
-     * @return SwerveModulePosition[]
-     */
-    public SwerveModulePosition[] getModulePositions() {
-        return new SwerveModulePosition[] {
-                m_frontLeft.getPosition(),
-                m_frontRight.getPosition(),
-                m_backLeft.getPosition(),
-                m_backRight.getPosition()
-        };
     }
 
     /**

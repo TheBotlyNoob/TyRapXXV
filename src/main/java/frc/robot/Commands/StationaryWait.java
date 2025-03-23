@@ -8,16 +8,14 @@ import frc.robot.Subsystems.drive.Drivetrain;
 public class StationaryWait extends Command {
 
     protected Drivetrain dt;
+    protected final Timer timer = new Timer();
     protected double durationSec;
-    protected double endTimeSec;
 
     public StationaryWait(Drivetrain dt, double durationSec) {
         this.dt = dt;
         this.durationSec = durationSec;
-    }
 
-    public void initialize() {
-        this.endTimeSec = Timer.getFPGATimestamp() + durationSec;
+        addRequirements(dt);
     }
 
     public void execute() {
@@ -25,7 +23,7 @@ public class StationaryWait extends Command {
     }
 
     public boolean isFinished() {
-        return (Timer.getFPGATimestamp() >= endTimeSec);
+        return (timer.get() >= durationSec);
     }
 
 }

@@ -29,7 +29,6 @@ public class SimDrivetrain extends Drivetrain {
     public SimDrivetrain(Pigeon2 gyro, SwerveModuleIO frontLeft, SwerveModuleIO frontRight, SwerveModuleIO backLeft,
             SwerveModuleIO backRight) {
         super(new GyroIOPigeon2(gyro), frontLeft, frontRight, backLeft, backRight);
-        // TODO Auto-generated constructor stub
     }
 
     protected float desiredXSpeedMps = 0;

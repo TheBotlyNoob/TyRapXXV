@@ -2,16 +2,16 @@ package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.Controller;
 import frc.robot.Subsystems.elevator.ElevatorSubsystem;
 
 public class ElevatorJoystick extends Command {
     ElevatorSubsystem el;
-    private final XboxController m_controller = new XboxController(Controller.kManipControllerID);
+    private final XboxController m_controller;
     protected final double multiplier = -6;
 
-    public ElevatorJoystick(ElevatorSubsystem el) {
+    public ElevatorJoystick(XboxController controller, ElevatorSubsystem el) {
         this.el = el;
+        m_controller = controller;
         System.out.println("ElevatorJoystick command initialized");
     }
 

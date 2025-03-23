@@ -9,8 +9,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 public interface ElevatorMotorIO {
     @AutoLog
     public static class ElevatorMotorIOInputs {
-        public Angle leaderRelativeEncoderPosition = Units.Radians.of(0.0);
-        public AngularVelocity leaderRelativeEncoderVelocity = Units.RadiansPerSecond.of(0.0);
+        public Angle leaderRelativeEncoderPosition = Units.Rotations.of(0.0);
+        public AngularVelocity leaderRelativeEncoderVelocity = Units.RotationsPerSecond.of(0.0);
     }
 
     public default void updateInputs(ElevatorMotorIOInputs inputs) {

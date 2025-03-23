@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Subsystems.elevator.ElevatorSubsystem;
-import frc.robot.Subsystems.elevator.ElevatorSubsystem.ElevatorLevel;
+import frc.robot.Subsystems.elevator.ElevatorLevel;
 import frc.robot.Utils.SafeableSubsystem;
 import edu.wpi.first.math.geometry.Rotation2d;
 
@@ -53,6 +53,7 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     @AutoLogOutput
     protected CoralState state = CoralState.WAITING;
+    @AutoLogOutput
     protected boolean enabled = false;
 
     protected final LoggedMechanism2d coralSystemMechanism = new LoggedMechanism2d(20,
@@ -68,7 +69,8 @@ public class CoralSubsystem extends SafeableSubsystem {
         m_configIo = configIo;
         m_grabberIo = grabberIo;
 
-        coralSystemMechanism.getRoot(getName(), 4, 4).append(el.getMechanism()).append(ejectorMechanism);
+        coralSystemMechanism.getRoot(getName(), 4, 4).append(el.getMechanism()).append(ejectorMechanism)
+                .append(new LoggedMechanismLigament2d(getName(), 10, 90));
 
         timer = new Timer();
     }

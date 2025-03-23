@@ -139,12 +139,12 @@ public class SwerveModule {
     // and a ProfiledPIDController
     public void goToPosition(double goalPosition) {
         double targetVelocity = m_turningPIDController.getSetpoint().velocity;
-        double time = Timer.getFPGATimestamp();
+        double time = Timer.getTimestamp();
         double targetAcceleration = (targetVelocity - this.m_turningLastSpeed)
                 / (time - this.m_turningLastTime);
 
         double pidVal = m_turningPIDController.calculate(m_inputs.turningMotorPosition.in(Units.Radians), goalPosition);
-        double FFVal = m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity,
+        double FFVal = m_turnFeedforward.calculateWithVelocities(m_turningPIDController.getSetpoint().velocity,
                 targetAcceleration);
 
         m_io.setTurnVoltage(Units.Volts.of(pidVal + FFVal));

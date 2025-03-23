@@ -55,12 +55,14 @@ import frc.robot.Subsystems.drive.SwerveModule;
 import frc.robot.Subsystems.drive.SwerveModuleIO;
 import frc.robot.Subsystems.drive.SwerveModuleIOSim;
 import frc.robot.Subsystems.drive.SwerveModuleIOSpark;
+import frc.robot.Subsystems.elevator.ElevatorConfigIO;
+import frc.robot.Subsystems.elevator.ElevatorConfigIONetworkTables;
 import frc.robot.Subsystems.elevator.ElevatorLimitsIO;
 import frc.robot.Subsystems.elevator.ElevatorLimitsIOReal;
 import frc.robot.Subsystems.elevator.ElevatorMotorIO;
 import frc.robot.Subsystems.elevator.ElevatorMotorIOSpark;
 import frc.robot.Subsystems.elevator.ElevatorSubsystem;
-import frc.robot.Subsystems.elevator.ElevatorSubsystem.ElevatorLevel;
+import frc.robot.Subsystems.elevator.ElevatorLevel;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.SafeableSubsystem;
 import frc.robot.Subsystems.coral.CoralConfigIO;
@@ -89,6 +91,7 @@ import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Commands.MoveStinger;
 import frc.robot.Commands.ResetOdoCommand;
 import frc.robot.Commands.RotateWheels;
+import frc.robot.Commands.RumbleController;
 import frc.robot.Commands.StationaryWait;
 import frc.robot.Commands.StopCoral;
 import frc.robot.Commands.StopDrive;
@@ -102,7 +105,6 @@ import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFie
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 
-import frc.robot.Commands.RumbleManip;
 import frc.robot.Commands.StopElevator;
 
 /**
@@ -230,7 +232,11 @@ public class RobotContainer {
                                                                 () -> m_Limelight
                                                                                 .getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber
                                                                                                 + 0.1)),
-                                                new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
+                                                new PrintCommand("level has not been set")
+                                                                .andThen(new RumbleController(
+                                                                                Controller.kManipulatorController
+                                                                                                .getHID(),
+                                                                                .5)),
                                                 () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag()));
 
                 this.m_scoreRight = new SequentialCommandGroup(
@@ -241,7 +247,8 @@ public class RobotContainer {
                                                                 () -> m_Limelight
                                                                                 .getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber
                                                                                                 + 0.1)),
-                                                new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
+                                                new PrintCommand("level has not been set").andThen(new RumbleController(
+                                                                Controller.kManipulatorController.getHID(), .5)),
                                                 () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag()));
 
                 this.m_scoreCancel = new SequentialCommandGroup(
@@ -270,7 +277,8 @@ public class RobotContainer {
                                                 Offsets.kBackLeftOffset,
                                                 DrivetrainConstants.sparkFlex, false));
 
-                m_elevator = new ElevatorSubsystem(nt, new ElevatorMotorIOSpark(), new ElevatorLimitsIOReal());
+                m_elevator = new ElevatorSubsystem(new ElevatorMotorIOSpark(), new ElevatorLimitsIOReal(),
+                                new ElevatorConfigIONetworkTables(nt));
 
                 m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIOSpark(), new CoralWristIOSpark(),
                                 new CoralDetectionIOReal(),
@@ -320,9 +328,9 @@ public class RobotContainer {
 
                 driveSim = Optional.of(dtSim);
 
-                m_elevator = new ElevatorSubsystem(nt, new ElevatorMotorIO() {
+                m_elevator = new ElevatorSubsystem(new ElevatorMotorIO() {
                 }, new ElevatorLimitsIO() {
-                });
+                }, new ElevatorConfigIONetworkTables(nt));
 
                 CoralGrabberIOSim grabberIo = new CoralGrabberIOSim(dtSim);
                 m_coral = new CoralSubsystem(m_elevator, grabberIo, new CoralWristIOSim(),
@@ -348,9 +356,9 @@ public class RobotContainer {
                                 new SwerveModuleIO() {
                                 });
 
-                // TODO: remove NT from elevatorSubsystem
-                m_elevator = new ElevatorSubsystem(nt, new ElevatorMotorIO() {
+                m_elevator = new ElevatorSubsystem(new ElevatorMotorIO() {
                 }, new ElevatorLimitsIO() {
+                }, new ElevatorConfigIO() {
                 });
 
                 m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIO() {
@@ -432,7 +440,7 @@ public class RobotContainer {
                 Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
                 Controller.kManipulatorController.rightBumper().and(m_climber::isCoralMode)
                                 .onTrue(new ConditionalCommand(buildRemoveAlgaeCommand(),
-                                                new RumbleManip(.5),
+                                                new RumbleController(Controller.kManipulatorController.getHID(), .5),
                                                 () -> (m_elevator.isValidAlgaeLevel() && m_leds.canSeeValidTag())));
 
                 // Back Button and Start button for Climber Mode Toggle
@@ -475,7 +483,7 @@ public class RobotContainer {
                                 .toggleOnTrue(this.m_swerve.toggleFieldRelativeCommand());
 
                 // Controller.kManipulatorController.rightTrigger().whileTrue(new
-                // ElevatorJoystick(m_elevator));
+                // ElevatorJoystick(Controller.kManipulatorController.getHID(), m_elevator));
 
                 Controller.kDriveController.leftBumper().whileTrue(new RotateWheels(m_swerve, 0.0));
                 Controller.kDriveController.rightBumper().whileTrue(new RotateWheels(m_swerve, 90.0));

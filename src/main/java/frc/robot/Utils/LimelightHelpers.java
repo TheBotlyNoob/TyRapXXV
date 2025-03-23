@@ -1,6 +1,6 @@
 //LimelightHelpers v1.10 (REQUIRES LLOS 2024.9.1 OR LATER)
 
-package frc.robot;
+package frc.robot.Utils;
 
 import edu.wpi.first.networktables.DoubleArrayEntry;
 import edu.wpi.first.networktables.NetworkTable;
@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -880,9 +882,9 @@ public class LimelightHelpers {
         String urlString = "http://" + sanitizeName(tableName) + ".local:5807/" + request;
         URL url;
         try {
-            url = new URL(urlString);
+            url = new URI(urlString).toURL();
             return url;
-        } catch (MalformedURLException e) {
+        } catch (MalformedURLException | URISyntaxException e) {
             System.err.println("bad LL URL");
         }
         return null;

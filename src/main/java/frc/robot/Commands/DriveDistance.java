@@ -127,7 +127,7 @@ public class DriveDistance extends Command {
                 // Get current pose
                 currentPose = dt.getRoboPose2d();
                 // Get current time
-                double lastTime = Timer.getFPGATimestamp();
+                double lastTime = Timer.getTimestamp();
                 // Calculate distance to the new position from the current one
                 rangeM = CoordinateUtilities.distanceTo(currentPose, desiredPose);
                 // Calculate bearing
