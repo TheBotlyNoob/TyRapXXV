@@ -13,6 +13,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 public class CoralGrabberIOSim implements CoralGrabberIO {
@@ -71,7 +72,6 @@ public class CoralGrabberIOSim implements CoralGrabberIO {
 
     @Override
     public void setSpeed(double speed) {
-        // I don't think this actually how it works, but whatever
-        setVoltage(Units.Volts.of(speed * 12.0));
+        setVoltage(Units.Volts.of(speed * RobotController.getBatteryVoltage()));
     }
 }

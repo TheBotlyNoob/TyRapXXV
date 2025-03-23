@@ -420,7 +420,6 @@ public class Drivetrain extends SubsystemBase {
             m_frontLeft.setDesiredState(swerveModuleStates[0]);
             latch.countDown();
         });
-        latch.countDown();
         executorService.execute(() -> {
             m_frontRight.setDesiredState(swerveModuleStates[1]);
             latch.countDown();
