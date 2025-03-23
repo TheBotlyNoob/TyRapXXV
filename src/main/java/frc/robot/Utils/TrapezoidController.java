@@ -17,15 +17,16 @@ public class TrapezoidController {
     private double decelKp;
 
     // Constructor
-    public TrapezoidController(double startVel, double threshold, double minVel, double maxVel, double maxAcc, double maxDcc,
+    public TrapezoidController(double startVel, double threshold, double minVel, double maxVel, double maxAcc,
+            double maxDcc,
             double decelKp) {
         this.commandedVel = startVel; // Initialize to current speed
         this.threshold = threshold;
         this.minVel = minVel;
         this.maxVel = maxVel;
         this.decelKp = decelKp;
-        this.maxAccPerStep = maxAcc / (1/0.02);
-        this.maxDccPerStep = maxDcc / (1/0.02);
+        this.maxAccPerStep = maxAcc / (1 / 0.02);
+        this.maxDccPerStep = maxDcc / (1 / 0.02);
     }
 
     public void setMaxVel(double maxVel) {
@@ -33,7 +34,7 @@ public class TrapezoidController {
     }
 
     public void setMaxAccel(double maxAccel) {
-        this.maxAccPerStep = maxAccel / (1/0.02);
+        this.maxAccPerStep = maxAccel / (1 / 0.02);
     }
 
     public void setDecelKp(double decelProp) {
@@ -50,23 +51,25 @@ public class TrapezoidController {
         desiredVel = currentDistance * decelKp;
 
         // Desired Velocities
-        // If the error is less than the threshold, meaning we have driven to the correct place, 
-        //    stop the robot by setting speed to 0
+        // If the error is less than the threshold, meaning we have driven to the
+        // correct place,
+        // stop the robot by setting speed to 0
         if (Math.abs(currentDistance) < threshold) {
             desiredVel = 0;
-        // If not, meaning we still have to drive further, set the calculated velocity
-        //    to be between a min and max, while using the correct sign (+ or -)
+            // If not, meaning we still have to drive further, set the calculated velocity
+            // to be between a min and max, while using the correct sign (+ or -)
         } else {
             desiredVel = Math.copySign(MathUtil.clamp(Math.abs(desiredVel), minVel, maxVel), desiredVel);
         }
 
         // Commanded Velocity ramped
-        // If the desired velocity is greater than the commanded velocity (in the same direction), we accelerate
+        // If the desired velocity is greater than the commanded velocity (in the same
+        // direction), we accelerate
         double deltaVel = 0.0;
         if ((Math.abs(desiredVel) - Math.abs(commandedVel)) > 0) {
             deltaVel = maxAccPerStep;
-        // If not, we decelerate
-        // We have to switch because there are different values for both
+            // If not, we decelerate
+            // We have to switch because there are different values for both
         } else {
             deltaVel = maxDccPerStep;
         }
@@ -74,7 +77,7 @@ public class TrapezoidController {
         // Acceleration
         if (desiredVel > commandedVel) {
             commandedVel = Math.min(desiredVel, commandedVel + deltaVel);
-        // Deceleration
+            // Deceleration
         } else if (desiredVel < commandedVel) {
             commandedVel = Math.max(desiredVel, commandedVel - deltaVel);
         }

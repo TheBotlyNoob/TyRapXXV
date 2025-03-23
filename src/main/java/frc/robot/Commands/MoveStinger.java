@@ -1,9 +1,12 @@
 package frc.robot.Commands;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems.ClimberSubsystem;
+
 public class MoveStinger extends Command {
     ClimberSubsystem cl;
     boolean extend;
+
     public MoveStinger(ClimberSubsystem cl, boolean extend) {
         this.cl = cl;
         this.extend = extend;
@@ -12,10 +15,9 @@ public class MoveStinger extends Command {
 
     @Override
     public void execute() {
-        if (extend){
+        if (extend) {
             cl.extendStinger();
-        }
-        else {
+        } else {
             cl.retractStinger();
         }
     }

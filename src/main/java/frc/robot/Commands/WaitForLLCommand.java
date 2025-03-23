@@ -15,5 +15,5 @@ public class WaitForLLCommand {
     public boolean isFinished() {
         return (ll.getTimeSinceValid() < 1);
     }
-    
+
 }

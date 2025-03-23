@@ -27,5 +27,5 @@ public class StationaryWait extends Command {
     public boolean isFinished() {
         return (Timer.getFPGATimestamp() >= endTimeSec);
     }
-    
+
 }

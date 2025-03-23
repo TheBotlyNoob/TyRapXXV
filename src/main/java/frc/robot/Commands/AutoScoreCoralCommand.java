@@ -1,15 +1,13 @@
 package frc.robot.Commands;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Subsystems.coral.CoralSubsystem;
 import frc.robot.Subsystems.drive.Drivetrain;
-import frc.robot.Subsystems.ElevatorSubsystem;
+import frc.robot.Subsystems.elevator.ElevatorSubsystem;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Constants;
 import frc.robot.Constants.ID;
 import frc.robot.LimelightHelpers;
-import frc.robot.Commands.CenterOnTag;
 
 class AutoScoreCoralCommand extends SequentialCommandGroup {
     public AutoScoreCoralCommand(Drivetrain dt, ElevatorSubsystem elevator, Limelight ll, CoralSubsystem coral) {

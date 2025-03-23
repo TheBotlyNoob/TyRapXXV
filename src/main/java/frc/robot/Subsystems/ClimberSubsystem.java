@@ -32,31 +32,33 @@ public class ClimberSubsystem extends SubsystemBase {
     protected final DoubleSolenoid m_clampPneumatic;
     protected final DoubleSolenoid m_lowerPneumatic;
     protected final DoubleSolenoid m_rampPneumatic;
-    
-    private final Value kArmsExtend = Value.kForward; //grabber arms extends and lower to start climb
-    private final Value kArmsRetract = Value.kReverse; 
 
-    private final Value kGrabberClose = Value.kForward; //grabber clamps to cage
+    private final Value kArmsExtend = Value.kForward; // grabber arms extends and lower to start climb
+    private final Value kArmsRetract = Value.kReverse;
+
+    private final Value kGrabberClose = Value.kForward; // grabber clamps to cage
     private final Value kGrabberOpen = Value.kReverse;
 
     private final Value kRampUp = Value.kForward; //
-    private final Value kRampDown = Value.kReverse;
-    ; //unclamps
+    private final Value kRampDown = Value.kReverse;; // unclamps
 
     public ClimberSubsystem(AbsoluteEncoder climbArmEncoder, NetworkTableInstance nt, SafeableSubsystem[] toMakeSafe) {
         table = nt.getTable(getName());
         m_climbingMotor = new SparkMax(Constants.MechID.kClimberCanId, MotorType.kBrushless);
         m_climbMotorPublisher = new MotorPublisher(m_climbingMotor, table, "climbingMotor");
         m_encoderPublisher = table.getDoubleTopic("absolute encoder").publish();
-        //m_climbEncoder = climbArmEncoder;
+        // m_climbEncoder = climbArmEncoder;
         m_climbEncoder = new DutyCycleEncoder(9);
         m_encoderPub = nt.getDoubleTopic("Encoder Position").publish();
         isClimbMode = false;
-        
-        m_clampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kClampSolenoidCANID1, Constants.Climber.kClampSolenoidCANID2);
-        m_lowerPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kLowerSolenoidCANID1, Constants.Climber.kLowerSolenoidCANID2);
-        m_rampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kRampSolenoidCANID1,Constants.Climber.kRampSolenoidCANID2);
-        
+
+        m_clampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kClampSolenoidCANID1,
+                Constants.Climber.kClampSolenoidCANID2);
+        m_lowerPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kLowerSolenoidCANID1,
+                Constants.Climber.kLowerSolenoidCANID2);
+        m_rampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kRampSolenoidCANID1,
+                Constants.Climber.kRampSolenoidCANID2);
+
         m_lowerPneumatic.set(kArmsRetract);
         m_clampPneumatic.set(kGrabberOpen);
         m_rampPneumatic.set(kRampDown);
@@ -107,7 +109,7 @@ public class ClimberSubsystem extends SubsystemBase {
         isClimbMode = false;
     }
 
-    public void toggleGrabArms(){
+    public void toggleGrabArms() {
         System.out.println("Toggling grab arms current=" + m_clampPneumatic.get());
         m_clampPneumatic.toggle();
     }
@@ -132,10 +134,10 @@ public class ClimberSubsystem extends SubsystemBase {
     public void rampDown() {
         m_rampPneumatic.set(kRampDown);
     }
-    
-    public void reverseMotor(){
+
+    public void reverseMotor() {
         System.out.println("reverseMotor called");
-        if (m_climbEncoder.get() <= Constants.Climber.kMinEncoderPos){
+        if (m_climbEncoder.get() <= Constants.Climber.kMinEncoderPos) {
             stopMotor();
         } else {
             m_climbingMotor.setVoltage(-Constants.Climber.kClimbMotorVoltage);
@@ -145,7 +147,7 @@ public class ClimberSubsystem extends SubsystemBase {
     public void forwardMotor() {
         System.out.println("forwardMotor called");
 
-        if (m_climbEncoder.get() >= Constants.Climber.kMaxEncoderPos){
+        if (m_climbEncoder.get() >= Constants.Climber.kMaxEncoderPos) {
             stopMotor();
         } else {
             m_climbingMotor.setVoltage(Constants.Climber.kClimbMotorVoltage);

@@ -1,28 +1,22 @@
 package frc.robot.Subsystems.coral;
 
-import com.revrobotics.spark.SparkMax;
-
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.Commands.MoveCoralManipulator;
-import frc.robot.Subsystems.ElevatorSubsystem;
-import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
+import frc.robot.Subsystems.elevator.ElevatorSubsystem;
+import frc.robot.Subsystems.elevator.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Utils.SafeableSubsystem;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.DoubleEntry;
 
 /*
  * 
@@ -57,8 +51,13 @@ public class CoralSubsystem extends SafeableSubsystem {
         WAITING, INTAKING, HOLDING, EJECTING;
     };
 
+    @AutoLogOutput
     protected CoralState state = CoralState.WAITING;
     protected boolean enabled = false;
+
+    protected final LoggedMechanism2d coralSystemMechanism = new LoggedMechanism2d(20,
+            20);
+    protected final LoggedMechanismLigament2d ejectorMechanism = new LoggedMechanismLigament2d(getName(), 10, 90);
 
     public CoralSubsystem(ElevatorSubsystem el, CoralGrabberIO grabberIo, CoralWristIO wristIo,
             CoralDetectionIO detectionIo,
@@ -68,6 +67,8 @@ public class CoralSubsystem extends SafeableSubsystem {
         m_wristIo = wristIo;
         m_configIo = configIo;
         m_grabberIo = grabberIo;
+
+        coralSystemMechanism.getRoot(getName(), 4, 4).append(el.getMechanism()).append(ejectorMechanism);
 
         timer = new Timer();
     }
@@ -93,7 +94,7 @@ public class CoralSubsystem extends SafeableSubsystem {
          * }
          */
 
-        m_wristIo.setVoltage(Units.Volts.of(-m_configInputs.wristMotorVoltageReverse.in(Units.Volts)));
+        m_wristIo.setVoltage(m_configInputs.wristMotorVoltageReverse.unaryMinus());
 
     }
 
@@ -154,10 +155,6 @@ public class CoralSubsystem extends SafeableSubsystem {
         return state;
     }
 
-    public LoggedMechanismLigament2d mechanism() {
-        return new LoggedMechanismLigament2d(getName(), 4, 90, 2, new Color8Bit(Color.kDarkSlateBlue));
-    }
-
     @Override
     public void periodic() {
         m_detectionIo.updateInputs(m_detectionInputs);
@@ -172,9 +169,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         m_configIo.updateInputs(m_configInputs);
         Logger.processInputs("CoralSubsystem/Config", m_configInputs);
 
-        LoggedMechanism2d coralMechanism = new LoggedMechanism2d(20, 20);
-        coralMechanism.getRoot("system", 4, 4).append(el.mechanism()).append(mechanism());
-        Logger.recordOutput("CoralSubsystem/MechanismView", coralMechanism);
+        Logger.recordOutput("CoralSubsystem/MechanismView", coralSystemMechanism);
 
         if (!enabled) {
             return;

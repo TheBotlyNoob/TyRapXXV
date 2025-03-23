@@ -15,13 +15,13 @@ public class RangeSensor extends SubsystemBase {
     public RangeSensor(int canId) {
         sensor = new CANrange(canId);
 
-         // Configure the CANrange for basic use
+        // Configure the CANrange for basic use
         CANrangeConfiguration configs = new CANrangeConfiguration();
         configs.withFovParams(new FovParamsConfigs().withFOVCenterX(0.0)
-            .withFOVCenterY(0.0)
-            .withFOVRangeX(6.75)
-            .withFOVRangeY(6.75));
-        
+                .withFOVCenterY(0.0)
+                .withFOVRangeX(6.75)
+                .withFOVRangeY(6.75));
+
         // Write these configs to the CANrange
         sensor.getConfigurator().apply(configs);
     }
@@ -35,5 +35,5 @@ public class RangeSensor extends SubsystemBase {
         this.currentRangeM = sensor.getDistance(true).getValue().magnitude();
         this.validTime = sensor.getMeasurementTime().getValue().magnitude();
     }
-    
+
 }

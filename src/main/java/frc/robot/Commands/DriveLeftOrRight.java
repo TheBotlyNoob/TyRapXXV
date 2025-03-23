@@ -15,26 +15,29 @@ public class DriveLeftOrRight extends DriveDistance {
     double offsetGoal = 0;
     double yError;
     double yOffset = 0;
-    public DriveLeftOrRight(Drivetrain dt, Limelight ll, boolean isLeft){
+
+    public DriveLeftOrRight(Drivetrain dt, Limelight ll, boolean isLeft) {
         super(dt);
         this.isLeft = isLeft;
         this.ll = ll;
         this.offsetGoal = 0.17;
-        if (isLeft){
+        if (isLeft) {
             this.offsetGoal *= -1;
         }
     }
-    
+
     @Override
     public void initialize() {
         LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.reefAprilIDs);
         if (ll.getTimeSinceValid() == 0) {
             double yDis = -1 * ll.getxDistanceMeters();
             yError = yDis - offsetGoal;
-            try{
-                if (isLeft){
+            try {
+                if (isLeft) {
                     this.desiredAngle = 90;
-                } else {this.desiredAngle = -90;}
+                } else {
+                    this.desiredAngle = -90;
+                }
                 this.desiredDistance = Math.abs(this.yError);
                 threshold = 0.007;
                 // Set min & max velocity
@@ -58,5 +61,5 @@ public class DriveLeftOrRight extends DriveDistance {
         }
         LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.allAprilIDs);
     }
-    
+
 }

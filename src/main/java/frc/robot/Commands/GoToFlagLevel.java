@@ -1,7 +1,7 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.ElevatorSubsystem;
+import frc.robot.Subsystems.elevator.ElevatorSubsystem;
 
 public class GoToFlagLevel extends Command {
     ElevatorSubsystem el;
@@ -23,6 +23,6 @@ public class GoToFlagLevel extends Command {
                 return true;
             }
         }
-        return false; 
+        return false;
     }
 }

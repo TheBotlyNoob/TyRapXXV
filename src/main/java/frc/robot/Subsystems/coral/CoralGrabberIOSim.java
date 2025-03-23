@@ -24,6 +24,7 @@ public class CoralGrabberIOSim implements CoralGrabberIO {
     private final AbstractDriveTrainSimulation driveSim;
 
     public CoralGrabberIOSim(AbstractDriveTrainSimulation driveSim) {
+        // TODO: match this to robot
         intakeSim = new IntakeSimulation("Coral", driveSim,
                 new Triangle(new Vector2(0, 0), new Vector2(0.2, 0), new Vector2(0, 0.2)), 1);
         intakeSim.startIntake();

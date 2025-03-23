@@ -3,7 +3,7 @@ package frc.robot.Commands;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.Controller;
-import frc.robot.Subsystems.ElevatorSubsystem;
+import frc.robot.Subsystems.elevator.ElevatorSubsystem;
 
 public class ElevatorJoystick extends Command {
     ElevatorSubsystem el;
@@ -34,5 +34,3 @@ public class ElevatorJoystick extends Command {
         this.el.setTestMode(false);
     }
 }
-
-

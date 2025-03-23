@@ -13,10 +13,9 @@ public class CoordinateUtilities {
      *
      * @return Transform2d with x and y components reflecting the range and angle
      */
-    public static Transform2d rangeAngleToTransform(double rangeM, double angleDeg)
-    {
-        double x = rangeM*Math.cos(Math.toRadians(angleDeg));
-        double y = rangeM*Math.sin(Math.toRadians(angleDeg));
+    public static Transform2d rangeAngleToTransform(double rangeM, double angleDeg) {
+        double x = rangeM * Math.cos(Math.toRadians(angleDeg));
+        double y = rangeM * Math.sin(Math.toRadians(angleDeg));
         return new Transform2d(x, y, new Rotation2d());
     }
 
@@ -26,7 +25,7 @@ public class CoordinateUtilities {
      * @return Distance in meters
      */
     public static double distanceTo(Pose2d first, Pose2d second) {
-        return Math.sqrt(Math.pow(first.getX()-second.getX(),2)+Math.pow(first.getY()-second.getY(),2));
+        return Math.sqrt(Math.pow(first.getX() - second.getX(), 2) + Math.pow(first.getY() - second.getY(), 2));
     }
 
     /**
@@ -38,7 +37,7 @@ public class CoordinateUtilities {
     public static double bearingTo(Pose2d first, Pose2d second) {
         return Math.toDegrees(Math.atan2(second.getY() - first.getY(), second.getX() - first.getX()));
     }
-    
+
     public static double robotBearingTo(Pose2d first, Pose2d second) {
         double fieldBearing = bearingTo(first, second);
         double robotBearing = first.getRotation().getDegrees();
@@ -46,10 +45,12 @@ public class CoordinateUtilities {
     }
 
     /**
-     * Converts a course and speed to its x and y components. The returned value will
+     * Converts a course and speed to its x and y components. The returned value
+     * will
      * have zero angular velocity
      * 
-     * @return ChassisSpeeds object with x and y velocities for the specified course and speed
+     * @return ChassisSpeeds object with x and y velocities for the specified course
+     *         and speed
      */
     public static ChassisSpeeds courseSpeedToLinearVelocity(double courseDeg, double speedMetersPerSecond) {
         return new ChassisSpeeds(
@@ -57,7 +58,7 @@ public class CoordinateUtilities {
                 speedMetersPerSecond * Math.sin(Math.toRadians(courseDeg)),
                 0.0);
     }
-    
+
     public static double getChassisMagnitude(ChassisSpeeds speeds) {
         return Math.sqrt(Math.pow(speeds.vxMetersPerSecond, 2) + Math.pow(speeds.vyMetersPerSecond, 2));
     }

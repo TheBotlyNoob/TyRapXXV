@@ -3,7 +3,6 @@ package frc.robot.Subsystems.coral;
 import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.units.Units;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 

@@ -8,9 +8,10 @@ import java.util.function.DoubleSupplier;
 public class DriveRange extends DriveDistance {
     private double rangeThreshold;
     private DoubleSupplier rangeSupplier;
-    
+
     // Constructors invoking DriveDistance
-    public DriveRange(Drivetrain dt, DoubleSupplier maxDistanceSupplier, DoubleSupplier rangeSupplier, double driveAngle, double rangeThreshold){
+    public DriveRange(Drivetrain dt, DoubleSupplier maxDistanceSupplier, DoubleSupplier rangeSupplier,
+            double driveAngle, double rangeThreshold) {
         super(dt, maxDistanceSupplier, driveAngle);
         this.rangeSupplier = rangeSupplier;
         this.rangeThreshold = rangeThreshold;
@@ -19,10 +20,10 @@ public class DriveRange extends DriveDistance {
     public DriveRange(Drivetrain dt) {
         super(dt);
     }
-    
+
     @Override
     public boolean isFinished() {
-        System.out.println("Range val: "+rangeSupplier.getAsDouble());
+        System.out.println("Range val: " + rangeSupplier.getAsDouble());
         if (rangeSupplier.getAsDouble() >= rangeThreshold || super.isFinished()) {
             return true;
         }

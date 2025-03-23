@@ -1,40 +1,22 @@
-package frc.robot.Subsystems;
+package frc.robot.Subsystems.elevator;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-
-import org.littletonrobotics.junction.AutoLog;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkBaseConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.networktables.BooleanPublisher;
 import edu.wpi.first.networktables.DoubleEntry;
 import edu.wpi.first.networktables.DoublePublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StringPublisher;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.units.Units;
 import frc.robot.Constants;
-import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.TrapezoidController;
 import frc.robot.Utils.SafeableSubsystem;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 
 public class ElevatorSubsystem extends SafeableSubsystem {
     public enum ElevatorLevel {
@@ -178,26 +160,21 @@ public class ElevatorSubsystem extends SafeableSubsystem {
 
     private final NetworkTable m_table;
     private final StringPublisher m_table_level;
-    private final DoublePublisher m_encoder;
     protected final DoublePublisher desiredVelocityPub;
     protected final DoublePublisher desiredPositionPub;
-    private final BooleanPublisher m_bottomlimitSwitch;
-    private final BooleanPublisher m_toplimitSwitch;
-    private final SparkFlex m_motorLeader;
-    private final SparkFlex m_motorFollower;
     private final DoublePublisher outputVoltagePreClampPub;
     private final DoublePublisher outputVoltagePostClampPub;
 
-    protected final MotorPublisher m_motorPublisherLeader;
-    protected final MotorPublisher m_motorPublisherFollower;
+    private final ElevatorMotorIO m_motorIo;
+    private final ElevatorMotorIOInputsAutoLogged m_motorInputs = new ElevatorMotorIOInputsAutoLogged();
 
     private final ElevatorFeedforward m_feedforward;
     private final PIDController m_pidController;
-    protected TrapezoidController m_trapController;
-    protected RelativeEncoder encoder;
+    protected final TrapezoidController m_trapController;
 
-    protected DigitalInput bottomLimitSwitch; // make sure limit switches are not unhooked or it freaks out
-    protected DigitalInput topLimitSwitch;
+    // make sure limit switches are not unhooked or it freaks out
+    protected final ElevatorLimitsIO m_limitsIo;
+    protected final ElevatorLimitsIOInputsAutoLogged m_limitsInputs = new ElevatorLimitsIOInputsAutoLogged();
 
     protected DoubleEntry m_elevatorKs;
     protected DoubleEntry m_elevatorKg;
@@ -226,14 +203,16 @@ public class ElevatorSubsystem extends SafeableSubsystem {
     protected double m_manualSpeed = 0.0;
     protected double m_lastDesiredPosition = 0.0;
 
-    public ElevatorSubsystem(NetworkTableInstance nt) {
+    protected LoggedMechanismLigament2d mechanism = new LoggedMechanismLigament2d(getName(), 0.0, 90);
+
+    public ElevatorSubsystem(NetworkTableInstance nt, ElevatorMotorIO motorIo, ElevatorLimitsIO limitsIo) {
+        m_motorIo = motorIo;
+        m_limitsIo = limitsIo;
+
         m_table = nt.getTable(getName());
         m_table_level = m_table.getStringTopic("level").publish();
-        m_encoder = m_table.getDoubleTopic("Encoder Position").publish();
         desiredVelocityPub = m_table.getDoubleTopic("Desired Vel").publish();
         desiredPositionPub = m_table.getDoubleTopic("Desired Pos").publish();
-        m_bottomlimitSwitch = m_table.getBooleanTopic("Bottom Limit Switch").publish();
-        m_toplimitSwitch = m_table.getBooleanTopic("Top Limit Switch").publish();
         outputVoltagePreClampPub = m_table.getDoubleTopic("Output V pre lamp").publish();
         outputVoltagePostClampPub = m_table.getDoubleTopic("Output V post lamp").publish();
 
@@ -267,34 +246,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         LEVEL_3.set(ElevatorLevel.LEVEL3.toHeight());
         LEVEL_4.set(ElevatorLevel.LEVEL4.toHeight());
 
-        m_motorLeader = new SparkFlex(Constants.MechID.kElevatorFrontCanId, MotorType.kBrushless);
-        m_motorFollower = new SparkFlex(Constants.MechID.kElevatorBackCanId, MotorType.kBrushless);
-
-        bottomLimitSwitch = new DigitalInput(Constants.Elevator.kBottomLimitSwitch);
-        topLimitSwitch = new DigitalInput(Constants.Elevator.kTopLimitSwitch);
-
-        SparkBaseConfig motorConf = new SparkFlexConfig();
-        motorConf.smartCurrentLimit(60);
-        motorConf.idleMode(IdleMode.kBrake);
-        motorConf.inverted(true);
-        m_motorLeader.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        SparkBaseConfig followerConf = new SparkFlexConfig();
-        followerConf.smartCurrentLimit(60);
-        followerConf.idleMode(IdleMode.kBrake);
-        followerConf.inverted(false);
-        followerConf.follow(m_motorLeader, false);
-        m_motorFollower.configure(followerConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        m_motorLeader.setVoltage(0);
-        m_motorLeader.getEncoder().setPosition(0);
-        m_motorFollower.getEncoder().setPosition(0);
-
-        encoder = m_motorLeader.getEncoder();
-        encoder.setPosition(0);
-
-        m_motorPublisherLeader = new MotorPublisher(m_motorLeader, m_table, "leader");
-        m_motorPublisherFollower = new MotorPublisher(m_motorFollower, m_table, "follower");
+        m_motorIo.resetLeaderEncoderPosition();
 
         m_feedforward = new ElevatorFeedforward(
                 Constants.Elevator.FF.kS,
@@ -339,10 +291,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
     }
 
     public boolean isValidAlgaeLevel() {
-        if (m_levelFlag == ElevatorLevel.LEVEL1 || m_levelFlag == ElevatorLevel.LEVEL3) {
-            return true;
-        }
-        return false;
+        return m_levelFlag == ElevatorLevel.LEVEL1 || m_levelFlag == ElevatorLevel.LEVEL3;
     }
 
     public boolean isAnyLevelSet() {
@@ -375,10 +324,6 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         return m_pidController;
     }
 
-    public SparkFlex getMotorLeader() {
-        return m_motorLeader;
-    }
-
     public ElevatorLevel getLevel() {
         return m_level;
     }
@@ -396,8 +341,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
     }
 
     public void resetEncoder() {
-        if (isAtBottom()) {
-            encoder.setPosition(0);
+        if (m_limitsInputs.touchingBottom) {
+            m_motorIo.resetLeaderEncoderPosition();
             setLevel(ElevatorLevel.GROUND);
         } else {
             System.err.println("Tried to reset elevator encoder when not at ground level");
@@ -431,7 +376,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             targetVelocity = 0.0;
         }
         handleLimits();
-        m_motorLeader.setVoltage(outputVoltage);
+        m_motorIo.setLeaderVoltage(outputVoltage);
     }
 
     public void manualUp() {
@@ -452,21 +397,13 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         this.m_testMode = testMode;
     }
 
-    public boolean isAtBottom() { // bottom limit states are swapped
-        return (!bottomLimitSwitch.get());
-    }
-
-    public boolean isAtTop() {
-        return topLimitSwitch.get();
-    }
-
     public void handleLimits() {
-        if (isAtBottom()) {
+        if (m_limitsInputs.touchingBottom) {
             if (outputVoltage < 0 || targetVelocity <= 0.0) {
                 outputVoltage = 0;
             }
         }
-        if (isAtTop()) {
+        if (m_limitsInputs.touchingTop) {
             if (outputVoltage > 0) {
                 outputVoltage = 0;
             }
@@ -481,15 +418,25 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         setLevel(ElevatorLevel.GROUND);
     }
 
+    public LoggedMechanismLigament2d getMechanism() {
+        return mechanism;
+    }
+
     @Override
     public void periodic() {
-        m_motorPublisherLeader.update();
-        m_motorPublisherFollower.update();
+        m_motorIo.updateInputs(m_motorInputs);
+        Logger.processInputs("ElevatorSubsystem/Motors", m_motorInputs);
+
+        m_limitsIo.updateInputs(m_limitsInputs);
+        Logger.processInputs("ElevatorSubsystem/Limits", m_limitsInputs);
+
+        // TODO: encoder units -> meters
+        mechanism.setLength(m_motorInputs.leaderRelativeEncoderPosition.in(Units.Radians));
 
         if (!this.m_testMode) {
-            currentPosition = encoder.getPosition();
+            currentPosition = m_motorInputs.leaderRelativeEncoderPosition.in(Units.Radians);
             double currentDelta = desiredPosition - currentPosition;
-            currentVelocity = encoder.getVelocity() / 60;
+            currentVelocity = m_motorInputs.leaderRelativeEncoderVelocity.in(Units.RotationsPerSecond);
             targetVelocity = m_trapController.calculate(currentDelta, currentVelocity);
 
             if (desiredPosition != this.m_lastDesiredPosition) {
@@ -542,11 +489,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             desiredVelocityPub.set(targetVelocity);
             desiredPositionPub.set(desiredPosition);
 
-            m_motorLeader.setVoltage(outputVoltage);
+            m_motorIo.setLeaderVoltage(outputVoltage);
         }
-        m_encoder.set(encoder.getPosition());
-        m_bottomlimitSwitch.set(isAtBottom());
-        m_toplimitSwitch.set(isAtTop());
     }
 
     public LoggedMechanismLigament2d mechanism() {

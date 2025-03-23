@@ -2,8 +2,6 @@ package frc.robot.Subsystems.coral;
 
 import org.ironmaple.simulation.IntakeSimulation;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-
 public class CoralDetectionIOSim implements CoralDetectionIO {
     private final IntakeSimulation intakeSim;
 

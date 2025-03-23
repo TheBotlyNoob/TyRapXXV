@@ -1,6 +1,7 @@
 package frc.robot.Commands;
+
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.ElevatorSubsystem;
+import frc.robot.Subsystems.elevator.ElevatorSubsystem;
 
 public class StopElevator extends Command {
     ElevatorSubsystem el;
@@ -17,8 +18,6 @@ public class StopElevator extends Command {
 
     @Override
     public boolean isFinished() {
-        return true; 
+        return true;
     }
 }
-
-

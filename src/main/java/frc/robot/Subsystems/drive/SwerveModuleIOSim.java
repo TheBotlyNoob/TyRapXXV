@@ -1,10 +1,8 @@
 package frc.robot.Subsystems.drive;
 
 import org.ironmaple.simulation.drivesims.SwerveModuleSimulation;
-import org.ironmaple.simulation.motorsims.SimulatedMotorController;
 import org.ironmaple.simulation.motorsims.SimulatedMotorController.GenericMotorController;
 
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;

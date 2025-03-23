@@ -11,7 +11,7 @@ import frc.robot.Subsystems.drive.Drivetrain;
 public class DriveFixedVelocity extends Command {
     Drivetrain dt;
     int pov;
-    DoubleSupplier speedSupplier; 
+    DoubleSupplier speedSupplier;
     private final SlewRateLimiter m_xspeedLimiter = new SlewRateLimiter(Controller.kRateLimitXSpeed);
     private final SlewRateLimiter m_yspeedLimiter = new SlewRateLimiter(Controller.kRateLimitYSpeed);
 
@@ -23,7 +23,7 @@ public class DriveFixedVelocity extends Command {
     }
 
     private double xSpeed;
-    private double ySpeed;    
+    private double ySpeed;
 
     public void initialize() {
         // Get the x speed. We are inverting this because Xbox controllers return

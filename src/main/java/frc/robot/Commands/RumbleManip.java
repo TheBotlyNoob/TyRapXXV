@@ -10,6 +10,7 @@ public class RumbleManip extends Command {
     private final XboxController m_controller = new XboxController(Controller.kManipControllerID);
     protected double durationSec;
     protected double endTimeSec;
+
     public RumbleManip(double durationSec) {
         this.durationSec = durationSec;
     }
@@ -23,11 +24,12 @@ public class RumbleManip extends Command {
 
     @Override
     public boolean isFinished() {
-        if (Timer.getFPGATimestamp() >= endTimeSec){
+        if (Timer.getFPGATimestamp() >= endTimeSec) {
             m_controller.setRumble(RumbleType.kLeftRumble, 0.0);
             m_controller.setRumble(RumbleType.kRightRumble, 0.0);
             return true;
-        };
+        }
+        ;
         return false;
     }
 }
