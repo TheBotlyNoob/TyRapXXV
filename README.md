@@ -32,38 +32,49 @@ To maintain a clean and efficient workflow, follow these guidelines for branch n
 ## Development Workflow
 
 1. **Create a branch based on the feature or experiment:**
-    ```sh
-    git checkout -b develop/coral-processor
-    ```
+
+```sh
+git checkout -b develop/coral-processor
+```
+
 2. **Commit and push changes:**
-    ```sh
-    git add .
-    git commit -m "Added initial implementation of coral processor."
-    git push origin feature/coral-processor
-    ```
+
+```sh
+git add .
+git commit -m "Added initial implementation of coral processor."
+git push origin feature/coral-processor
+```
+
 3. **When a stable set of features is ready, create a `release` branch from `develop`.**
-    ```sh
-    git checkout -b release/1.0 develop
-    git push origin release/1.0
-    ```
+
+```sh
+git checkout -b release/1.0 develop
+git push origin release/1.0
+```
+
 4. **Perform final testing and bug fixes in the `release` branch.**
 5. **Once the `release` branch is stable, merge it into `main`.**
-    ```sh
-    git checkout main
-    git merge release/1.0
-    git push origin main
-    ```
+
+```sh
+git checkout main
+git merge release/1.0
+git push origin main
+```
+
 6. **Merge `release` back into `develop` to keep all branches up-to-date.**
-    ```sh
-    git checkout develop
-    git merge release/1.0
-    git push origin develop
-    ```
+
+```sh
+git checkout develop
+git merge release/1.0
+git push origin develop
+```
+
 7. **Delete the feature and release branches after merging.**
-    ```sh
-    git branch -d feature/coral-processor
-    git branch -d release/1.0
-    ```
+
+```sh
+git branch -d feature/coral-processor
+git branch -d release/1.0
+```
 
 ## Commit Message Guidelines
 
