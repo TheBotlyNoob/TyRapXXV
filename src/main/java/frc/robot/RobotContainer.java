@@ -119,7 +119,6 @@ import frc.robot.Commands.StopElevator;
 public class RobotContainer {
         public final NetworkTableInstance nt = NetworkTableInstance.getDefault();
 
-        private final Pigeon2 m_gyro = new Pigeon2(ID.kGyro);
         private Drivetrain m_swerve;
         private Limelight m_Limelight;
         private AlgaeGrabberSubsystem m_algae;
@@ -132,7 +131,6 @@ public class RobotContainer {
         private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
         private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
         private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
-        private GenericEntry m_gyroAngle = m_competitionTab.add("Gyro Angle", 0).getEntry();
         private GenericEntry m_commandedXVel = m_competitionTab.add("CommandedVX", 0).getEntry();
         private GenericEntry m_commandedYVel = m_competitionTab.add("CommandedVY", 0).getEntry();
         private StructArrayPublisher<SwerveModuleState> publisher = nt
@@ -170,9 +168,6 @@ public class RobotContainer {
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-
-                this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(0));
-
                 switch (Constants.RobotMode.currentMode) {
                         case REAL:
                                 initReal();
@@ -264,23 +259,32 @@ public class RobotContainer {
                         throw new IllegalStateException("initReal can only be called in REAL mode");
                 }
 
-                m_swerve = new Drivetrain(new GyroIOPigeon2(m_gyro),
+                m_swerve = new Drivetrain(new GyroIOPigeon2(new Pigeon2(Constants.ID.kGyro)),
                                 new SwerveModuleIOSpark(ID.kFrontLeftDrive, ID.kFrontLeftTurn, ID.kFrontLeftCANCoder,
-                                                Offsets.kFrontLeftOffset, DrivetrainConstants.sparkFlex, true),
+                                                Offsets.kFrontLeftOffset,
+                                                DrivetrainConstants.sparkFlex, true),
+
                                 new SwerveModuleIOSpark(ID.kFrontRightDrive, ID.kFrontRightTurn, ID.kFrontRightCANCoder,
                                                 Offsets.kBackRightOffset,
                                                 DrivetrainConstants.sparkFlex, false),
+
                                 new SwerveModuleIOSpark(ID.kBackLeftDrive, ID.kBackLeftTurn, ID.kBackLeftCANCoder,
                                                 Offsets.kBackLeftOffset,
                                                 DrivetrainConstants.sparkFlex, false),
+
                                 new SwerveModuleIOSpark(ID.kBackRightDrive, ID.kBackRightTurn, ID.kBackRightCANCoder,
                                                 Offsets.kBackLeftOffset,
                                                 DrivetrainConstants.sparkFlex, false));
 
-                m_elevator = new ElevatorSubsystem(new ElevatorMotorIOSpark(), new ElevatorLimitsIOReal(),
+                m_elevator = new ElevatorSubsystem(
+                                new ElevatorMotorIOSpark(),
+                                new ElevatorLimitsIOReal(),
                                 new ElevatorConfigIONetworkTables(nt));
 
-                m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIOSpark(), new CoralWristIOSpark(),
+                m_coral = new CoralSubsystem(
+                                m_elevator,
+                                new CoralGrabberIOSpark(),
+                                new CoralWristIOSpark(),
                                 new CoralDetectionIOReal(),
                                 new CoralConfigIONetworkTables(nt));
         }
@@ -328,12 +332,19 @@ public class RobotContainer {
 
                 driveSim = Optional.of(dtSim);
 
-                m_elevator = new ElevatorSubsystem(new ElevatorMotorIO() {
-                }, new ElevatorLimitsIO() {
-                }, new ElevatorConfigIONetworkTables(nt));
+                // TODO: simulate elevator
+                m_elevator = new ElevatorSubsystem(
+                                new ElevatorMotorIO() {
+                                },
+                                new ElevatorLimitsIO() {
+                                },
+                                new ElevatorConfigIONetworkTables(nt));
 
                 CoralGrabberIOSim grabberIo = new CoralGrabberIOSim(dtSim);
-                m_coral = new CoralSubsystem(m_elevator, grabberIo, new CoralWristIOSim(),
+                m_coral = new CoralSubsystem(
+                                m_elevator,
+                                grabberIo,
+                                new CoralWristIOSim(),
                                 new CoralDetectionIOSim(grabberIo.getIntakeSim()),
                                 new CoralConfigIONetworkTables(nt));
 
@@ -356,16 +367,22 @@ public class RobotContainer {
                                 new SwerveModuleIO() {
                                 });
 
-                m_elevator = new ElevatorSubsystem(new ElevatorMotorIO() {
-                }, new ElevatorLimitsIO() {
-                }, new ElevatorConfigIO() {
-                });
+                m_elevator = new ElevatorSubsystem(
+                                new ElevatorMotorIO() {
+                                }, new ElevatorLimitsIO() {
+                                }, new ElevatorConfigIO() {
+                                });
 
-                m_coral = new CoralSubsystem(m_elevator, new CoralGrabberIO() {
-                }, new CoralWristIO() {
-                }, new CoralDetectionIO() {
-                }, new CoralConfigIO() {
-                });
+                m_coral = new CoralSubsystem(
+                                m_elevator,
+                                new CoralGrabberIO() {
+                                },
+                                new CoralWristIO() {
+                                },
+                                new CoralDetectionIO() {
+                                },
+                                new CoralConfigIO() {
+                                });
         }
 
         /**
@@ -866,10 +883,6 @@ public class RobotContainer {
                 Controller.kManipulatorController.setRumble(RumbleType.kRightRumble, 0.0);
         }
 
-        public ElevatorSubsystem getElevator() {
-                return m_elevator;
-        }
-
         public void setPIDConstants() {
                 // Configure the drive train tuning constants from the dashboard
                 for (SwerveModule m : m_swerve.getSwerveModules()) {
@@ -910,7 +923,6 @@ public class RobotContainer {
         public void reportTelemetry() {
                 m_xVelEntry.setDouble(m_swerve.getChassisSpeeds().vxMetersPerSecond);
                 m_yVelEntry.setDouble(m_swerve.getChassisSpeeds().vyMetersPerSecond);
-                m_gyroAngle.setDouble(m_swerve.getGyroYawRotation2d().getDegrees());
                 SwerveModuleState[] states = {
                                 m_swerve.getBackLeftSwerveModule().getState(),
                                 m_swerve.getBackRightSwerveModule().getState(),

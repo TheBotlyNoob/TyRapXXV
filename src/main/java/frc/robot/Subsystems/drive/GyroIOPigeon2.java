@@ -13,6 +13,7 @@
 
 package frc.robot.Subsystems.drive;
 
+import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -24,7 +25,8 @@ public class GyroIOPigeon2 implements GyroIO {
     public GyroIOPigeon2(Pigeon2 pigeon) {
         this.pigeon = pigeon;
 
-        pigeon.getConfigurator().apply(new Pigeon2Configuration());
+        pigeon.getConfigurator()
+                .apply(new Pigeon2Configuration().withMountPose(new MountPoseConfigs().withMountPoseYaw(0)));
         pigeon.getConfigurator().setYaw(0.0);
         pigeon.optimizeBusUtilization();
     }

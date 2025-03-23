@@ -6,8 +6,6 @@ package frc.robot;
 
 import com.pathplanner.lib.commands.FollowPathCommand;
 
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import org.littletonrobotics.junction.LogFileUtil;
@@ -72,15 +70,15 @@ public class Robot extends LoggedRobot {
         Logger.start();
 
         m_container = new RobotContainer();
+
         FollowPathCommand.warmupCommand().schedule();
-        DataLogManager.start();
-        DriverStation.startDataLog(DataLogManager.getLog());
     }
 
     @Override
     public void autonomousInit() {
         m_container.getDrivetrain().resetGyro();
         m_container.getDrivetrain().resetOdo();
+
         m_container.getDrivetrain().setFieldRelative(true);
         m_container.clearDefaultCommand();
         m_container.setAutoDefaultCommand();
