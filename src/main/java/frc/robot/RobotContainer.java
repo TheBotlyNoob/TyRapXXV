@@ -4,21 +4,16 @@
 
 package frc.robot;
 
-import java.io.IOException;
-import java.util.*;
-
-import com.ctre.phoenix6.configs.MountPoseConfigs;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.path.Waypoint;
 import com.pathplanner.lib.util.FileVersionException;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -27,75 +22,28 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.PixelFormat;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.ConditionalCommand;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Commands.*;
 import frc.robot.Constants.*;
 import frc.robot.Constants.RobotMode.Mode;
-import frc.robot.Subsystems.AlgaeGrabberSubsystem;
-import frc.robot.Subsystems.LightSubsystem;
 import frc.robot.Subsystems.ClimberSubsystem;
-import frc.robot.Subsystems.drive.Drivetrain;
-import frc.robot.Subsystems.drive.GyroIO;
-import frc.robot.Subsystems.drive.GyroIOPigeon2;
-import frc.robot.Subsystems.drive.GyroIOSim;
-import frc.robot.Subsystems.drive.SwerveModule;
-import frc.robot.Subsystems.drive.SwerveModuleIO;
-import frc.robot.Subsystems.drive.SwerveModuleIOSim;
-import frc.robot.Subsystems.drive.SwerveModuleIOSpark;
-import frc.robot.Subsystems.elevator.ElevatorConfigIO;
-import frc.robot.Subsystems.elevator.ElevatorConfigIONetworkTables;
-import frc.robot.Subsystems.elevator.ElevatorLimitsIO;
-import frc.robot.Subsystems.elevator.ElevatorLimitsIOReal;
-import frc.robot.Subsystems.elevator.ElevatorMotorIO;
-import frc.robot.Subsystems.elevator.ElevatorMotorIOSpark;
-import frc.robot.Subsystems.elevator.ElevatorSubsystem;
-import frc.robot.Subsystems.elevator.ElevatorLevel;
+import frc.robot.Subsystems.LightSubsystem;
 import frc.robot.Subsystems.Limelight;
+import frc.robot.Subsystems.algae.*;
+import frc.robot.Subsystems.coral.*;
+import frc.robot.Subsystems.drive.*;
+import frc.robot.Subsystems.elevator.*;
 import frc.robot.Utils.SafeableSubsystem;
-import frc.robot.Subsystems.coral.CoralConfigIO;
-import frc.robot.Subsystems.coral.CoralConfigIONetworkTables;
-import frc.robot.Subsystems.coral.CoralDetectionIO;
-import frc.robot.Subsystems.coral.CoralDetectionIOReal;
-import frc.robot.Subsystems.coral.CoralDetectionIOSim;
-import frc.robot.Subsystems.coral.CoralGrabberIOSpark;
-import frc.robot.Subsystems.coral.CoralSubsystem;
-import frc.robot.Subsystems.coral.CoralWristIOSim;
-import frc.robot.Subsystems.coral.CoralWristIOSpark;
-import frc.robot.Subsystems.coral.CoralGrabberIO;
-import frc.robot.Subsystems.coral.CoralGrabberIOSim;
-import frc.robot.Subsystems.coral.CoralWristIO;
-import frc.robot.Commands.AlgaeIntake;
-import frc.robot.Commands.Drive;
-import frc.robot.Commands.DriveDistance;
-import frc.robot.Commands.DriveDistance2;
-import frc.robot.Commands.DriveLeftOrRight;
-import frc.robot.Commands.DriveFixedVelocity;
-import frc.robot.Commands.DriveOffset;
-import frc.robot.Commands.EjectAlgae;
-import frc.robot.Commands.EjectCoral;
-import frc.robot.Commands.GoToFlagLevel;
-import frc.robot.Commands.MoveCoralManipulator;
-import frc.robot.Commands.MoveStinger;
-import frc.robot.Commands.ResetOdoCommand;
-import frc.robot.Commands.RotateWheels;
-import frc.robot.Commands.RumbleController;
-import frc.robot.Commands.StationaryWait;
-import frc.robot.Commands.StopCoral;
-import frc.robot.Commands.StopDrive;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -105,7 +53,9 @@ import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFie
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 
-import frc.robot.Commands.StopElevator;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -187,7 +137,6 @@ public class RobotContainer {
                 climbCamera = CameraServer.startAutomaticCapture(); // Start USB webcam capture for climb
                 climbCamera.setFPS(18);
                 climbCamera.setPixelFormat(PixelFormat.kMJPEG);
-                this.m_algae = new AlgaeGrabberSubsystem(nt);
 
                 // this.m_range = new RangeSensor(0);
 
@@ -276,6 +225,8 @@ public class RobotContainer {
                                                 Offsets.kBackLeftOffset,
                                                 DrivetrainConstants.sparkFlex, false));
 
+                m_algae = new AlgaeGrabberSubsystem(new AlgaePneumaticsIOReal(), new AlgaeRetrievalIOSpark());
+
                 m_elevator = new ElevatorSubsystem(
                                 new ElevatorMotorIOSpark(),
                                 new ElevatorLimitsIOReal(),
@@ -340,6 +291,11 @@ public class RobotContainer {
                                 },
                                 new ElevatorConfigIONetworkTables(nt));
 
+                // TODO: simulate Algae
+                m_algae = new AlgaeGrabberSubsystem(new AlgaePneumaticsIO() {
+                }, new AlgaeRetrievalIO() {
+                });
+
                 CoralGrabberIOSim grabberIo = new CoralGrabberIOSim(dtSim);
                 m_coral = new CoralSubsystem(
                                 m_elevator,
@@ -372,6 +328,10 @@ public class RobotContainer {
                                 }, new ElevatorLimitsIO() {
                                 }, new ElevatorConfigIO() {
                                 });
+
+                m_algae = new AlgaeGrabberSubsystem(new AlgaePneumaticsIO() {
+                }, new AlgaeRetrievalIO() {
+                });
 
                 m_coral = new CoralSubsystem(
                                 m_elevator,
