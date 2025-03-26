@@ -1,22 +1,16 @@
 package frc.robot.Subsystems.elevator;
 
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.networktables.DoubleEntry;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.units.Units;
-import frc.robot.Constants;
-import frc.robot.Utils.TrapezoidController;
-import frc.robot.Utils.SafeableSubsystem;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
+import frc.robot.Utils.SafeableSubsystem;
+import frc.robot.Utils.TrapezoidController;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 
 public class ElevatorSubsystem extends SafeableSubsystem {
     @AutoLogOutput(key = "ElevatorSubsystem/Level")
@@ -290,11 +284,12 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             double targetAcceleration = (targetVelocityRotPerSec - this.m_lastSpeed);
 
             double pidVal = m_pidController.calculate(currentPositionRot, desiredPositionRot);
-            double FFVal = m_feedforward.calculateWithVelocities(targetVelocityRotPerSec, targetAcceleration);
+            // TODO: the suggested alternative, calculateWithVelocities, ruins the FF. Needs further investigation.
+            double FFVal = m_feedforward.calculate(targetVelocityRotPerSec, targetAcceleration);
 
             outputVoltage = pidVal + FFVal;
             this.m_lastSpeed = currentVelocityRotPerSec;
-            this.m_lastTime = Timer.getTimestamp();
+            this.m_lastTime = Timer.getFPGATimestamp();
 
             handleLimits();
 

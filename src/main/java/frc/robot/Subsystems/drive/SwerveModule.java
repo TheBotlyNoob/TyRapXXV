@@ -4,24 +4,6 @@
 
 package frc.robot.Subsystems.drive;
 
-import org.littletonrobotics.junction.Logger;
-
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.hardware.CANcoder;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.LimitSwitchConfig;
-import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.config.LimitSwitchConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -31,7 +13,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.Timer;
-import frc.robot.Constants.*;
+import org.littletonrobotics.junction.Logger;
 
 public class SwerveModule {
 
@@ -49,7 +31,7 @@ public class SwerveModule {
     private final ProfiledPIDController m_turningPIDController;
 
     private double m_turningLastSpeed = 0;
-    private double m_turningLastTime = Timer.getTimestamp();
+    private double m_turningLastTime = Timer.getFPGATimestamp();
     private double actualTurnVelocityRps = 0.0;
 
     private final SimpleMotorFeedforward m_driveFeedforward;
@@ -139,12 +121,14 @@ public class SwerveModule {
     // and a ProfiledPIDController
     public void goToPosition(double goalPosition) {
         double targetVelocity = m_turningPIDController.getSetpoint().velocity;
-        double time = Timer.getTimestamp();
+        // TODO: the proper thing to do is use `Timer.getTimestamp()`, to allow for better replayability, however, this makes the simulation error.
+        double time = Timer.getFPGATimestamp();
         double targetAcceleration = (targetVelocity - this.m_turningLastSpeed)
                 / (time - this.m_turningLastTime);
 
         double pidVal = m_turningPIDController.calculate(m_inputs.turningMotorPosition.in(Units.Radians), goalPosition);
-        double FFVal = m_turnFeedforward.calculateWithVelocities(m_turningPIDController.getSetpoint().velocity,
+        // TODO: the suggested alternative, calculateWithVelocities, ruins the FF. Needs further investigation.
+        double FFVal = m_turnFeedforward.calculate(m_turningPIDController.getSetpoint().velocity,
                 targetAcceleration);
 
         m_io.setTurnVoltage(Units.Volts.of(pidVal + FFVal));

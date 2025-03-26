@@ -1,19 +1,21 @@
 package frc.robot.Commands;
 
 // Imports
-import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.Vector;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.Subsystems.drive.Drivetrain;
 import frc.robot.Utils.CoordinateUtilities;
 import frc.robot.Utils.TrapezoidController;
-import edu.wpi.first.math.Nat;
-import edu.wpi.first.math.Vector;
-import edu.wpi.first.math.geometry.Pose2d;
-import frc.robot.Constants.LimelightConstants;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
+
+import java.util.function.DoubleSupplier;
 
 // This Command will use the current position in odometry to drive straight at 
 // a specifie distance and direction. 
@@ -149,7 +151,7 @@ public class DriveDistance2 extends Command {
                 // Get current pose
                 currentPose = dt.getRoboPose2d();
                 // Get current time
-                double lastTime = Timer.getTimestamp();
+                double lastTime = Timer.getFPGATimestamp();
                 // Calculate distance to the new position from the current one
                 rangeM = CoordinateUtilities.distanceTo(currentPose, desiredPose);
                 // Calculate bearing
