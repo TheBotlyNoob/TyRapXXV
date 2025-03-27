@@ -23,6 +23,7 @@ public class ElevatorMotorIOSpark implements ElevatorMotorIO {
         motorConf.smartCurrentLimit(60);
         motorConf.idleMode(IdleMode.kBrake);
         motorConf.inverted(true);
+        motorConf.apply(Constants.SparkConstants.defaultSignalConf);
         motorLeader.configure(motorConf, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
 
@@ -31,6 +32,7 @@ public class ElevatorMotorIOSpark implements ElevatorMotorIO {
         followerConf.idleMode(IdleMode.kBrake);
         followerConf.inverted(false);
         followerConf.follow(motorLeader, false);
+        followerConf.apply(Constants.SparkConstants.defaultSignalConf);
         motorFollower.configure(followerConf, ResetMode.kResetSafeParameters,
                 PersistMode.kPersistParameters);
 

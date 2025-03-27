@@ -17,7 +17,6 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
-import edu.wpi.first.hal.AllianceStationID;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -28,7 +27,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -113,6 +111,7 @@ public class Drivetrain extends SubsystemBase {
         m_swerveModules[2] = m_backLeft;
         m_swerveModules[3] = m_backRight;
 
+        // TODO: allow PID to be tuned--make a new IO for that.
         m_odometry = new SwerveDrivePoseEstimator(
                 m_kinematics,
                 getGyroYawRotation2d(),
@@ -401,6 +400,10 @@ public class Drivetrain extends SubsystemBase {
         updateOdometry();
 
         SwerveModuleState[] swerveModuleStates = m_kinematics.toSwerveModuleStates(commandedChassisSpeeds);
+
+        Logger.recordOutput("Drivetrain/SwerveModuleStates/Desired", swerveModuleStates);
+        Logger.recordOutput("Drivetrain/SwerveModuleStates/Real",
+                Stream.of(getSwerveModules()).map((m) -> m.getState()).toArray(SwerveModuleState[]::new));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DrivetrainConstants.kMaxPossibleSpeed);
 

@@ -1,4 +1,4 @@
-package frc.robot.Subsystems;
+package frc.robot.Subsystems.climber;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.AbsoluteEncoder;
@@ -77,17 +77,9 @@ public class ClimberSubsystem extends SubsystemBase {
     public void toggleClimbMode() {
         System.out.println("Toggling climb current=" + isClimbMode);
         if (isClimbMode) {
-            retractArms();
-            rampDown();
-            isClimbMode = false;
+            setCoralMode();
         } else {
-            for (int i = 0; i < m_toMakeSafe.length; i++) {
-                System.out.println("Placing " + m_toMakeSafe[i].getName() + " into a safe position");
-                m_toMakeSafe[i].makeSafe();
-            }
-            extendArms();
-            rampUp();
-            isClimbMode = true;
+            setClimbMode();
         }
     }
 
@@ -95,11 +87,11 @@ public class ClimberSubsystem extends SubsystemBase {
         extendArms();
         rampUp();
         m_clampPneumatic.set(kGrabberOpen);
-        isClimbMode = true;
         for (int i = 0; i < m_toMakeSafe.length; i++) {
             System.out.println("Placing " + m_toMakeSafe[i].getName() + " into a safe position");
             m_toMakeSafe[i].makeSafe();
         }
+        isClimbMode = true;
     }
 
     public void setCoralMode() {

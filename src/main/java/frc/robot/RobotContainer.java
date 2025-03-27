@@ -14,12 +14,8 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.AddressableLED;
@@ -27,16 +23,13 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Commands.*;
 import frc.robot.Constants.*;
 import frc.robot.Constants.RobotMode.Mode;
-import frc.robot.Subsystems.ClimberSubsystem;
+import frc.robot.Subsystems.climber.ClimberSubsystem;
 import frc.robot.Subsystems.LightSubsystem;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.algae.*;
@@ -52,6 +45,7 @@ import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.io.IOException;
 import java.util.List;
@@ -73,34 +67,11 @@ public class RobotContainer {
         private Limelight m_Limelight;
         private AlgaeGrabberSubsystem m_algae;
         private ClimberSubsystem m_climber;
-        private SendableChooser<String> autoChooser;
-        protected ElevatorSubsystem m_elevator;
-        protected CoralSubsystem m_coral;
-        protected LightSubsystem m_leds;
+        private ElevatorSubsystem m_elevator;
+        private CoralSubsystem m_coral;
+        private LightSubsystem m_leds;
 
-        private ShuffleboardTab m_competitionTab = Shuffleboard.getTab("Competition Tab");
-        private GenericEntry m_xVelEntry = m_competitionTab.add("Chassis X Vel", 0).getEntry();
-        private GenericEntry m_yVelEntry = m_competitionTab.add("Chassis Y Vel", 0).getEntry();
-        private GenericEntry m_commandedXVel = m_competitionTab.add("CommandedVX", 0).getEntry();
-        private GenericEntry m_commandedYVel = m_competitionTab.add("CommandedVY", 0).getEntry();
-        private StructArrayPublisher<SwerveModuleState> publisher = nt
-                        .getStructArrayTopic("MyStates", SwerveModuleState.struct).publish();
-        protected GenericEntry m_driveP = m_competitionTab.add("Drive P Val", DrivetrainConstants.drivePID[0])
-                        .getEntry();
-        protected GenericEntry m_driveFFStatic = m_competitionTab
-                        .add("Drive FF Static", DrivetrainConstants.driveFeedForward[0]).getEntry();
-        protected GenericEntry m_driveFFVel = m_competitionTab
-                        .add("Drive FF Vel", DrivetrainConstants.driveFeedForward[1])
-                        .getEntry();
-        protected GenericEntry m_driveAccel = m_competitionTab.add("Drive FF Accel", 0.0).getEntry();
-        protected GenericEntry m_turnP = m_competitionTab.add("Turn P Val", DrivetrainConstants.turnPID[0]).getEntry();
-        protected GenericEntry m_turnI = m_competitionTab.add("Turn I Val", DrivetrainConstants.turnPID[1]).getEntry();
-        protected GenericEntry m_turnFFStatic = m_competitionTab
-                        .add("Turn FF Static", DrivetrainConstants.turnFeedForward[0]).getEntry();
-        protected GenericEntry m_turnFFVel = m_competitionTab.add("Turn FF Vel", DrivetrainConstants.turnFeedForward[1])
-                        .getEntry();
-
-        private GenericEntry m_fixedSpeed = m_competitionTab.add("Fixed Speed", 0).getEntry();
+        private LoggedDashboardChooser<String> autoChooser;
 
         protected UsbCamera climbCamera;
 
@@ -157,13 +128,11 @@ public class RobotContainer {
                                 null,
                                 nt, safeable);
 
-                autoChooser = new SendableChooser<>(); // Default auto will be `Commands.none()'
+                autoChooser = new LoggedDashboardChooser<String>("AutoRoutine"); // Default auto will be
+                                                                                 // `Commands.none()'
 
                 configurePathPlanner();
-                autoChooser.setDefaultOption("DO NOTHING!", "NO AUTO");
-                m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
-
-                m_competitionTab.add("Drivetrain", this.m_swerve);
+                autoChooser.addDefaultOption("DO NOTHING!", "NO AUTO");
 
                 // configureBindings();
                 NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
@@ -496,14 +465,15 @@ public class RobotContainer {
                 Controller.kManipulatorController.povLeft().whileTrue(new MoveStinger(m_climber, true));
                 Controller.kManipulatorController.povRight().whileTrue(new MoveStinger(m_climber, false));
 
+                // TODO: make speed a constant
                 Controller.kDriveController.povUp()
-                                .whileTrue(new DriveFixedVelocity(m_swerve, 0, () -> m_fixedSpeed.getDouble(0.5)));
+                                .whileTrue(new DriveFixedVelocity(m_swerve, 0, () -> 0.5));
                 Controller.kDriveController.povRight()
-                                .whileTrue(new DriveFixedVelocity(m_swerve, 90, () -> m_fixedSpeed.getDouble(0.5)));
+                                .whileTrue(new DriveFixedVelocity(m_swerve, 90, () -> 0.5));
                 Controller.kDriveController.povDown()
-                                .whileTrue(new DriveFixedVelocity(m_swerve, 180, () -> m_fixedSpeed.getDouble(0.5)));
+                                .whileTrue(new DriveFixedVelocity(m_swerve, 180, () -> 0.5));
                 Controller.kDriveController.povLeft()
-                                .whileTrue(new DriveFixedVelocity(m_swerve, 270, () -> m_fixedSpeed.getDouble(0.5)));
+                                .whileTrue(new DriveFixedVelocity(m_swerve, 270, () -> 0.5));
                 Controller.kDriveController.x().whileTrue(new EjectCoral(m_coral));
 
                 Controller.kManipulatorController.leftBumper()
@@ -689,7 +659,7 @@ public class RobotContainer {
         }
 
         public void startAutonomous() {
-                String auto = autoChooser.getSelected();
+                String auto = autoChooser.get();
                 SequentialCommandGroup start;
                 Optional<Alliance> ally = DriverStation.getAlliance();
                 if (auto.equals("Left2Piece")) { // For testing
@@ -796,7 +766,7 @@ public class RobotContainer {
                 this.m_elevator.updateConstants();
                 this.m_elevator.resetEncoder();
                 this.m_coral.reinit();
-                this.setPIDConstants();
+                // this.setPIDConstants();
         }
 
         public void turnRumbleOff() {
@@ -804,21 +774,22 @@ public class RobotContainer {
                 Controller.kManipulatorController.setRumble(RumbleType.kRightRumble, 0.0);
         }
 
-        public void setPIDConstants() {
-                // Configure the drive train tuning constants from the dashboard
-                for (SwerveModule m : m_swerve.getSwerveModules()) {
-                        m.getDrivePidController().setP(m_driveP.getDouble(Constants.DrivetrainConstants.drivePID[0]));
-                        m.getDriveFeedForward().setKs(
-                                        m_driveFFStatic.getDouble(Constants.DrivetrainConstants.driveFeedForward[0]));
-                        m.getDriveFeedForward().setKv(
-                                        m_driveFFVel.getDouble(Constants.DrivetrainConstants.driveFeedForward[1]));
-                        m.getDriveFeedForward().setKa(m_driveAccel.getDouble(0.0));
-                        m.getTurnPidController().setP(m_turnP.getDouble(Constants.DrivetrainConstants.turnPID[0]));
-                        m.getTurnPidController().setI(m_turnI.getDouble(DrivetrainConstants.turnPID[1]));
-                        m.getTurnFeedForward().setKs(m_turnFFStatic.getDouble(DrivetrainConstants.turnFeedForward[0]));
-                        m.getTurnFeedForward().setKv(m_turnFFVel.getDouble(DrivetrainConstants.turnFeedForward[1]));
-                }
-        }
+        // TODO: set these in the drivetrain using an input
+        // public void setPIDConstants() {
+        // // Configure the drive train tuning constants from the dashboard
+        // for (SwerveModule m : m_swerve.getSwerveModules()) {
+        // m.getDrivePidController().setP(m_driveP.getDouble(Constants.DrivetrainConstants.drivePID[0]));
+        // m.getDriveFeedForward().setKs(
+        // m_driveFFStatic.getDouble(Constants.DrivetrainConstants.driveFeedForward[0]));
+        // m.getDriveFeedForward().setKv(
+        // m_driveFFVel.getDouble(Constants.DrivetrainConstants.driveFeedForward[1]));
+        // m.getDriveFeedForward().setKa(m_driveAccel.getDouble(0.0));
+        // m.getTurnPidController().setP(m_turnP.getDouble(Constants.DrivetrainConstants.turnPID[0]));
+        // m.getTurnPidController().setI(m_turnI.getDouble(DrivetrainConstants.turnPID[1]));
+        // m.getTurnFeedForward().setKs(m_turnFFStatic.getDouble(DrivetrainConstants.turnFeedForward[0]));
+        // m.getTurnFeedForward().setKv(m_turnFFVel.getDouble(DrivetrainConstants.turnFeedForward[1]));
+        // }
+        // }
 
         public void simulationPeriodic() {
                 if (Constants.RobotMode.currentMode == Constants.RobotMode.Mode.SIM) {
@@ -837,22 +808,5 @@ public class RobotContainer {
         }
 
         public void periodic() {
-                reportTelemetry();
-
-        }
-
-        public void reportTelemetry() {
-                m_xVelEntry.setDouble(m_swerve.getChassisSpeeds().vxMetersPerSecond);
-                m_yVelEntry.setDouble(m_swerve.getChassisSpeeds().vyMetersPerSecond);
-                SwerveModuleState[] states = {
-                                m_swerve.getBackLeftSwerveModule().getState(),
-                                m_swerve.getBackRightSwerveModule().getState(),
-                                m_swerve.getFrontLeftSwerveModule().getState(),
-                                m_swerve.getFrontRightSwerveModule().getState() };
-                publisher.set(states);
-                // m_currentRange.setDouble(m_range.getRange());
-                ChassisSpeeds commandedSpeeds = m_swerve.getCommandeChassisSpeeds();
-                m_commandedXVel.setDouble(commandedSpeeds.vxMetersPerSecond);
-                m_commandedYVel.setDouble(commandedSpeeds.vyMetersPerSecond);
         }
 }

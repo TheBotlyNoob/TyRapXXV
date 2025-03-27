@@ -75,6 +75,7 @@ public class SwerveModuleIOSpark implements SwerveModuleIO {
         driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); // m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
         driveConfig.idleMode(IdleMode.kBrake); // m_driveMotor.setIdleMode(IdleMode.kBrake);
         driveConfig.inverted(invertDrive); // m_driveMotor.setInverted(false);
+        driveConfig.apply(Constants.SparkConstants.defaultSignalConf);
         m_driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         /*
@@ -91,6 +92,7 @@ public class SwerveModuleIOSpark implements SwerveModuleIO {
         limitConfig.forwardLimitSwitchEnabled(false);
         limitConfig.reverseLimitSwitchEnabled(false);
         turningConfig.apply(limitConfig);
+        turningConfig.apply(Constants.SparkConstants.defaultSignalConf);
         m_turningMotor.configure(turningConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         m_encoderOffset = encoderOffset;

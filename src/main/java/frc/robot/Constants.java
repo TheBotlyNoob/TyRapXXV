@@ -1,5 +1,7 @@
 package frc.robot;
 
+import com.revrobotics.spark.config.SignalsConfig;
+
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -192,6 +194,15 @@ public class Constants {
         public static final double driveOffsetAngleError = 0.04;
         public static final double driveOffsetRangeMThreshold = 0.01;
         public static final double driveOffsetKp = 3.0;
+    }
+
+    public static class SparkConstants {
+        // enable encoder position and velocity logging for all motors.
+        public static final SignalsConfig defaultSignalConf = new SignalsConfig()
+                .absoluteEncoderPositionAlwaysOn(true)
+                .primaryEncoderPositionAlwaysOn(true)
+                .absoluteEncoderVelocityAlwaysOn(true)
+                .primaryEncoderVelocityAlwaysOn(true);
     }
 
     public static final class SensorID {

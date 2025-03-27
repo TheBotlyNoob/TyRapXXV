@@ -1,6 +1,9 @@
 package frc.robot.Subsystems.coral;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,6 +15,8 @@ public class CoralGrabberIOSpark implements CoralGrabberIO {
     private final SparkMax motor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
 
     public CoralGrabberIOSpark() {
+        motor.configure(new SparkMaxConfig().apply(Constants.SparkConstants.defaultSignalConf),
+                ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.ClimberSubsystem;
+import frc.robot.Subsystems.climber.ClimberSubsystem;
 
 public class MoveStinger extends Command {
     ClimberSubsystem cl;

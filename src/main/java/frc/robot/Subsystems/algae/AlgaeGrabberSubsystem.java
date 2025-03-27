@@ -1,6 +1,5 @@
 package frc.robot.Subsystems.algae;
 
-import edu.wpi.first.networktables.BooleanEntry;
 import frc.robot.Constants;
 import frc.robot.Utils.SafeableSubsystem;
 import org.littletonrobotics.junction.Logger;
@@ -11,11 +10,6 @@ public class AlgaeGrabberSubsystem extends SafeableSubsystem {
 
     private final AlgaePneumaticsIO m_extenderIo;
     private final AlgaePneumaticsIOInputsAutoLogged m_extenderInputs = new AlgaePneumaticsIOInputsAutoLogged();
-
-    /**
-     * Should the robot extend the algae retriever and run the motor?
-     */
-    private BooleanEntry table_should_retrieve;
 
     /** Creates a new AlgaeGrabber. */
     public AlgaeGrabberSubsystem(AlgaePneumaticsIO extenderIo, AlgaeRetrievalIO retrievalIo) {
