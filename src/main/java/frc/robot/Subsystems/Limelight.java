@@ -13,14 +13,14 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.*;
-import frc.robot.Utils.LimelightHelpers;
+
+import frc.robot.Subsystems.vision.LimelightHelpers;
 
 /**
  * The Limelight subsystem is a light that is lime green. If you look at it at a
  * certain angle, you will go blind, so read this code with caution.
  */
 public class Limelight extends SubsystemBase {
-
     private final NetworkTable limeTable = NetworkTableInstance.getDefault().getTable(ID.kFrontLimelightName);
     private final NetworkTableEntry targetInViewEntry = limeTable.getEntry("TargetInView");
     private final NetworkTableEntry tplEntry = limeTable.getEntry("pipeline");
@@ -35,7 +35,6 @@ public class Limelight extends SubsystemBase {
     private LinearFilter filteredYawDegrees = LinearFilter.movingAverage(10);
 
     public Limelight() {
-        System.out.println("-------- Start Limelight\n");
     }
 
     // This method is encapsulated so it can be overriden for simulation

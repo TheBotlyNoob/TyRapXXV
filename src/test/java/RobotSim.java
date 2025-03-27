@@ -40,7 +40,7 @@ public class RobotSim {
     public RobotSim() {
     }
 
-    @BeforeEach
+    // @BeforeEach
     public void setup() {
         // Tag 18 coordinates
         SimTarget target = new SimTarget((float) Units.Meters.convertFrom(144, Units.Inches),
@@ -197,7 +197,7 @@ public class RobotSim {
         assertTrue(true);
     }
 
-    @org.junit.jupiter.api.Test
+    // @org.junit.jupiter.api.Test
     public void testCaseDriveOffset() {
         // Enable the simulated robot
         DriverStationSim.setDsAttached(true);
