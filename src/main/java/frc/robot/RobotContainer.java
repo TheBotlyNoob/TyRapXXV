@@ -486,27 +486,13 @@ public class RobotContainer {
                                 new PrintCommand("Running remove algae"),
                                 new ParallelCommandGroup(
                                                 m_coral.wristExtendCommand(),
-                                                new DriveOffset(m_swerve, m_Limelight, .7, 0.0),
-                                                new GoToFlagLevel(m_elevator)),
-                                new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8),
+                                                new DriveOffset(m_swerve, m_Limelight, 1.1, 0.0),
+                                                new GoToFlagLevel(m_elevator)),            
+                                new DriveFixedVelocity(m_swerve, 0, () -> 2.25).withTimeout(0.8),
                                 new StopDrive(m_swerve),
                                 new PrintCommand("Remove algae complete"));
         }
-
-        public SequentialCommandGroup buildRemoveAlgaeAutoCommand() {
-                return new SequentialCommandGroup(
-                                new PrintCommand("Running remove algae"),
-                                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
-                                new ParallelCommandGroup(
-                                                m_coral.wristExtendCommand(),
-                                                new DriveOffset(m_swerve, m_Limelight, .7, 0.0),
-                                                new GoToFlagLevel(m_elevator)),
-                                new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8),
-                                new StopDrive(m_swerve),
-                                new DriveFixedVelocity(m_swerve, 180, () -> 2).withTimeout(0.2),
-                                new PrintCommand("Remove algae complete"));
-        }
-
+        
         public Drivetrain getDrivetrain() {
                 return this.m_swerve;
         }
@@ -606,39 +592,15 @@ public class RobotContainer {
                                         buildScoreOffsetCommand(false),
                                         m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                                         new DriveDistance2(m_swerve, ()-> 0.5, 180),
-                                        buildRemoveAlgaeAutoCommand());
+                                        m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
+                                        buildRemoveAlgaeCommand(),
+                                        new DriveFixedVelocity(m_swerve, 180, () -> 2.25).withTimeout(0.4),
+                                        new StopDrive(m_swerve));
+
                         start.schedule();
                 } else {
                         System.err.println("Invalid auto routine specified");
                 }
-
-                /*
-                 * else if(auto.equals("OnePieceAuto")){ // Permanent choice
-                 * start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
-                 * .getSelected()),
-                 * new DriveOffset(m_swerve, m_Limelight, false)); // Add Elevator to L4 and
-                 * score piece
-                 * } /*else if (auto.equals("Starting2Reef2")) {
-                 * // MultiStepRight example/template below
-                 * start = new SequentialCommandGroup(getAutonomousCommand(autoChooser
-                 * .getSelected()),
-                 * new DriveOffset(m_swerve, m_Limelight, false, id?), // Add Elevator to L4 and
-                 * score piece
-                 * getAutonomousCommand("Reef2Player1"), new CenterOnTag(m_swerve, m_Limelight),
-                 * // Collect coral here
-                 * getAutonomousCommand("Player1Reef1"), new DriveOffset(m_swerve, m_Limelight,
-                 * false, 19), // Add Elevator to L4 and score piece
-                 * getAutonomousCommand("Reef1Player1"), new CenterOnTag(m_swerve, m_Limelight),
-                 * // Collect coral here
-                 * getAutonomousCommand("Player1Reef1"), new DriveOffset(m_swerve, m_Limelight,
-                 * true, 19), // Add Elevator to L4 and score piece
-                 * getAutonomousCommand("Reef1Player1"), new CenterOnTag(m_swerve, m_Limelight),
-                 * // Collect coral here
-                 * getAutonomousCommand("Player1Reef6"), new DriveOffset(m_swerve, m_Limelight,
-                 * false, 18) // Add Elevator to L4 and score piece
-                 * );
-                 * }
-                 */
         }
 
         public Command getAutonomousCommand(String pathName, boolean resetOdometry) {
