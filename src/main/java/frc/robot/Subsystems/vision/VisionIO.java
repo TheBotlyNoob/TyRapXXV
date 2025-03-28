@@ -13,33 +13,45 @@
 
 package frc.robot.Subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.measure.Time;
-
-import java.util.Optional;
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Distance;
 
 import org.littletonrobotics.junction.AutoLog;
 
 public interface VisionIO {
     @AutoLog
     public static class VisionIOInputs {
-        public TargetObservation latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
+
+        public TargetObservation latestTargetObservation = VisionIOConstants.invalidObservation;
         public PoseObservation[] poseObservations = new PoseObservation[0];
         public int[] tagIds = new int[0];
     }
 
-    /** Represents the angle to a simple target, not used for pose estimation. */
-    public static record TargetObservation(Rotation2d tx, Rotation2d ty) {
+    /**
+     * Represents the angle and distance to a simple target, not used for pose
+     * estimation. Based on position of camera.
+     */
+    public static record TargetObservation(boolean isValid, int fiducialID, Rotation2d yaw, Rotation2d pitch,
+            double dxMeters,
+            double dyMeters,
+            double dzMeters) {
     }
 
     /** Represents a robot pose sample used for pose estimation. */
     public static record PoseObservation(
+            // timestamp, in LL/PhotonVision server time
             double timestamp,
-            Pose3d pose,
+            // estimated pose of the robot
+            Pose2d pose,
+            // the ambiguity of the pose, in meters
             double ambiguity,
+            // the number of tags in the observation
             int tagCount,
+            // the average distance between tags in the observation, in meters
             double averageTagDistance,
+            // the type of observation used
             PoseObservationType type) {
     }
 
@@ -51,4 +63,14 @@ public interface VisionIO {
 
     public default void updateInputs(VisionIOInputs inputs) {
     }
+
+    /**
+     * Only tracks the given IDs in the `latestTargetObservation` input.
+     * 
+     * This does not affect pose observations.
+     *
+     * @param tagIds - the IDs to track
+     */
+    public default void setFiducialIDFilter(int[] tagIds) {
+    };
 }

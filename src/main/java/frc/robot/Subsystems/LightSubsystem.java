@@ -1,5 +1,7 @@
 package frc.robot.Subsystems;
 
+import java.util.stream.IntStream;
+
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.LEDPattern;
@@ -9,12 +11,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Subsystems.coral.CoralSubsystem;
 import frc.robot.Subsystems.elevator.ElevatorSubsystem;
-import frc.robot.Utils.LimelightHelpers;
+import frc.robot.Subsystems.vision.Vision;
 
 public class LightSubsystem extends SubsystemBase {
     protected final AddressableLED led;
     protected final AddressableLEDBuffer ledBuf;
-    protected final Limelight ll;
+    protected final Vision vision;
     protected final CoralSubsystem coral;
     protected final ElevatorSubsystem elevator;
     protected final Timer timer;
@@ -26,9 +28,8 @@ public class LightSubsystem extends SubsystemBase {
     private static LEDPattern yellow = LEDPattern.solid(Color.kYellow);
     private static LEDPattern purple = LEDPattern.solid(Color.kPurple);
     private static LEDPattern gray = LEDPattern.solid(Color.kGray);
-    private static final double[] validID = { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
 
-    public LightSubsystem(AddressableLED leds, AddressableLEDBuffer ledBuf, Limelight ll,
+    public LightSubsystem(AddressableLED leds, AddressableLEDBuffer ledBuf, Vision vision,
             CoralSubsystem coral,
             ElevatorSubsystem elevator) {
         leds.start();
@@ -39,26 +40,20 @@ public class LightSubsystem extends SubsystemBase {
         timer.start();
         this.led = leds;
         this.ledBuf = ledBuf;
-        this.ll = ll;
+        this.vision = vision;
         this.coral = coral;
         this.elevator = elevator;
     }
 
-    public boolean canSeeValidTag() {
-        double id = LimelightHelpers.getFiducialID(Constants.ID.kFrontLimelightName);
-        for (int i = 0; i < validID.length; i++) {
-            if (validID[i] == id) {
-                // System.out.println("detected reef apriltag id: " + id);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void flashColor() {
+    private void flashColor() {
         if (counter % 2 == 0) {
             black.applyTo(ledBuf);
         }
+    }
+
+    private boolean isReefId() {
+        return vision.isTargetValid(0)
+                && IntStream.of(Constants.ID.reefAprilIDs).anyMatch(x -> x == vision.getFiducialID(0));
     }
 
     @Override
@@ -86,7 +81,7 @@ public class LightSubsystem extends SubsystemBase {
             counter++;
         }
 
-        if (canSeeValidTag()) {
+        if (isReefId()) {
             flashColor();
         }
 

@@ -15,21 +15,26 @@ package frc.robot.Subsystems.vision;
 
 //import static frc.robot.subsystems.vision.VisionConstants.*;
 
-import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import frc.robot.Constants.PhotonVision.AprilTagLayout;
+import edu.wpi.first.units.Units;
+import frc.robot.Constants;
+
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import org.photonvision.PhotonCamera;
+import java.util.stream.IntStream;
 
 /** IO implementation for real PhotonVision hardware. */
 public class VisionIOPhotonVision implements VisionIO {
     protected final PhotonCamera camera;
     protected final Transform3d robotToCamera;
+    protected int[] allowedFiducialIds = Constants.ID.allAprilIDs;
 
     /**
      * Creates a new VisionIOPhotonVision.
@@ -50,11 +55,21 @@ public class VisionIOPhotonVision implements VisionIO {
         for (var result : camera.getAllUnreadResults()) {
             // Update latest target observation
             if (result.hasTargets()) {
-                inputs.latestTargetObservation = new TargetObservation(
-                        Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
-                        Rotation2d.fromDegrees(result.getBestTarget().getPitch()));
+                PhotonTrackedTarget bestTarget = result.getBestTarget();
+                if (IntStream.of(allowedFiducialIds).anyMatch(id -> id == bestTarget.getFiducialId())) {
+                    inputs.latestTargetObservation = new TargetObservation(true,
+                            bestTarget.fiducialId,
+                            Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
+                            Rotation2d.fromDegrees(result.getBestTarget().getPitch()),
+                            // TODO: distance calculations
+                            0.0,
+                            0.0,
+                            0.0);
+                } else {
+                    inputs.latestTargetObservation = VisionIOConstants.invalidObservation;
+                }
             } else {
-                inputs.latestTargetObservation = new TargetObservation(new Rotation2d(), new Rotation2d());
+                inputs.latestTargetObservation = VisionIOConstants.invalidObservation;
             }
 
             // Add pose observation
@@ -64,7 +79,8 @@ public class VisionIOPhotonVision implements VisionIO {
                 // Calculate robot pose
                 Transform3d fieldToCamera = multitagResult.estimatedPose.best;
                 Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
-                Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+                Pose2d robotPose = new Pose2d(fieldToRobot.getTranslation().toTranslation2d(),
+                        fieldToRobot.getRotation().toRotation2d());
 
                 // Calculate average tag distance
                 double totalTagDistance = 0.0;
@@ -89,14 +105,15 @@ public class VisionIOPhotonVision implements VisionIO {
                 var target = result.targets.get(0);
 
                 // Calculate robot pose
-                var tagPose = AprilTagLayout.getInstance().layout.getTagPose(target.fiducialId);
+                var tagPose = Constants.Vision.aprilTagLayout.getTagPose(target.fiducialId);
                 if (tagPose.isPresent()) {
                     Transform3d fieldToTarget = new Transform3d(tagPose.get().getTranslation(),
                             tagPose.get().getRotation());
                     Transform3d cameraToTarget = target.bestCameraToTarget;
                     Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
                     Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
-                    Pose3d robotPose = new Pose3d(fieldToRobot.getTranslation(), fieldToRobot.getRotation());
+                    Pose2d robotPose = new Pose2d(fieldToRobot.getTranslation().toTranslation2d(),
+                            fieldToRobot.getRotation().toRotation2d());
 
                     // Add tag ID
                     tagIds.add((short) target.fiducialId);
@@ -126,5 +143,10 @@ public class VisionIOPhotonVision implements VisionIO {
         for (int id : tagIds) {
             inputs.tagIds[i++] = id;
         }
+    }
+
+    @Override
+    public void setFiducialIDFilter(int[] tagIds) {
+        allowedFiducialIds = tagIds;
     }
 }

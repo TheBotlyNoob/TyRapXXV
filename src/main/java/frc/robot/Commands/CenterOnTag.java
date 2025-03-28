@@ -1,17 +1,21 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Subsystems.drive.Drivetrain;
-import frc.robot.Subsystems.Limelight;
+import frc.robot.Subsystems.vision.Vision;
+import frc.robot.Subsystems.vision.VisionIO.TargetObservation;
 
 // Used to get a general location, not exact
 public class CenterOnTag extends Command {
     Drivetrain dt;
-    Limelight ll;
+    Vision vision;
+
     // Note: xDis, xProportion, xVelocity, xError, and xOffset relate to ySpeed
     // Note: yDis, yProportion, yVelocity, yError, and yOffset relate to xSpeed
     private static GenericEntry rotProportion = Shuffleboard.getTab("Limelight").add("rotProportion", 2).getEntry();
@@ -50,10 +54,10 @@ public class CenterOnTag extends Command {
     private static GenericEntry maxAngDccEntry = Shuffleboard.getTab("Limelight")
             .add("maxAngDccEntry", LimelightConstants.maxAngDccMSS).getEntry();
 
-    public CenterOnTag(Drivetrain dt, Limelight ll) {
+    public CenterOnTag(Drivetrain dt, Vision vision) {
 
         this.dt = dt;
-        this.ll = ll;
+        this.vision = vision;
         addRequirements(dt);
     }
 
@@ -86,6 +90,7 @@ public class CenterOnTag extends Command {
     public void initialize() {
         // Set FieldRelative to false because we calculate based off of limelight camera
         dt.setFieldRelative(false);
+
         minXVel = minXVelEntry.getDouble(LimelightConstants.minXVelocity);
         maxXVel = maxXVelEntry.getDouble(LimelightConstants.maxXVelocity);
         minYVel = minYVelEntry.getDouble(LimelightConstants.minYVelocity);
@@ -102,21 +107,23 @@ public class CenterOnTag extends Command {
         currentXProportion = xProportion.getDouble(2.0);
         currentYProportion = yProportion.getDouble(2.0);
         llLost = false;
+
         System.out.println("minVel=" + minXVel + " minAngVel=" + minAngVel + "  maxAngVel=" + maxAngVel);
     }
 
     @Override
     public void execute() {
         // Check if we have a valid target before calculating and setting values
-        if (ll.getTimeSinceValid() == 0) {
-            double rotAngleDegrees = -1 * ll.getFilteredYawDegrees();
-            double xDis = -1 * ll.getxDistanceMeters();
-            double yDis = ll.getzDistanceMeters();
+        if (vision.isTargetValid(0)) {
+            Rotation2d rotAngle = vision.getTargetYaw(0);
+            double xDis = vision.getTargetDistX(0).in(Units.Meters);
+            double yDis = vision.getTargetDistY(0).in(Units.Meters);
+
             xError = xDis - xOffset;
             yError = yDis - yOffset;
             double calculatedXVel = Math.abs(xError * currentXProportion);
             double calculatedYVel = Math.abs(yError * currentYProportion);
-            double calculatedAngVel = Math.abs(rotAngleDegrees * currentRotProportion);
+            double calculatedAngVel = Math.abs(rotAngle.getDegrees() * currentRotProportion);
             double desiredXVel;
             double desiredYVel;
             double desiredAngVel;
@@ -189,10 +196,8 @@ public class CenterOnTag extends Command {
             yErrorEntry.setDouble(yError);
             xOffsetEntry.setDouble(xOffset);
             yOffsetEntry.setDouble(yOffset);
-            yawAngleEntry.setDouble(rotAngleDegrees);
+            yawAngleEntry.setDouble(rotAngle.getDegrees());
             dt.drive(xSpeed, ySpeed, Math.toRadians(rotSpeed));
-        } else if (ll.getTimeSinceValid() < 10) {
-
         } else {
             llLost = true;
         }

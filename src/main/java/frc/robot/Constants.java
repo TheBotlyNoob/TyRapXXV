@@ -1,12 +1,11 @@
 package frc.robot;
 
 import com.revrobotics.spark.config.SignalsConfig;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class Constants {
     public static class ID {
@@ -281,23 +280,7 @@ public class Constants {
         public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
     }
 
-    public static class PhotonVision {
-        // this is so complicated as to prevent loading the
-        // april tag JSON file when PhotonVision isn't in use.
-        public static class AprilTagLayout {
-            private static AprilTagLayout instance;
-
-            public static AprilTagLayout getInstance() {
-                if (instance == null)
-                    instance = new AprilTagLayout();
-                return instance;
-            }
-
-            public final AprilTagFieldLayout layout;
-
-            public AprilTagLayout() {
-                layout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
-            }
-        }
+    public static class Vision {
+         public final static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     }
 }

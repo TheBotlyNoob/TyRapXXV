@@ -1,25 +1,24 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.units.Units;
 import frc.robot.Constants;
-import frc.robot.Constants.ID;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.Subsystems.vision.Vision;
 import frc.robot.Subsystems.drive.Drivetrain;
-import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.CoordinateUtilities;
-import frc.robot.Utils.LimelightHelpers;
 
 public class DriveLeftOrRight extends DriveDistance {
-    Limelight ll;
+    Vision vision;
     boolean isLeft;
     double offsetGoal = 0;
     double yError;
     double yOffset = 0;
 
-    public DriveLeftOrRight(Drivetrain dt, Limelight ll, boolean isLeft) {
+    public DriveLeftOrRight(Drivetrain dt, Vision vision, boolean isLeft) {
         super(dt);
         this.isLeft = isLeft;
-        this.ll = ll;
+        this.vision = vision;
         this.offsetGoal = 0.17;
         if (isLeft) {
             this.offsetGoal *= -1;
@@ -28,9 +27,11 @@ public class DriveLeftOrRight extends DriveDistance {
 
     @Override
     public void initialize() {
-        LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.reefAprilIDs);
-        if (ll.getTimeSinceValid() == 0) {
-            double yDis = -1 * ll.getxDistanceMeters();
+        vision.setFiducialIDFilter(0, Constants.ID.reefAprilIDs);
+
+        if (vision.isTargetValid(0)) {
+            // TODO: why is this called yDis when it uses X distance?
+            double yDis = vision.getTargetDistX(0).in(Units.Meters);
             yError = yDis - offsetGoal;
             try {
                 if (isLeft) {
@@ -59,7 +60,12 @@ public class DriveLeftOrRight extends DriveDistance {
                 e.printStackTrace();
             }
         }
-        LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.allAprilIDs);
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        super.end(interrupted);
+        vision.setFiducialIDFilter(0, Constants.ID.allAprilIDs);
     }
 
 }

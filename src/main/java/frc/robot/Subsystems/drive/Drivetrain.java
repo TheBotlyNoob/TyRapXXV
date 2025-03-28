@@ -4,20 +4,11 @@
 
 package frc.robot.Subsystems.drive;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.stream.Stream;
-
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
-
-import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -26,14 +17,21 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.*;
-import frc.robot.Subsystems.vision.LimelightHelpers;
+import frc.robot.Constants.DrivetrainConstants;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 public class Drivetrain extends SubsystemBase {
 
@@ -63,6 +61,9 @@ public class Drivetrain extends SubsystemBase {
     protected final GyroIOInputsAutoLogged m_gyroInputs = new GyroIOInputsAutoLogged();
 
     @AutoLogOutput
+    protected boolean enableVisionPoseInputs = true;
+
+    @AutoLogOutput
     protected boolean fieldRelative = true;
 
     /**
@@ -76,8 +77,6 @@ public class Drivetrain extends SubsystemBase {
 
     protected final SwerveDrivePoseEstimator m_odometry;
     protected int counter = 0;
-
-    protected boolean enableVisionPoseInputs;
 
     @AutoLogOutput(key = "Drivetrain/ChassisSpeeds")
     protected ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds();
@@ -350,32 +349,6 @@ public class Drivetrain extends SubsystemBase {
         m_odometry.update(
                 rotationYaw,
                 getModulePositions());
-        counter++;
-        if (counter % 10 == 0 && enableVisionPoseInputs) {
-            LimelightHelpers.SetRobotOrientation(ID.kFrontLimelightName, rotationYaw.getDegrees(), 0, 0, 0, 0, 0);
-            LimelightHelpers.PoseEstimate mt2 = LimelightHelpers
-                    .getBotPoseEstimate_wpiBlue_MegaTag2(ID.kFrontLimelightName);
-            boolean doRejectUpdate = false;
-            if (Math.abs(m_gyroInputs.yawVelocity.in(Units.DegreesPerSecond)) > 360) // if our angular
-            // velocity is too
-            // large, ignore vision updates
-            {
-                doRejectUpdate = true;
-            }
-            if (mt2 != null) {
-                if (mt2.tagCount == 0) {
-                    doRejectUpdate = true;
-                }
-                if (!doRejectUpdate) {
-                    m_odometry.setVisionMeasurementStdDevs(VecBuilder.fill(.7, .7, 9999999));
-                    // TODO: read these docs and decide whether we should use Timer.getTimestamp or
-                    // Timer.getFPGATimestamp
-                    m_odometry.addVisionMeasurement(
-                            mt2.pose,
-                            mt2.timestampSeconds);
-                }
-            }
-        }
 
         // getting velocity vectors from each module
         SwerveModuleState frontLeftState = m_frontLeft.getState();
@@ -386,6 +359,15 @@ public class Drivetrain extends SubsystemBase {
         // Converting module speeds to chassis speeds
         m_chassisSpeeds = m_kinematics.toChassisSpeeds(
                 frontLeftState, frontRightState, backLeftState, backRightState);
+    }
+
+    public void addVisionMeasurement(Pose2d visionRobotPoseMeters, double timestampSeconds,
+            Matrix<N3, N1> visionMeasurementStdDevs) {
+        if (!enableVisionPoseInputs) {
+            return;
+        }
+
+        m_odometry.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 
     @Override
@@ -403,11 +385,12 @@ public class Drivetrain extends SubsystemBase {
 
         Logger.recordOutput("Drivetrain/SwerveModuleStates/Desired", swerveModuleStates);
         Logger.recordOutput("Drivetrain/SwerveModuleStates/Real",
-                Stream.of(getSwerveModules()).map((m) -> m.getState()).toArray(SwerveModuleState[]::new));
+                Stream.of(getSwerveModules()).map(SwerveModule::getState).toArray(SwerveModuleState[]::new));
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DrivetrainConstants.kMaxPossibleSpeed);
 
         // passing back the math from kinematics to the swerves themselves.
+        // using the executor service to run these in parallel
         CountDownLatch latch = new CountDownLatch(4);
         executorService.execute(() -> {
             m_frontLeft.setDesiredState(swerveModuleStates[0]);
