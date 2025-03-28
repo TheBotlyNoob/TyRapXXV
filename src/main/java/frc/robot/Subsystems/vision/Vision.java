@@ -57,7 +57,7 @@ public class Vision extends SubsystemBase {
     }
 
     /**
-     * Returns the X (facing to the right, if you were to embody the camera)
+     * Returns the X (facing to the left, if you were to embody the camera)
      * distance to the best target,
      *
      * If there is no current target observation, this will return a 0 Meters in

@@ -281,6 +281,7 @@ public class Constants {
     }
 
     public static class Vision {
-         public final static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+        public final static AprilTagFieldLayout aprilTagLayout = AprilTagFieldLayout
+                .loadField(AprilTagFields.kDefaultField);
     }
 }

@@ -74,6 +74,7 @@ public class VisionIOLimelight implements VisionIO {
                     //
                     // from previous code, it seems that the X value is negative compared to the
                     // proper value.
+                    // now it would be facing left
                     targetPose[0] * -1,
                     // [1] = ty (facing down, if you were to embody the camera)
                     targetPose[1],

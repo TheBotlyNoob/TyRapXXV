@@ -159,21 +159,27 @@ public class Drivetrain extends SubsystemBase {
 
     /**
      * Resets Orientation of the robot
+     *
+     * @returns - the new orientation of the robot
      */
-    public void resetGyro() {
+    public Rotation2d resetGyro() {
         var alliance = DriverStation.getAlliance();
+        Rotation2d rot;
         if (alliance.isPresent()) {
             if (alliance.get() == DriverStation.Alliance.Blue) {
                 System.out.println("Initializing gyro to 180 for BLUE");
-                m_gyroIo.setYaw(Rotation2d.fromDegrees(180.0));
+                rot = Rotation2d.fromDegrees(180.0);
             } else {
                 System.out.println("Initializing gyro to 0 for RED");
-                m_gyroIo.setYaw(Rotation2d.fromDegrees(0.0));
+                rot = Rotation2d.fromDegrees(0.0);
             }
         } else {
             System.out.println("Initializing gyro to 0 for default");
-            m_gyroIo.setYaw(Rotation2d.fromDegrees(0.0));
+            rot = Rotation2d.fromDegrees(0.0);
         }
+
+        m_gyroIo.setYaw(rot);
+        return rot;
     }
 
     public SwerveModule getBackLeftSwerveModule() {
@@ -334,13 +340,11 @@ public class Drivetrain extends SubsystemBase {
         // Command each module to zero speed while maintaining its current
         // angle
         frontLeftState.speedMetersPerSecond = 0.0;
-        m_frontLeft.setDesiredState(frontLeftState);
         frontRightState.speedMetersPerSecond = 0.0;
-        m_frontRight.setDesiredState(frontRightState);
         backLeftState.speedMetersPerSecond = 0.0;
-        m_backLeft.setDesiredState(backLeftState);
         backRightState.speedMetersPerSecond = 0.0;
-        m_backRight.setDesiredState(backRightState);
+
+        setSwerveStates(new SwerveModuleState[] { frontLeftState, frontRightState, backLeftState, backRightState });
     }
 
     /** Updates the field relative position of the robot. */
@@ -370,6 +374,40 @@ public class Drivetrain extends SubsystemBase {
         m_odometry.addVisionMeasurement(visionRobotPoseMeters, timestampSeconds, visionMeasurementStdDevs);
     }
 
+    /**
+     * Sets the desired states for the swerve modules.
+     *
+     *
+     * @param states The desired states for the swerve modules, in the order of
+     *               {@code [frontLeft, frontRight, backLeft, backRight]}
+     */
+    private void setSwerveStates(SwerveModuleState[] states) {
+        // passing back the math from kinematics to the swerves themselves.
+        // using the executor service to run these in parallel
+        CountDownLatch latch = new CountDownLatch(4);
+        executorService.execute(() -> {
+            m_frontLeft.setDesiredState(states[0]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_frontRight.setDesiredState(states[1]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_backLeft.setDesiredState(states[2]);
+            latch.countDown();
+        });
+        executorService.execute(() -> {
+            m_backRight.setDesiredState(states[3]);
+            latch.countDown();
+        });
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            // Pass
+        }
+    }
+
     @Override
     public void periodic() {
         m_gyroIo.updateInputs(m_gyroInputs);
@@ -389,29 +427,6 @@ public class Drivetrain extends SubsystemBase {
 
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, DrivetrainConstants.kMaxPossibleSpeed);
 
-        // passing back the math from kinematics to the swerves themselves.
-        // using the executor service to run these in parallel
-        CountDownLatch latch = new CountDownLatch(4);
-        executorService.execute(() -> {
-            m_frontLeft.setDesiredState(swerveModuleStates[0]);
-            latch.countDown();
-        });
-        executorService.execute(() -> {
-            m_frontRight.setDesiredState(swerveModuleStates[1]);
-            latch.countDown();
-        });
-        executorService.execute(() -> {
-            m_backLeft.setDesiredState(swerveModuleStates[2]);
-            latch.countDown();
-        });
-        executorService.execute(() -> {
-            m_backRight.setDesiredState(swerveModuleStates[3]);
-            latch.countDown();
-        });
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            // Pass
-        }
+        setSwerveStates(swerveModuleStates);
     }
 }

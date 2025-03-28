@@ -5,6 +5,8 @@ import org.ironmaple.simulation.motorsims.SimulatedMotorController.GenericMotorC
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.Constants;
 
 public class SwerveModuleIOSim implements SwerveModuleIO {
@@ -39,13 +41,21 @@ public class SwerveModuleIOSim implements SwerveModuleIO {
 
     @Override
     public void setDriveVoltage(Voltage voltage) {
-        driveVolts = voltage;
-        m_driveMotor.requestVoltage(voltage);
+        if (DriverStation.isEnabled()) {
+            driveVolts = voltage;
+            m_driveMotor.requestVoltage(voltage);
+        } else {
+            m_driveMotor.requestVoltage(Units.Volts.of(0.0));
+        }
     }
 
     @Override
     public void setTurnVoltage(Voltage voltage) {
-        turnVolts = voltage;
-        m_turningMotor.requestVoltage(voltage);
+        if (DriverStation.isEnabled()) {
+            turnVolts = voltage;
+            m_turningMotor.requestVoltage(voltage);
+        } else {
+            m_turningMotor.requestVoltage(Units.Volts.of(0.0));
+        }
     }
 }

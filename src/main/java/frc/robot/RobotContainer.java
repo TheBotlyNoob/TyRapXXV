@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -264,7 +265,7 @@ public class RobotContainer {
         driveSim = Optional.of(dtSim);
 
         m_vision = new Vision(m_swerve::addVisionMeasurement,
-                new VisionIOPhotonVisionSim("cam1", new Transform3d(), m_swerve::getRoboPose2d));
+                new VisionIOPhotonVisionSim("cam1", new Transform3d(), dtSim::getSimulatedDriveTrainPose));
 
         // TODO: simulate elevator
         m_elevator = new ElevatorSubsystem(
@@ -735,6 +736,7 @@ public class RobotContainer {
             path = PathPlannerPath.fromPathFile(pathName);
             if (resetOdometry) {
                 Optional<Pose2d> pose = path.getStartingHolonomicPose();
+                Rotation2d newRot = m_swerve.resetGyro();
                 Optional<Alliance> ally = DriverStation.getAlliance();
                 waypoints = path.getWaypoints();
                 first = waypoints.get(0);
@@ -748,7 +750,7 @@ public class RobotContainer {
                     m_swerve.resetStartingTranslation(first.anchor());
                     if (driveSim.isPresent()) {
                         driveSim.get().setSimulationWorldPose(new Pose2d(first.anchor(),
-                                m_swerve.getGyroYawRotation2d()));
+                                newRot));
                     }
                     System.out.println(first.toString());
                 } else {
@@ -825,5 +827,7 @@ public class RobotContainer {
     }
 
     public void periodic() {
+        // this _should_ be the only usage of SmartDashboard
+        SmartDashboard.putData("Commands", CommandScheduler.getInstance());
     }
 }

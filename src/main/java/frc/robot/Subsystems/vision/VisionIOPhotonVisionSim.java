@@ -15,6 +15,7 @@ package frc.robot.Subsystems.vision;
 
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
@@ -57,6 +58,8 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
     @Override
     public void updateInputs(VisionIOInputs inputs) {
         visionSim.update(poseSupplier.get());
+        // TODO: Logger.recordOutput("VisionSimulation/SimField",
+        // visionSim.getDebugField());
         super.updateInputs(inputs);
     }
 }

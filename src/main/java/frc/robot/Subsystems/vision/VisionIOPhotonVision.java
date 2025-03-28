@@ -18,10 +18,12 @@ package frc.robot.Subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Units;
 import frc.robot.Constants;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import java.util.HashSet;
@@ -59,12 +61,12 @@ public class VisionIOPhotonVision implements VisionIO {
                 if (IntStream.of(allowedFiducialIds).anyMatch(id -> id == bestTarget.getFiducialId())) {
                     inputs.latestTargetObservation = new TargetObservation(true,
                             bestTarget.fiducialId,
-                            Rotation2d.fromDegrees(result.getBestTarget().getYaw()),
-                            Rotation2d.fromDegrees(result.getBestTarget().getPitch()),
+                            Rotation2d.fromDegrees(bestTarget.getYaw()),
+                            Rotation2d.fromDegrees(bestTarget.getPitch()),
                             // TODO: distance calculations
-                            0.0,
-                            0.0,
-                            0.0);
+                            bestTarget.getBestCameraToTarget().getY(),
+                            bestTarget.getBestCameraToTarget().getZ() * -1,
+                            bestTarget.getBestCameraToTarget().getX());
                 } else {
                     inputs.latestTargetObservation = VisionIOConstants.invalidObservation;
                 }
