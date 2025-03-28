@@ -122,12 +122,13 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     public void ejectCoral() {
         ejectActive = true;
-        if (el.getLevel() == ElevatorLevel.LEVEL4) {
-            m_coralGrabberMotor.set(kCoralEjectSpeedLevel4Entry.get());
-        } else {
-            m_coralGrabberMotor.set(kCoralEjectSpeedEntry.get());
-        }
+        m_coralGrabberMotor.set(0.65);
     }
+
+    // public void setVoltageTest(double voltage) {
+    // System.out.println("Setting Coral voltage " + voltage);
+    // m_wristMotor.setVoltage(voltage);
+    // }
 
     public void reverseMotor() {
         double voltage = kWristMotorVoltageReverse.get();
@@ -298,7 +299,7 @@ public class CoralSubsystem extends SafeableSubsystem {
                 el.setLevel(ElevatorLevel.GROUND);
             }
         } else if (state == CoralState.EJECTING) {
-            m_coralGrabberMotor.set(0.5);
+            m_coralGrabberMotor.set(0.65);
             if (timer.get() > 2 && !irDetected) {
                 state = CoralState.WAITING;
                 ejectActive = false;
@@ -310,8 +311,8 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     @Override
     public void makeSafe() {
-        //retractManipulator();
-        wristRetractCommand().schedule();
+        Command retract = this.wristRetractCommand();
+        retract.schedule();
         stopMotorGrabber();
     }
 }

@@ -204,7 +204,7 @@ public class Constants {
             public static final double kLevel1 = 5.3; // 3.5
             public static final double kLevel2 = 6.1;
             public static final double kLevel3 = 12.85;
-            public static final double kLevel4 = 24.5;
+            public static final double kLevel4 = 24.5; //24.6
         }
 
         public static class PID {
@@ -237,7 +237,7 @@ public class Constants {
     public static class AlgaeGrabber {
         public static final double kMotorCurrentThreshold = 1.0;
         public static final double kIntakeSpeed = 0.60;
-        public static final double kEjectSpeed = 0.90;
+        public static final double kEjectSpeed = 0.75;
 
         public static final int kSolenoidCANID1 = 0;
         public static final int kSolenoidCANID2 = 1;

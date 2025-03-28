@@ -307,6 +307,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
     }
 
     public void setLevel(ElevatorLevel level) {
+        System.out.println("Calling set level to " + level);
         m_level = level;
         m_table_level.set(level.toString());
         desiredPosition = this.m_level.toHeight();
