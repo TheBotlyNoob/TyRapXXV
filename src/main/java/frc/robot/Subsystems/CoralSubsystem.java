@@ -49,6 +49,8 @@ public class CoralSubsystem extends SafeableSubsystem {
     protected DoubleEntry kWristPropRetractingEntry;
     protected DoubleEntry kCoralEjectSpeedEntry;
     protected DoubleEntry kCoralEjectSpeedLevel4Entry;
+    protected DoubleEntry minEncoderPositionEntry;
+    protected DoubleEntry wristExtendedPositionEntry;
 
     private double counter;
     private double start;
@@ -57,6 +59,8 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     private double lastWristEncoderVal;
     private boolean wristStopped = false;
+    protected double minEncoderPosition = 0.0;
+    protected double wristExtendedPosition = 0.0;
     private int wristCounter = 0;
     protected int wristRolloverCount = 0;
     protected double wristPosition = 0; // Absolute wrist position starting at 0 when retracted and 
@@ -84,12 +88,16 @@ public class CoralSubsystem extends SafeableSubsystem {
                 .getEntry(Constants.Coral.kWristMotorVoltageReverse);
         kWristPropExtendingEntry = m_table.getDoubleTopic("WristExtendingKp")
                 .getEntry(Constants.Coral.kWristPropExtending);
-        kWristPropExtendingEntry = m_table.getDoubleTopic("WristRetractingKp")
+        kWristPropRetractingEntry = m_table.getDoubleTopic("WristRetractingKp")
                 .getEntry(Constants.Coral.kWristPropRetracting);
         kCoralEjectSpeedEntry = m_table.getDoubleTopic("CoralEjectVoltage")
                 .getEntry(Constants.Coral.kCoralEjectVoltage);
         kCoralEjectSpeedLevel4Entry = m_table.getDoubleTopic("CoralEjectVoltageL4")
                 .getEntry(Constants.Coral.kCoralEjectVoltageLevel4);
+        minEncoderPositionEntry = m_table.getDoubleTopic("MinEncoderPosition")
+                .getEntry(0.0);
+        wristExtendedPositionEntry = m_table.getDoubleTopic("WristExtendedPosition")
+                .getEntry(0.0);
 
         // kWristMotorSpeedForward = m_table.getDoubleTopic("wrist motor speed
         // forward").getEntry(0.0);
@@ -122,12 +130,13 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     public void ejectCoral() {
         ejectActive = true;
-        if (el.getLevel() == ElevatorLevel.LEVEL4) {
-            m_coralGrabberMotor.set(kCoralEjectSpeedLevel4Entry.get());
-        } else {
-            m_coralGrabberMotor.set(kCoralEjectSpeedEntry.get());
-        }
+        m_coralGrabberMotor.set(0.65);
     }
+
+    // public void setVoltageTest(double voltage) {
+    // System.out.println("Setting Coral voltage " + voltage);
+    // m_wristMotor.setVoltage(voltage);
+    // }
 
     public void reverseMotor() {
         double voltage = kWristMotorVoltageReverse.get();
@@ -175,12 +184,14 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     public Command wristExtendCommand() {
         //return new MoveCoralManipulator(this, true).withTimeout(0.8);
-        return new InstantCommand(() -> this.setWristDesiredPosition(Constants.Coral.kWristMaxPosition));
+        System.out.println("Extend wrist set desired to " + wristExtendedPosition);
+        return new InstantCommand(() -> this.setWristDesiredPosition(wristExtendedPosition));
     }
 
     public Command wristRetractCommand() {
         //return new MoveCoralManipulator(this, false).withTimeout(0.8);
-        return new InstantCommand(() -> this.setWristDesiredPosition(Constants.Coral.kWristMinPosition));
+        System.out.println("Retract wrist set desired to 0.0");
+        return new InstantCommand(() -> this.setWristDesiredPosition(0.0));
     }
 
     public void setWristDesiredPosition(double desiredPosition) {
@@ -198,6 +209,13 @@ public class CoralSubsystem extends SafeableSubsystem {
             state = CoralState.WAITING;
         }
         enabled = true;
+        wristRolloverCount = 0;
+        minEncoderPosition = m_wristEncoder.getPosition();
+        wristExtendedPosition = Constants.Coral.kWristRelativeExtension;
+        minEncoderPositionEntry.set(minEncoderPosition);
+        wristExtendedPositionEntry.set(wristExtendedPosition);
+        wristDesiredPosition = 0.0;
+        lastWristEncoderVal = minEncoderPosition;
     }
 
     public CoralState getState() {
@@ -215,7 +233,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         if (Math.abs(wristError) <= Constants.Coral.kWristPositionTolerance) {
             m_wristMotor.setVoltage(0.0);
         } else {
-            double desiredWristVoltage = wristPidController.calculate(wristPosition, wristDesiredPosition);
+            double desiredWristVoltage = -wristPidController.calculate(wristPosition, wristDesiredPosition);
             m_wristMotor.setVoltage(MathUtil.clamp(desiredWristVoltage, -12, 12));
         }
     }
@@ -252,17 +270,17 @@ public class CoralSubsystem extends SafeableSubsystem {
                     System.err.println("Invalid increasing wrist rollover past max");
                     wristRolloverCount = Constants.Coral.kWristMaxRolloverCount;
                 }
-            } else if (lastWristEncoderVal < 0.2 && currentWristEncoderPosition > Constants.Coral.kMinEncoderPos) {
+            } else if (lastWristEncoderVal < 0.2 && currentWristEncoderPosition > 0.8) {
                 // We rolled over while retracting
                 wristRolloverCount--;
-                if (wristRolloverCount < 0) {
+                /*if (wristRolloverCount < 0) {
                     System.err.println("Invalid decreasing wrist rollover past 0");
                     wristRolloverCount = 0;
-                }
+                }*/
             }
             // Calculate the absolute wrist position based on the current encoder value and number of 
             // rollovers, subtracting the min position so that the positions will be zero-based (0 = full retract)
-            wristPosition = currentWristEncoderPosition + wristRolloverCount - Constants.Coral.kMinEncoderPos;
+            wristPosition = currentWristEncoderPosition + wristRolloverCount - minEncoderPosition;
         }
         m_wristPositionPub.set(wristPosition);
 
@@ -298,7 +316,7 @@ public class CoralSubsystem extends SafeableSubsystem {
                 el.setLevel(ElevatorLevel.GROUND);
             }
         } else if (state == CoralState.EJECTING) {
-            m_coralGrabberMotor.set(0.5);
+            m_coralGrabberMotor.set(0.65);
             if (timer.get() > 2 && !irDetected) {
                 state = CoralState.WAITING;
                 ejectActive = false;
@@ -310,8 +328,8 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     @Override
     public void makeSafe() {
-        //retractManipulator();
-        wristRetractCommand().schedule();
+        Command retract = this.wristRetractCommand();
+        retract.schedule();
         stopMotorGrabber();
     }
 }
