@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -46,6 +47,7 @@ import frc.robot.Subsystems.ClimberSubsystem;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
+import frc.robot.Subsystems.LightSubsystem.AlgaeState;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.SafeableSubsystem;
 import frc.robot.Subsystems.CoralSubsystem;
@@ -70,6 +72,7 @@ import frc.robot.Commands.StopDrive;
 import org.json.simple.parser.ParseException;
 import frc.robot.Commands.RumbleManip;
 import frc.robot.Commands.StopElevator;
+import frc.robot.Commands.GoToLevel;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -121,6 +124,11 @@ public class RobotContainer {
         Command m_driveCommand;
 
         boolean bindingsConfigured = false;
+
+        private enum CommandSelector {
+                LOW, HIGH, NULL;
+        }
+        
 
         SequentialCommandGroup m_scoreCancel;
         SequentialCommandGroup m_scoreLeft;
@@ -277,9 +285,7 @@ public class RobotContainer {
                 // Triger Buttons
                 Controller.kManipulatorController.rightTrigger().onTrue(new EjectCoral(m_coral));
                 Controller.kManipulatorController.rightBumper().and(m_climber::isCoralMode)
-                                .onTrue(new ConditionalCommand(buildRemoveAlgaeCommand(),
-                                                new RumbleManip(.5),
-                                                () -> (m_elevator.isValidAlgaeLevel() && m_leds.canSeeValidTag())));
+                                .onTrue(buildSelectRemoveAlgaeCommand());
 
                 // Back Button and Start button for Climber Mode Toggle
                 Controller.kManipulatorController.back()
@@ -384,6 +390,26 @@ public class RobotContainer {
                                 .onTrue(m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL4)));
         }
 
+        private CommandSelector select() {
+                AlgaeState state = m_leds.determineAlgaeHeight();
+                if (state == AlgaeState.LOW){
+                        return CommandSelector.LOW;
+                }
+                else if (state == AlgaeState.HIGH){
+                        return CommandSelector.HIGH;
+                }
+                else return CommandSelector.NULL;
+              }
+
+        private Command buildSelectRemoveAlgaeCommand(){
+        return new SelectCommand<>(
+                Map.ofEntries(
+                Map.entry(CommandSelector.LOW, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL3, ElevatorLevel.LEVEL2)),
+                Map.entry(CommandSelector.HIGH, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL4, ElevatorLevel.LEVEL3)),
+                Map.entry(CommandSelector.NULL, new RumbleManip(0.5))),
+        this::select);
+        }
+
         protected SequentialCommandGroup buildScoreOffsetCommand(boolean isLeft) {
                 return new SequentialCommandGroup(
                                 new PrintCommand("Running offset score routine"),
@@ -458,15 +484,21 @@ public class RobotContainer {
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
 
-        public SequentialCommandGroup buildRemoveAlgaeCommand() {
+        public SequentialCommandGroup buildRemoveAlgaeCommand(ElevatorLevel startLevel, ElevatorLevel endLevel) {
                 return new SequentialCommandGroup(
                                 new PrintCommand("Running remove algae"),
                                 new ParallelCommandGroup(
-                                                m_coral.wristExtendCommand(),
-                                                new DriveOffset(m_swerve, m_Limelight, .7, 0.0),
-                                                new GoToFlagLevel(m_elevator)),
-                                new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8),
+                                                //m_coral.wristExtendCommand(),
+                                                new DriveOffset(m_swerve, m_Limelight, 0.7, 0.0),
+                                                new GoToLevel(m_elevator, startLevel)),
+                                new ParallelCommandGroup(
+                                        m_coral.wristExtendCommand(),
+                                        new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8)),
+                                new GoToLevel(m_elevator, endLevel),
+                                new DriveDistance2(m_swerve, () -> .7, 180),
                                 new StopDrive(m_swerve),
+                                m_coral.wristRetractCommand(),
+                                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
                                 new PrintCommand("Remove algae complete"));
         }
 
