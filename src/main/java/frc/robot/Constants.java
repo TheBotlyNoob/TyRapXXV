@@ -65,10 +65,11 @@ public class Constants {
         //public static final double kLimitEncoderPos = .037; //HARD STOP
         public static final int wristCounterLimit = 5;
         public static final int kWristMaxRolloverCount = 1;
-        public static final double kWristPropRetracting = 10.0;
-        public static final double kWristPropExtending = 8.0;
-        public static final double kWristMinPosition = 0.0;
-        public static final double kWristMaxPosition = kMaxEncoderPos + kWristMaxRolloverCount - kMinEncoderPos;
+        public static final double kWristPropRetracting = 1.0;
+        public static final double kWristPropExtending = 0.5;
+        public static final double kWristMinPosition = -.2;
+        public static final double kWristMaxPosition = 0.0;
+        public static final double kWristRelativeExtension = -0.19;
         public static final double kWristPositionTolerance = 0.01; // Rotations
         //public static final double kWristManualSpeedRotationsPerSec = 0.25;
     }

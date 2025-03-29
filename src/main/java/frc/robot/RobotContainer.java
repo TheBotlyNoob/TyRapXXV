@@ -132,6 +132,8 @@ public class RobotContainer {
          */
         public RobotContainer() {
                 this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(0));
+                this.m_gyro.resetSignalFrequencies();
+                
                 this.m_swerve = new Drivetrain(m_gyro);
 
                 SwerveModuleSB[] swerveModuleTelem = {
