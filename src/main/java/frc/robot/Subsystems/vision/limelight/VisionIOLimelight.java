@@ -87,29 +87,35 @@ public class VisionIOLimelight implements VisionIO {
         LimelightHelpers.PoseEstimate botPose = LimelightHelpers
                 .getBotPoseEstimate_wpiBlue_MegaTag2(Constants.ID.kFrontLimelightName);
 
-        inputs.poseObservations = new PoseObservation[1];
-        inputs.poseObservations[0] = new PoseObservation(
-                // Timestamp, based on robot timestamp of publish and latency
-                botPose.timestampSeconds,
-
-                // 2D pose estimate
-                botPose.pose,
-
-                // Ambiguity, zeroed because the pose is already disambiguated
-                0.0,
-
-                // Tag count
-                botPose.tagCount,
-
-                // Average tag distance
-                botPose.avgTagDist,
-
-                // Observation type
-                PoseObservationType.MEGATAG_2);
-
         Set<Integer> tagIds = new HashSet<>();
-        for (LimelightHelpers.RawFiducial fiducial : botPose.rawFiducials) {
-            tagIds.add(fiducial.id);
+
+        if (botPose != null) {
+            inputs.poseObservations = new PoseObservation[1];
+
+            inputs.poseObservations[0] = new PoseObservation(
+                    // Timestamp, based on robot timestamp of publish and latency
+                    botPose.timestampSeconds,
+
+                    // 2D pose estimate
+                    botPose.pose,
+
+                    // Ambiguity, zeroed because the pose is already disambiguated
+                    0.0,
+
+                    // Tag count
+                    botPose.tagCount,
+
+                    // Average tag distance
+                    botPose.avgTagDist,
+
+                    // Observation type
+                    PoseObservationType.MEGATAG_2);
+
+            for (LimelightHelpers.RawFiducial fiducial : botPose.rawFiducials) {
+                tagIds.add(fiducial.id);
+            }
+        } else {
+            inputs.poseObservations = new PoseObservation[0];
         }
 
         // Save tag IDs to inputs objects
