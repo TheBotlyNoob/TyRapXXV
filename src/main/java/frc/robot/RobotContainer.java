@@ -409,8 +409,8 @@ public class RobotContainer {
         private Command buildSelectRemoveAlgaeCommand(){
         return new SelectCommand<>(
                 Map.ofEntries(
-                Map.entry(CommandSelector.LOW, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL3, ElevatorLevel.LEVEL2)),
-                Map.entry(CommandSelector.HIGH, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL4, ElevatorLevel.LEVEL3)),
+                Map.entry(CommandSelector.LOW, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL3, ElevatorLevel.LEVEL5)),
+                Map.entry(CommandSelector.HIGH, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL4, ElevatorLevel.LEVEL6)),
                 Map.entry(CommandSelector.NULL, new RumbleManip(0.5))),
         this::select);
         }
@@ -518,8 +518,8 @@ public class RobotContainer {
                                                 new GoToLevel(m_elevator, startLevel)),
                                 new ParallelCommandGroup(
                                         m_coral.wristExtendCommand(),
-                                        new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8)),
-                                new GoToLevel(m_elevator, endLevel),
+                                        new DriveDistance2(m_swerve, () -> .24, 0).withTimeout(0.5)),
+                                new GoToLevel(m_elevator, endLevel).withTimeout(.5),
                                 new DriveDistance2(m_swerve, () -> .7, 180),
                                 new StopDrive(m_swerve),
                                 m_coral.wristRetractCommand(),
@@ -641,7 +641,7 @@ public class RobotContainer {
                                         m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                                         new DriveDistance2(m_swerve, ()-> 0.5, 180),
                                         m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
-                                        buildRemoveAlgaeCommand(),
+                                        buildRemoveAlgaeAutoCommand(),
                                         new DriveFixedVelocity(m_swerve, 180, () -> 2.25).withTimeout(0.4),
                                         new StopDrive(m_swerve));
 
