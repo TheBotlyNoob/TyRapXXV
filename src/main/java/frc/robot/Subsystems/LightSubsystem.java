@@ -93,7 +93,7 @@ public class LightSubsystem extends SubsystemBase {
             case LEVEL4:
                 blue.applyTo(ledBuf);
                 break;
-            case GROUND:
+            default:
                 black.applyTo(ledBuf);
                 break;
         }

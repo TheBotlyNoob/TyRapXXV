@@ -189,6 +189,8 @@ public class RobotContainer {
                 // configureBindings();
                 NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
 
+                
+
                 this.m_scoreLeft = new SequentialCommandGroup(
                                 new ConditionalCommand(
                                                 new ConditionalCommand(
@@ -434,7 +436,10 @@ public class RobotContainer {
                                                 new GoToFlagLevel(m_elevator)),
                                 new EjectCoral(m_coral),
                                 new StationaryWait(m_swerve, .5),
-                                new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                                new ConditionalCommand(
+                                        buildSelectRemoveAlgaeCommand(), 
+                                        new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4), 
+                                        () -> (shouldRemoveAlgae())),
                                 new StopDrive(m_swerve),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
@@ -479,7 +484,10 @@ public class RobotContainer {
                                 new StopDrive(m_swerve),
                                 new EjectCoral(m_coral),
                                 new StationaryWait(m_swerve, .5),
-                                new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
+                                new ConditionalCommand(
+                                        buildSelectRemoveAlgaeCommand(), 
+                                        new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4), 
+                                        () -> (shouldRemoveAlgae())),
                                 new StopDrive(m_swerve),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
@@ -519,22 +527,8 @@ public class RobotContainer {
                                 new ParallelCommandGroup(
                                         m_coral.wristExtendCommand(),
                                         new DriveDistance2(m_swerve, () -> .24, 0).withTimeout(0.5)),
-                                new GoToLevel(m_elevator, endLevel).withTimeout(.5),
+                                new GoToLevel(m_elevator, endLevel).withTimeout(.55),
                                 new DriveDistance2(m_swerve, () -> .7, 180),
-                                new StopDrive(m_swerve),
-                                m_coral.wristRetractCommand(),
-                                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
-                                new PrintCommand("Remove algae complete"));
-        }
-        public SequentialCommandGroup buildRemoveAlgaeAutoCommand() {
-                return new SequentialCommandGroup(
-                                new PrintCommand("Running remove algae"),
-                                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL3)),
-                                new ParallelCommandGroup(
-                                                m_coral.wristExtendCommand(),
-                                                new DriveOffset(m_swerve, m_Limelight, .7, 0.0),
-                                                new GoToFlagLevel(m_elevator)),
-                                new DriveFixedVelocity(m_swerve, 0, () -> 2).withTimeout(0.8),
                                 new StopDrive(m_swerve),
                                 m_coral.wristRetractCommand(),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)),
@@ -636,13 +630,10 @@ public class RobotContainer {
                                         m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
                                         getAutonomousCommand("OnePieceAuto", true),
                                         new StationaryWait(m_swerve, .2),
-                                        // buildScoreBumperedUpAutoCommand(false, 1.5),
                                         buildScoreOffsetCommand(false),
+                                        m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL3)),
+                                        buildSelectRemoveAlgaeCommand(),
                                         m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
-                                        new DriveDistance2(m_swerve, ()-> 0.5, 180),
-                                        m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
-                                        buildRemoveAlgaeAutoCommand(),
-                                        new DriveFixedVelocity(m_swerve, 180, () -> 2.25).withTimeout(0.4),
                                         new StopDrive(m_swerve));
 
                         start.schedule();
@@ -732,6 +723,15 @@ public class RobotContainer {
                         m.getTurnFeedForward().setKv(m_turnFFVel.getDouble(DrivetrainConstants.turnFeedForward[1]));
                 }
         }
+
+        public boolean shouldRemoveAlgae(){
+                ElevatorLevel elevatorState = m_elevator.getLevel();
+                if (elevatorState == ElevatorLevel.LEVEL4){
+                        if (Controller.kDriveController.getHID().getRightBumperButton() || Controller.kDriveController.getHID().getLeftBumperButton())
+                                return true;
+                }
+                return false;
+            }
 
         public void reportTelemetry() {
                 m_xVelEntry.setDouble(m_swerve.getChassisSpeeds().vxMetersPerSecond);
