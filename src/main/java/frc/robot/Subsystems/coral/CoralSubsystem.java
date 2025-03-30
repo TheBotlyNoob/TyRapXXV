@@ -1,5 +1,7 @@
 package frc.robot.Subsystems.coral;
 
+import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
@@ -53,9 +55,9 @@ public class CoralSubsystem extends SafeableSubsystem {
     @AutoLogOutput
     protected boolean enabled = false;
 
-    protected final LoggedMechanism2d coralSystemMechanism = new LoggedMechanism2d(20,
-            20);
-    protected final LoggedMechanismLigament2d ejectorMechanism = new LoggedMechanismLigament2d(getName(), 10, 90);
+    protected final LoggedMechanism2d coralSystemMechanism = new LoggedMechanism2d(50,
+            50);
+    protected final LoggedMechanismLigament2d ejectorMechanism = new LoggedMechanismLigament2d(getName(), 10, 90, 20, new Color8Bit(Color.kRed));
 
     public CoralSubsystem(ElevatorSubsystem el, CoralGrabberIO grabberIo, CoralWristIO wristIo,
             CoralDetectionIO detectionIo,

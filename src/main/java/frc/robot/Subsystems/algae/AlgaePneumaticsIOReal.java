@@ -22,16 +22,10 @@ public class AlgaePneumaticsIOReal implements AlgaePneumaticsIO {
 
     @Override
     public void setState(AlgaeGrabberState state) {
-        switch(state) {
-            case EXTENDED:
-                m_solenoid.set(kExtended);
-                break;
-            case RETRACTED:
-                m_solenoid.set(kRetracted);
-                break;
-            case OFF:
-                m_solenoid.set(kOff);
-                break;
+        switch (state) {
+            case EXTENDED -> m_solenoid.set(kExtended);
+            case RETRACTED -> m_solenoid.set(kRetracted);
+            case OFF -> m_solenoid.set(kOff);
         }
     }
 }

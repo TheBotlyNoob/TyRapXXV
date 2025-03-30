@@ -35,18 +35,16 @@ import frc.robot.Constants.*;
 import frc.robot.Constants.RobotMode.Mode;
 import frc.robot.Subsystems.LightSubsystem;
 import frc.robot.Subsystems.algae.*;
-import frc.robot.Subsystems.climber.ClimberSubsystem;
+import frc.robot.Subsystems.climber.*;
 import frc.robot.Subsystems.coral.*;
 import frc.robot.Subsystems.drive.*;
 import frc.robot.Subsystems.elevator.*;
 import frc.robot.Subsystems.vision.Vision;
 import frc.robot.Subsystems.vision.VisionIO;
-import frc.robot.Subsystems.vision.VisionIOPhotonVision;
 import frc.robot.Subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.Subsystems.vision.limelight.VisionIOLimelight;
 import frc.robot.Utils.SafeableSubsystem;
 
-import org.dyn4j.geometry.Rotation;
 import org.dyn4j.geometry.Triangle;
 import org.dyn4j.geometry.Vector2;
 import org.ironmaple.simulation.IntakeSimulation;
@@ -55,7 +53,6 @@ import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.drivesims.configs.SwerveModuleSimulationConfig;
-import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnField;
 import org.json.simple.parser.ParseException;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -63,7 +60,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -85,7 +81,7 @@ public class RobotContainer {
     private CoralSubsystem m_coral;
     private LightSubsystem m_leds;
 
-    private LoggedDashboardChooser<String> autoChooser;
+    private final LoggedDashboardChooser<String> autoChooser;
 
     protected UsbCamera climbCamera;
 
@@ -133,14 +129,8 @@ public class RobotContainer {
         this.m_driveCommand = new Drive(m_swerve);
         this.m_swerve.setDefaultCommand(this.m_driveCommand);
 
-        SafeableSubsystem[] safeable = { m_elevator, m_algae, m_coral };
-        // TODO: what is this weirdness with the absolute encoder?
-        this.m_climber = new ClimberSubsystem(
-                // m_swerve.getBackLeftSwerveModule().getTurnMotor().getAbsoluteEncoder(),
-                null,
-                nt, safeable);
 
-        autoChooser = new LoggedDashboardChooser<String>("AutoRoutine"); // Default auto will be
+        autoChooser = new LoggedDashboardChooser<>("AutoRoutine"); // Default auto will be
                                                                          // `Commands.none()'
 
         configurePathPlanner();
@@ -225,6 +215,12 @@ public class RobotContainer {
                 new CoralWristIOSpark(),
                 new CoralDetectionIOReal(),
                 new CoralConfigIONetworkTables(nt));
+
+
+        SafeableSubsystem[] safeable = { m_elevator, m_algae, m_coral };
+        m_climber = new ClimberSubsystem(new ClimberStingerIOSpark(),
+                new ClimberPneumaticsIOReal(),
+                safeable);
     }
 
     private void initSim() throws IllegalStateException {
@@ -301,6 +297,15 @@ public class RobotContainer {
                 new CoralConfigIONetworkTables(nt));
 
         intakeSim.addGamePieceToIntake();
+
+        // this doesn't need to be simulated; it has little-to-no importance/ability to tune in sim
+        SafeableSubsystem[] safeable = { m_elevator, m_algae, m_coral };
+        m_climber = new ClimberSubsystem(
+                new ClimberStingerIO() {
+                },
+                new ClimberPneumaticsIO() {
+                },
+                safeable);
     }
 
     private void initReplay() throws IllegalStateException {
@@ -343,6 +348,16 @@ public class RobotContainer {
                 },
                 new CoralConfigIO() {
                 });
+
+
+        // this doesn't need to be simulated; it has little-to-no importance/ability to tune in sim
+        SafeableSubsystem[] safeable = { m_elevator, m_algae, m_coral };
+        m_climber = new ClimberSubsystem(
+                new ClimberStingerIO() {
+                },
+                new ClimberPneumaticsIO() {
+                },
+                safeable);
     }
 
     /**
@@ -755,16 +770,14 @@ public class RobotContainer {
                 Optional<Alliance> ally = DriverStation.getAlliance();
                 waypoints = path.getWaypoints();
                 first = waypoints.get(0);
-                if (ally.isPresent()) {
-                    if (ally.get() == Alliance.Red) {
-                        System.out.println("Flipping start location for red");
-                        first = first.flip();
-                    }
+                if (ally.orElse(Alliance.Blue) == Alliance.Red) {
+                    System.out.println("Flipping start location for red");
+                    first = first.flip();
                 }
                 if (pose.isPresent()) {
                     newTranslation = Optional.of(first.anchor());
 
-                    System.out.println(first.toString());
+                    System.out.println(first);
                 } else {
                     newTranslation = Optional.empty();
 
@@ -848,10 +861,9 @@ public class RobotContainer {
             Logger.recordOutput(
                     "FieldSimulation/Algae",
                     SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
-            if (driveSim.isPresent()) {
-                Logger.recordOutput("FieldSimulation/SimPose",
-                        driveSim.get().getSimulatedDriveTrainPose());
-            }
+
+            driveSim.ifPresent(dtSim -> Logger.recordOutput("FieldSimulation/SimPose",
+                    dtSim.getSimulatedDriveTrainPose()));
         }
     }
 

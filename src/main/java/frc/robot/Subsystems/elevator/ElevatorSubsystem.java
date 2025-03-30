@@ -52,7 +52,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
     protected double m_manualSpeed = 0.0;
     protected double m_lastDesiredPosition = 0.0;
 
-    protected LoggedMechanismLigament2d mechanism = new LoggedMechanismLigament2d(getName(), 0.0, 90);
+    protected final LoggedMechanismLigament2d mechanism = new LoggedMechanismLigament2d(getName(), 8.0, 90);
 
     public ElevatorSubsystem(ElevatorMotorIO motorIo,
             ElevatorLimitsIO limitsIo, ElevatorConfigIO configIo) {

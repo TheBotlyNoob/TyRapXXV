@@ -24,6 +24,6 @@ public class MoveStinger extends Command {
 
     @Override
     public void end(boolean interupted) {
-        cl.stopMotor();
+        cl.stopStinger();
     }
 }

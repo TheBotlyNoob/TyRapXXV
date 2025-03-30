@@ -1,67 +1,32 @@
 package frc.robot.Subsystems.climber;
 
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.spark.SparkMax;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.SafeableSubsystem;
-import edu.wpi.first.networktables.DoublePublisher;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
 
 // this doesn't make sense as a `SafeableSubsystem`
 public class ClimberSubsystem extends SubsystemBase {
+    @AutoLogOutput
+    protected boolean isClimbMode = false;
 
-    protected final NetworkTable table;
-    protected final DutyCycleEncoder m_climbEncoder;
-    private final DoublePublisher m_encoderPub;
-    protected boolean isClimbMode;
+    protected final SafeableSubsystem[] m_toMakeSafe;
 
-    protected SafeableSubsystem[] m_toMakeSafe;
+    protected final ClimberStingerIO m_stingerIo;
+    protected final ClimberStingerIOInputsAutoLogged m_stingerInputs = new ClimberStingerIOInputsAutoLogged();
 
-    protected final SparkMax m_climbingMotor;
-    protected final MotorPublisher m_climbMotorPublisher;
-    protected final DoublePublisher m_encoderPublisher;
+    protected final ClimberPneumaticsIO m_pneumaticsIo;
+    protected final ClimberPneumaticsIOInputsAutoLogged m_pneumaticsInputs = new ClimberPneumaticsIOInputsAutoLogged();
 
-    protected final DoubleSolenoid m_clampPneumatic;
-    protected final DoubleSolenoid m_lowerPneumatic;
-    protected final DoubleSolenoid m_rampPneumatic;
+    public ClimberSubsystem(ClimberStingerIO stingerIo, ClimberPneumaticsIO pneumaticsIo, SafeableSubsystem[] toMakeSafe) {
+        m_stingerIo = stingerIo;
+        m_pneumaticsIo = pneumaticsIo;
 
-    private final Value kArmsExtend = Value.kForward; // grabber arms extends and lower to start climb
-    private final Value kArmsRetract = Value.kReverse;
-
-    private final Value kGrabberClose = Value.kForward; // grabber clamps to cage
-    private final Value kGrabberOpen = Value.kReverse;
-
-    private final Value kRampUp = Value.kForward; //
-    private final Value kRampDown = Value.kReverse;; // unclamps
-
-    public ClimberSubsystem(AbsoluteEncoder climbArmEncoder, NetworkTableInstance nt, SafeableSubsystem[] toMakeSafe) {
-        table = nt.getTable(getName());
-        m_climbingMotor = new SparkMax(Constants.MechID.kClimberCanId, MotorType.kBrushless);
-        m_climbMotorPublisher = new MotorPublisher(m_climbingMotor, table, "climbingMotor");
-        m_encoderPublisher = table.getDoubleTopic("absolute encoder").publish();
-        // m_climbEncoder = climbArmEncoder;
-        m_climbEncoder = new DutyCycleEncoder(9);
-        m_encoderPub = nt.getDoubleTopic("Encoder Position").publish();
-        isClimbMode = false;
-
-        m_clampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kClampSolenoidCANID1,
-                Constants.Climber.kClampSolenoidCANID2);
-        m_lowerPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kLowerSolenoidCANID1,
-                Constants.Climber.kLowerSolenoidCANID2);
-        m_rampPneumatic = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, Constants.Climber.kRampSolenoidCANID1,
-                Constants.Climber.kRampSolenoidCANID2);
-
-        m_lowerPneumatic.set(kArmsRetract);
-        m_clampPneumatic.set(kGrabberOpen);
-        m_rampPneumatic.set(kRampDown);
+        m_pneumaticsIo.setArmState(ClimberPneumaticsIO.ArmState.RETRACTED);
+        m_pneumaticsIo.setGrabberState(ClimberPneumaticsIO.GrabberState.OPEN);
+        m_pneumaticsIo.setRampState(ClimberPneumaticsIO.RampState.UP);
 
         m_toMakeSafe = toMakeSafe;
     }
@@ -86,10 +51,11 @@ public class ClimberSubsystem extends SubsystemBase {
     public void setClimbMode() {
         extendArms();
         rampUp();
-        m_clampPneumatic.set(kGrabberOpen);
-        for (int i = 0; i < m_toMakeSafe.length; i++) {
-            System.out.println("Placing " + m_toMakeSafe[i].getName() + " into a safe position");
-            m_toMakeSafe[i].makeSafe();
+        m_pneumaticsIo.setGrabberState(ClimberPneumaticsIO.GrabberState.OPEN);
+
+        for (SafeableSubsystem safeableSubsystem : m_toMakeSafe) {
+            System.out.println("Placing " + safeableSubsystem.getName() + " into a safe position");
+            safeableSubsystem.makeSafe();
         }
         isClimbMode = true;
     }
@@ -97,71 +63,65 @@ public class ClimberSubsystem extends SubsystemBase {
     public void setCoralMode() {
         retractArms();
         rampDown();
-        m_clampPneumatic.set(kGrabberOpen);
+        m_pneumaticsIo.setGrabberState(ClimberPneumaticsIO.GrabberState.OPEN);
         isClimbMode = false;
     }
 
     public void toggleGrabArms() {
-        System.out.println("Toggling grab arms current=" + m_clampPneumatic.get());
-        m_clampPneumatic.toggle();
+        System.out.println("Toggling climb grabber current=" + m_pneumaticsInputs.grabberState.toString());
+        m_pneumaticsIo.setGrabberState(
+                m_pneumaticsInputs.grabberState == ClimberPneumaticsIO.GrabberState.OPEN
+                        ? ClimberPneumaticsIO.GrabberState.CLOSED
+                        : ClimberPneumaticsIO.GrabberState.OPEN
+        );
     }
 
     public void extendArms() {
-        m_lowerPneumatic.set(kArmsExtend);
+        m_pneumaticsIo.setArmState(ClimberPneumaticsIO.ArmState.EXTENDED);
     }
 
     public void retractArms() {
-        m_lowerPneumatic.set(kArmsRetract);
-    }
-
-    public void toggleRamp() {
-        System.out.println("Toggling ramp current=" + m_rampPneumatic.get());
-        m_rampPneumatic.toggle();
+        m_pneumaticsIo.setArmState(ClimberPneumaticsIO.ArmState.RETRACTED);
     }
 
     public void rampUp() {
-        m_rampPneumatic.set(kRampUp);
+        m_pneumaticsIo.setRampState(ClimberPneumaticsIO.RampState.UP);
     }
 
     public void rampDown() {
-        m_rampPneumatic.set(kRampDown);
+        m_pneumaticsIo.setRampState(ClimberPneumaticsIO.RampState.DOWN);
     }
 
-    public void reverseMotor() {
-        System.out.println("reverseMotor called");
-        if (m_climbEncoder.get() <= Constants.Climber.kMinEncoderPos) {
-            stopMotor();
-        } else {
-            m_climbingMotor.setVoltage(-Constants.Climber.kClimbMotorVoltage);
-        }
-    }
-
-    public void forwardMotor() {
-        System.out.println("forwardMotor called");
-
-        if (m_climbEncoder.get() >= Constants.Climber.kMaxEncoderPos) {
-            stopMotor();
-        } else {
-            m_climbingMotor.setVoltage(Constants.Climber.kClimbMotorVoltage);
-        }
-    }
-
-    public void stopMotor() {
-        m_climbingMotor.setVoltage(0.0);
+    public void stopStinger() {
+        m_stingerIo.setVoltage(0.0);
     }
 
     public void extendStinger() {
-        forwardMotor();
+        System.out.println("forwardMotor called");
+
+        if (m_stingerInputs.dutyCycleEncoderPosition.in(Units.Rotations) >= Constants.Climber.kMaxEncoderPos) {
+            stopStinger();
+        } else {
+            m_stingerIo.setVoltage(Constants.Climber.kClimbMotorVoltage);
+        }
     }
 
     public void retractStinger() {
-        reverseMotor();
+        System.out.println("reverseMotor called");
+
+        if (m_stingerInputs.dutyCycleEncoderPosition.in(Units.Rotations) <= Constants.Climber.kMinEncoderPos) {
+            stopStinger();
+        } else {
+            m_stingerIo.setVoltage(-Constants.Climber.kClimbMotorVoltage);
+        }
     }
 
     @Override
     public void periodic() {
-        m_climbMotorPublisher.update();
-        m_encoderPub.set(m_climbEncoder.get());
-        m_encoderPublisher.set(m_climbEncoder.get());
+        m_stingerIo.updateInputs(m_stingerInputs);
+        Logger.processInputs("ClimberSubsystem/Stinger", m_stingerInputs);
+
+        m_pneumaticsIo.updateInputs(m_pneumaticsInputs);
+        Logger.processInputs("ClimberSubsystem/Pneumatics", m_pneumaticsInputs);
     }
 }

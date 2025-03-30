@@ -26,8 +26,6 @@ public class CoralGrabberIOSim implements CoralGrabberIO {
 
     public CoralGrabberIOSim(AbstractDriveTrainSimulation driveSim, IntakeSimulation intakeSim) {
         this.intakeSim = intakeSim;
-
-        // TODO: match this to robot
         intakeSim.startIntake();
 
         this.driveSim = driveSim;
