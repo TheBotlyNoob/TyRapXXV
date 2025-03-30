@@ -69,7 +69,7 @@ import frc.robot.Commands.StationaryWait;
 import frc.robot.Commands.StopCoral;
 import frc.robot.Commands.StopDrive;
 import org.json.simple.parser.ParseException;
-import frc.robot.Commands.RumbleManip;
+import frc.robot.Commands.RumbleDrive;
 import frc.robot.Commands.StopElevator;
 import frc.robot.Commands.GoToLevel;
 
@@ -199,7 +199,7 @@ public class RobotContainer {
                                                                 () -> m_Limelight
                                                                                 .getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber
                                                                                                 + 0.1)),
-                                                new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
+                                                new PrintCommand("level has not been set").andThen(new RumbleDrive(.5)),
                                                 () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag()));
 
                 this.m_scoreRight = new SequentialCommandGroup(
@@ -210,7 +210,7 @@ public class RobotContainer {
                                                                 () -> m_Limelight
                                                                                 .getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber
                                                                                                 + 0.1)),
-                                                new PrintCommand("level has not been set").andThen(new RumbleManip(.5)),
+                                                new PrintCommand("level has not been set").andThen(new RumbleDrive(.5)),
                                                 () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag()));
 
                 this.m_scoreCancel = new SequentialCommandGroup(
@@ -413,7 +413,7 @@ public class RobotContainer {
                 Map.ofEntries(
                 Map.entry(CommandSelector.LOW, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL3, ElevatorLevel.LEVEL5)),
                 Map.entry(CommandSelector.HIGH, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL4, ElevatorLevel.LEVEL6)),
-                Map.entry(CommandSelector.NULL, new RumbleManip(0.5))),
+                Map.entry(CommandSelector.NULL, new RumbleDrive(0.5))),
         this::select);
         }
 
