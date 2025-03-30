@@ -39,6 +39,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
     @AutoLogOutput
     protected double desiredPositionRot = 0;
 
+    @AutoLogOutput
     protected double currentPositionRot = 0;
     protected double currentVelocityRotPerSec = 0;
 
@@ -284,7 +285,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             double targetAcceleration = (targetVelocityRotPerSec - this.m_lastSpeed);
 
             double pidVal = m_pidController.calculate(currentPositionRot, desiredPositionRot);
-            // TODO: the suggested alternative, calculateWithVelocities, ruins the FF. Needs further investigation.
+            // TODO: the suggested alternative, calculateWithVelocities, ruins the FF. Needs
+            // further investigation.
             double FFVal = m_feedforward.calculate(targetVelocityRotPerSec, targetAcceleration);
 
             outputVoltage = pidVal + FFVal;

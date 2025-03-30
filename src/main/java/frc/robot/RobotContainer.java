@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -272,12 +273,12 @@ public class RobotContainer {
                                 Rotation3d.kZero),
                         dtSim::getSimulatedDriveTrainPose));
 
+
+        ElevatorSim elevSim = new ElevatorSim(DCMotor.getNEO(2), 1 / Constants.Elevator.kElevatorGearRatio, 24.0, Elevator.kElevatorDrumRadius, 0.0, Constants.Elevator.kElevatorMaxPos, true, 0, 0.01, 0.0);
         // TODO: simulate elevator
         m_elevator = new ElevatorSubsystem(
-                new ElevatorMotorIO() {
-                },
-                new ElevatorLimitsIO() {
-                },
+                new ElevatorMotorIOSim(elevSim),
+                new ElevatorLimitsIOSim(elevSim),
                 new ElevatorConfigIONetworkTables(nt));
 
         // TODO: simulate Algae
@@ -853,6 +854,8 @@ public class RobotContainer {
     // }
 
     public void simulationPeriodic() {
+
+        m_elevator.setLevel(ElevatorLevel.LEVEL4);
         if (Constants.RobotMode.currentMode == Constants.RobotMode.Mode.SIM) {
             SimulatedArena.getInstance().simulationPeriodic();
             Logger.recordOutput(

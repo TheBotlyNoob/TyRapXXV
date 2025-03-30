@@ -11,7 +11,8 @@ public class ElevatorLimitsIOSim implements ElevatorLimitsIO {
 
     @Override
     public void updateInputs(ElevatorLimitsIOInputs inputs) {
-        inputs.touchingBottom = m_sim.hasHitLowerLimit();
-        inputs.touchingTop = m_sim.hasHitUpperLimit();
+        // avoid the bottom/top limit switches from being very flaky
+        inputs.touchingBottom = m_sim.wouldHitLowerLimit(Math.floor(m_sim.getPositionMeters() * 100.0) / 100.0 - 0.01);
+        inputs.touchingTop = m_sim.wouldHitUpperLimit(Math.ceil(m_sim.getPositionMeters() * 100.0) / 100.0 + 0.01);
     }
 }

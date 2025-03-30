@@ -246,8 +246,13 @@ public class Constants {
         public static final double kMaxAcceleration = 3.0;
         public static final double kDecelProp = 0.4;
 
-        public static final double kElevatorGearRatio = 0;
-        public static final double kElevatorDrumRadius = 0;
+        // TODO: make these their real values
+        public static final double kElevatorGearRatio =  1 / 14.75;
+        public static final double kElevatorDrumRadius = 0.05;
+        // distance per pulse = (distance per revolution) / (pulses per revolution)
+        //  = (Pi * D) / ppr
+        public static final double kElevatorEncoderDistPerPulse =
+                2.0 * Math.PI * kElevatorDrumRadius / 4096;
 
         public static final double kManualSpeed = 0.5;
         public static final double kElevatorMaxPos = 27.65;
