@@ -22,6 +22,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.Units;
 import frc.robot.Constants;
 
+import org.littletonrobotics.junction.Logger;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
@@ -36,7 +37,6 @@ import java.util.stream.IntStream;
 public class VisionIOPhotonVision implements VisionIO {
     protected final PhotonCamera camera;
     protected final Transform3d robotToCamera;
-    protected int[] allowedFiducialIds = Constants.ID.allAprilIDs;
 
     /**
      * Creates a new VisionIOPhotonVision.
@@ -58,18 +58,18 @@ public class VisionIOPhotonVision implements VisionIO {
             // Update latest target observation
             if (result.hasTargets()) {
                 PhotonTrackedTarget bestTarget = result.getBestTarget();
-                if (IntStream.of(allowedFiducialIds).anyMatch(id -> id == bestTarget.getFiducialId())) {
-                    inputs.latestTargetObservation = new TargetObservation(true,
-                            bestTarget.fiducialId,
-                            Rotation2d.fromDegrees(bestTarget.getYaw()),
-                            Rotation2d.fromDegrees(bestTarget.getPitch()),
-                            // TODO: distance calculations
-                            bestTarget.getBestCameraToTarget().getY(),
-                            bestTarget.getBestCameraToTarget().getZ() * -1,
-                            bestTarget.getBestCameraToTarget().getX());
-                } else {
-                    inputs.latestTargetObservation = VisionIOConstants.invalidObservation;
-                }
+                Logger.recordOutput("VisionIOPhotonVision/Ambiguity", bestTarget.getPoseAmbiguity());
+                inputs.latestTargetObservation = new TargetObservation(true,
+                        bestTarget.fiducialId,
+                        Rotation2d.fromDegrees(bestTarget.getYaw()),
+                        Rotation2d.fromDegrees(bestTarget.getPitch()),
+                        // object/fiducial tag space
+                        // Y = left
+                        bestTarget.getBestCameraToTarget().getY(),
+                        // Z = up
+                        bestTarget.getBestCameraToTarget().getZ() * -1,
+                        // X = forward
+                        bestTarget.getBestCameraToTarget().getX());
             } else {
                 inputs.latestTargetObservation = VisionIOConstants.invalidObservation;
             }
@@ -111,7 +111,7 @@ public class VisionIOPhotonVision implements VisionIO {
                 if (tagPose.isPresent()) {
                     Transform3d fieldToTarget = new Transform3d(tagPose.get().getTranslation(),
                             tagPose.get().getRotation());
-                    Transform3d cameraToTarget = target.bestCameraToTarget;
+                    Transform3d cameraToTarget = target.getBestCameraToTarget();
                     Transform3d fieldToCamera = fieldToTarget.plus(cameraToTarget.inverse());
                     Transform3d fieldToRobot = fieldToCamera.plus(robotToCamera.inverse());
                     Pose2d robotPose = new Pose2d(fieldToRobot.getTranslation().toTranslation2d(),
@@ -145,10 +145,5 @@ public class VisionIOPhotonVision implements VisionIO {
         for (int id : tagIds) {
             inputs.tagIds[i++] = id;
         }
-    }
-
-    @Override
-    public void setFiducialIDFilter(int[] tagIds) {
-        allowedFiducialIds = tagIds;
     }
 }

@@ -21,8 +21,10 @@ import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform3d;
-
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import frc.robot.Constants;
 
 /** IO implementation for physics sim using PhotonVision simulator. */
@@ -51,6 +53,15 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
 
         // Add sim camera
         var cameraProperties = new SimCameraProperties();
+        // diagFov = 2*atan(sqrt(tan^2(hFov/2) + tan^2(vFov/2)))
+        Angle diagFov = Units.Radians.of(2 * Math.atan(
+                Math.sqrt(Math.pow(Math.tan(Math.toRadians(Constants.LimelightConstants.kHorizontalFOVDeg / 2)), 2)
+                        + Math.pow(Math.tan(Math.toRadians(Constants.LimelightConstants.kVerticalFOVDeg / 2)), 2))));
+
+        System.out.println("Diagonal FOV: " + diagFov.in(Units.Degrees) + "degrees");
+
+        cameraProperties.setCalibration(Constants.LimelightConstants.kResolutionWidth,
+                Constants.LimelightConstants.kResolutionHeight, new Rotation2d(diagFov));
         cameraSim = new PhotonCameraSim(camera, cameraProperties, Constants.Vision.aprilTagLayout);
         visionSim.addCamera(cameraSim, robotToCamera);
     }
@@ -58,8 +69,7 @@ public class VisionIOPhotonVisionSim extends VisionIOPhotonVision {
     @Override
     public void updateInputs(VisionIOInputs inputs) {
         visionSim.update(poseSupplier.get());
-        // TODO: Logger.recordOutput("VisionSimulation/SimField",
-        // visionSim.getDebugField());
+        // Logger.recordOutput("VisionSimulation/SimField", visionSim.getDebugField());
         super.updateInputs(inputs);
     }
 }

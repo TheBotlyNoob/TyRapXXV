@@ -15,6 +15,7 @@ import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
@@ -71,8 +72,12 @@ public class SwerveModuleIOSpark implements SwerveModuleIO {
         // shouldn't)
         m_driveMotor.getEncoder().setPosition(0);
         driveConfig.smartCurrentLimit(60); // m_driveMotor.setSmartCurrentLimit(40);
-        driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter); // m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
-        driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec); // m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
+        // driveConfig.encoder.positionConversionFactor(Modules.kDriveEncoderRot2Meter);
+        // //
+        // m_driveMotor.getEncoder().setPositionConversionFactor(Modules.kDriveEncoderRot2Meter);
+        // driveConfig.encoder.velocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
+        // //
+        // m_driveMotor.getEncoder().setVelocityConversionFactor(Modules.kDriveEncoderRPM2MeterPerSec);
         driveConfig.idleMode(IdleMode.kBrake); // m_driveMotor.setIdleMode(IdleMode.kBrake);
         driveConfig.inverted(invertDrive); // m_driveMotor.setInverted(false);
         driveConfig.apply(Constants.SparkConstants.defaultSignalConf);
@@ -114,16 +119,18 @@ public class SwerveModuleIOSpark implements SwerveModuleIO {
 
     @Override
     public void updateInputs(SwerveModuleIO.SwerveModuleIOInputs inputs) {
-        inputs.driveMotorVelocity = Units.MetersPerSecond.of(m_driveMotor.getEncoder().getVelocity());
-        inputs.driveMotorAngularVelocity = Units.RPM.of(inputs.driveMotorVelocity
-                .in(Units.MetersPerSecond) / Constants.Modules.kDriveEncoderRPM2MeterPerSec);
-        inputs.drivingMotorDistance = Units.Meters
-                .of(m_driveMotor.getEncoder().getPosition());
-        inputs.drivingMotorPosition = Units.Rotations
-                .of(/* Meters */m_driveMotor.getEncoder().getPosition() / Constants.Modules.kDriveEncoderRot2Meter);
+        inputs.driveMotorAngularVelocity = Units.RPM.of(m_driveMotor.getEncoder().getVelocity());
+        inputs.driveMotorVelocity = Units.MetersPerSecond.of(m_driveMotor.getEncoder().getVelocity()
+                * Constants.Modules.kDriveEncoderRPM2MeterPerSec);
 
-        inputs.turningMotorPosition = m_turningEncoder.getAbsolutePosition().getValue(); // angleModulus
-                                                                                         // ensures
+        inputs.drivingMotorDistance = Units.Meters
+                .of(m_driveMotor.getEncoder().getPosition() * Constants.Modules.kDriveEncoderRot2Meter);
+        inputs.drivingMotorPosition = Units.Rotations
+                .of(m_driveMotor.getEncoder().getPosition());
+
+        inputs.turningMotorPosition = Units.Radians.of(MathUtil
+                .angleModulus(m_turningEncoder.getAbsolutePosition().getValue().in(Units.Radians))); // angleModulus
+        // ensures
         // that the
         // angle within -PI to PI
         inputs.turningMotorAngularVelocity = m_turningEncoder.getVelocity().getValue();

@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.Set;
+
 import com.revrobotics.spark.config.SignalsConfig;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -33,12 +35,12 @@ public class Constants {
 
         // Limelight
         public static final String kFrontLimelightName = "limelight-c";
-        public static final int[] allAprilIDs = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
-                18, 19, 20, 21, 22 };
-        public static final int[] reefAprilIDs = new int[] { 6, 7, 8, 9, 10, 11, 17,
-                18, 19, 20, 21, 22 };
-        public static final int[] algaeAprilIDs = new int[] { 3, 4, 5, 14, 15, 16 };
-        public static final int[] playerAprilIDs = new int[] { 1, 2, 12, 13 };
+        public static final Set<Integer> allAprilIDs = Set.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+                18, 19, 20, 21, 22);
+        public static final Set<Integer> reefAprilIDs = Set.of(6, 7, 8, 9, 10, 11, 17,
+                18, 19, 20, 21, 22);
+        public static final Set<Integer> algaeAprilIDs = Set.of(3, 4, 5, 14, 15, 16);
+        public static final Set<Integer> playerAprilIDs = Set.of(1, 2, 12, 13);
     }
 
     public static class Climber {
@@ -67,6 +69,8 @@ public class Constants {
         public static final double kMinEncoderPos = .062;
         public static final double kLimitEncoderPos = .037; // HARD STOP
         public static final int wristCounterLimit = 5;
+
+        public static final double kEjectSpeed = 0.65;
     }
 
     public static class MechID {
@@ -161,6 +165,11 @@ public class Constants {
     }
 
     public static class LimelightConstants {
+        public static final int kResolutionWidth = 1280;
+        public static final int kResolutionHeight = 800;
+        public static final double kHorizontalFOVDeg = 56.2;
+        public static final double kVerticalFOVDeg = 82;
+
         public static final int defaultPipeline = 2;
         // For CenterOnTag
         public static final double minXVelocity = 0.1;

@@ -53,7 +53,7 @@ public class LightSubsystem extends SubsystemBase {
 
     private boolean isReefId() {
         return vision.isTargetValid(0)
-                && IntStream.of(Constants.ID.reefAprilIDs).anyMatch(x -> x == vision.getFiducialID(0));
+                && Constants.ID.reefAprilIDs.contains(vision.getFiducialID(0));
     }
 
     @Override

@@ -15,6 +15,7 @@ package frc.robot.Subsystems.vision;
 
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,10 +26,18 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 import static frc.robot.Constants.Vision.aprilTagLayout;
 
@@ -38,14 +47,21 @@ public class Vision extends SubsystemBase {
     private final VisionIOInputsAutoLogged[] inputs;
     private final Alert[] disconnectedAlerts;
 
-    public Vision(VisionConsumer consumer, VisionIO... io) {
+    private final List<Set<Integer>> fiducialIDFilters;
+    private final List<LinearFilter> yawLinearFilters;
+
+    public Vision(VisionConsumer consumer, Set<Integer> defaultFiducialIDFilter, VisionIO... io) {
         this.consumer = consumer;
         this.io = io;
 
-        // Initialize inputs
+        // Initialize inputs and ID filters
         this.inputs = new VisionIOInputsAutoLogged[io.length];
+        this.fiducialIDFilters = new ArrayList<>(io.length);
+        this.yawLinearFilters = new ArrayList<>(io.length);
         for (int i = 0; i < inputs.length; i++) {
             inputs[i] = new VisionIOInputsAutoLogged();
+            fiducialIDFilters.add(defaultFiducialIDFilter);
+            yawLinearFilters.add(LinearFilter.movingAverage(10));
         }
 
         // Initialize disconnected alerts
@@ -60,8 +76,7 @@ public class Vision extends SubsystemBase {
      * Returns the X (facing to the left, if you were to embody the camera)
      * distance to the best target,
      *
-     * If there is no current target observation, this will return a 0 Meters in
-     * Distance.
+     * Make sure the target is valid before using this method.
      *
      * @param cameraIndex The index of the camera to use.
      */
@@ -73,8 +88,7 @@ public class Vision extends SubsystemBase {
      * Returns the Y (pointing downward, if you were to embody the camera) to the
      * best target.
      *
-     * If there is no current target observation, this will return 0 Meters in
-     * Distance.
+     * Make sure the target is valid before using this method.
      *
      * @param cameraIndex The index of the camera to use.
      */
@@ -86,8 +100,7 @@ public class Vision extends SubsystemBase {
      * Returns the Z (facing outward/forward, if you were to embody the camera)
      * distance to the best target.
      *
-     * If there is no current target observation, this will return 0 Meters in
-     * Distance.
+     * Make sure the target is valid before using this method.
      *
      * @param cameraIndex The index of the camera to use.
      */
@@ -96,22 +109,21 @@ public class Vision extends SubsystemBase {
     }
 
     /**
-     * Returns the yaw angle (angle left/right of the camera) to the best target.
+     * Returns the linearly filtered yaw angle (angle left/right of the camera) to
+     * the best target.
      *
-     * If there is no current target observation, this will return a default
-     * {@link Rotation2d}.
+     * Make sure the target is valid before using this method.
      *
      * @param cameraIndex The index of the camera to use.
      */
     public Rotation2d getTargetYaw(int cameraIndex) {
-        return inputs[cameraIndex].latestTargetObservation.yaw();
+        return Rotation2d.fromRadians(yawLinearFilters.get(cameraIndex).lastValue());
     }
 
     /**
      * Returns the pitch angle (angle up/down from the camera) to the best target.
      *
-     * If there is no current target observation, this will return a default
-     * {@link Rotation2d}.
+     * Make sure the target is valid before using this method.
      *
      * @param cameraIndex The index of the camera to use.
      */
@@ -125,23 +137,32 @@ public class Vision extends SubsystemBase {
      * @returns - whether the best target is valid.
      */
     public boolean isTargetValid(int cameraIndex) {
-        return inputs[cameraIndex].latestTargetObservation.isValid();
+        // we check the fiducial filter to not only prevent the filter from affecting
+        // the pose estimation, but also to allow us to see the IO in advantagescope
+        // with and without the filter
+        return inputs[cameraIndex].latestTargetObservation.isValid()
+                && fiducialIDFilters.get(cameraIndex)
+                        .contains(Integer.valueOf(getFiducialID(cameraIndex)));
+
     }
 
     /**
-     * Sets the IDs of the tags to track for the given camera.
+     * Sets the IDs of the tags to track as possible best targets for the given
+     * camera.
+     *
+     * This does not affect pose observation.
      *
      * @param cameraIndex The index of the camera to use.
      * @param tagIds      The IDs of the tags to track.
      */
-    public void setFiducialIDFilter(int cameraIndex, int[] tagIds) {
-        io[cameraIndex].setFiducialIDFilter(tagIds);
+    public void setFiducialIDFilter(int cameraIndex, Set<Integer> tagIds) {
+        fiducialIDFilters.set(cameraIndex, tagIds);
     }
 
     /**
      * Gets the ID of the best target.
      *
-     * If there is no current target observation, this will return -1.
+     * Make sure the target is valid before using this method.
      *
      * @param cameraIndex The index of the camera to use.
      */
@@ -164,6 +185,10 @@ public class Vision extends SubsystemBase {
 
         // Loop over cameras
         for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
+            if (inputs[cameraIndex].latestTargetObservation.isValid()) {
+                yawLinearFilters.get(cameraIndex)
+                        .calculate(inputs[cameraIndex].latestTargetObservation.yaw().getRadians());
+            }
             // Update disconnected alert
 
             // Initialize logging values
@@ -178,6 +203,13 @@ public class Vision extends SubsystemBase {
                 if (tagPose.isPresent()) {
                     tagPoses.add(tagPose.get());
                 }
+            }
+
+            Optional<Pose3d> targetTagPose;
+            if (isTargetValid(cameraIndex)) {
+                targetTagPose = aprilTagLayout.getTagPose(getFiducialID(cameraIndex));
+            } else {
+                targetTagPose = Optional.empty();
             }
 
             // Loop over pose observations
@@ -243,6 +275,10 @@ public class Vision extends SubsystemBase {
             Logger.recordOutput(
                     "Vision/Camera" + Integer.toString(cameraIndex) + "/RobotPosesRejected",
                     robotPosesRejected.toArray(new Pose2d[robotPosesRejected.size()]));
+            Logger.recordOutput("Vision/Camera" + Integer.toString(cameraIndex) + "/TargetTagPose",
+                    targetTagPose.map(pose -> new Pose3d[] { pose }).orElse(new Pose3d[0]));
+            Logger.recordOutput("Vision/Camera" + Integer.toString(cameraIndex) + "/FiducialIDFilter",
+                    fiducialIDFilters.get(cameraIndex).stream().mapToInt(Integer::intValue).toArray());
 
             allTagPoses.addAll(tagPoses);
             allRobotPoses.addAll(robotPoses);

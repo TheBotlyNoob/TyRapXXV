@@ -63,14 +63,4 @@ public interface VisionIO {
 
     public default void updateInputs(VisionIOInputs inputs) {
     }
-
-    /**
-     * Only tracks the given IDs in the `latestTargetObservation` input.
-     * 
-     * This does not affect pose observations.
-     *
-     * @param tagIds - the IDs to track
-     */
-    public default void setFiducialIDFilter(int[] tagIds) {
-    };
 }

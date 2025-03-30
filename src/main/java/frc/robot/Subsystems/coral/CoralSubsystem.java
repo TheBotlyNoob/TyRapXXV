@@ -74,7 +74,7 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     public void ejectCoral() {
         ejectActive = true;
-        m_grabberIo.setSpeed(0.65);
+        m_grabberIo.ejectCoral();
     }
 
     // public void setVoltageTest(double voltage) {
@@ -197,7 +197,7 @@ public class CoralSubsystem extends SafeableSubsystem {
                 state = CoralState.WAITING;
             }
         } else if (state == CoralState.EJECTING) {
-            m_grabberIo.setSpeed(0.65);
+            ejectCoral();
             if (timer.get() > 2 && !m_detectionInputs.hasCoral) {
                 state = CoralState.WAITING;
                 ejectActive = false;

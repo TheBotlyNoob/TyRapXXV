@@ -27,7 +27,6 @@ import java.util.stream.IntStream;
 /** IO implementation for real Limelight hardware. */
 public class VisionIOLimelight implements VisionIO {
     private final Supplier<Rotation2d> rotationSupplier;
-    private int[] allowedFiducialIds = Constants.ID.allAprilIDs;
 
     /**
      * Creates a new VisionIOLimelight.
@@ -40,7 +39,7 @@ public class VisionIOLimelight implements VisionIO {
         LimelightHelpers.setPipelineIndex(Constants.ID.kFrontLimelightName,
                 Constants.LimelightConstants.defaultPipeline);
 
-        LimelightHelpers.SetFiducialIDFiltersOverride(Constants.ID.kFrontLimelightName, Constants.ID.allAprilIDs);
+        LimelightHelpers.SetFiducialIDFiltersOverride(Constants.ID.kFrontLimelightName, new int[] {});
 
         this.rotationSupplier = rotationSupplier;
     }
@@ -59,8 +58,6 @@ public class VisionIOLimelight implements VisionIO {
         int targetTag = (int) LimelightHelpers.getFiducialID(Constants.ID.kFrontLimelightName);
 
         if (targetPose.length < 6) {
-            inputs.latestTargetObservation = VisionIOConstants.invalidObservation;
-        } else if (IntStream.of(allowedFiducialIds).noneMatch(id -> id == targetTag)) {
             inputs.latestTargetObservation = VisionIOConstants.invalidObservation;
         } else {
             inputs.latestTargetObservation = new TargetObservation(
@@ -124,12 +121,5 @@ public class VisionIOLimelight implements VisionIO {
         for (int id : tagIds) {
             inputs.tagIds[i++] = id;
         }
-    }
-
-    @Override
-    public void setFiducialIDFilter(int[] tagIds) {
-        // we don't override the filter on the LIMELIGHT, so it doesn't affect
-        // localization
-        allowedFiducialIds = tagIds;
     }
 }

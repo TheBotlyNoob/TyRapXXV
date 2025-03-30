@@ -1,6 +1,7 @@
 package frc.robot.Commands;
 
 import java.util.Optional;
+import java.util.Set;
 
 // Imports
 
@@ -20,6 +21,7 @@ import frc.robot.Subsystems.drive.Drivetrain;
 import frc.robot.Subsystems.vision.Vision;
 import frc.robot.Utils.CoordinateUtilities;
 import frc.robot.Utils.TrapezoidController;
+import org.littletonrobotics.junction.Logger;
 
 // This Command combines DriveDistance and CenterOnTag, using Limelight and Odometry 
 //      to drive to an april tag and then drive a specific offset left or right from it.
@@ -65,7 +67,6 @@ public class DriveOffset extends Command {
     private Optional<Integer> id = Optional.empty();
     private double xOffset;
     private double yOffset;
-    private Pose2d tagPose;
     private Pose2d currentPose;
     private Pose2d desiredPose;
     protected Transform2d cameraToRobot;
@@ -129,10 +130,11 @@ public class DriveOffset extends Command {
     @Override
     public void initialize() {
         // Set id
+
         if (id.isEmpty()) {
-            vision.setFiducialIDFilter(0, new int[] {});
+            vision.setFiducialIDFilter(0, Constants.ID.allAprilIDs);
         } else {
-            vision.setFiducialIDFilter(0, new int[] { id.get() });
+            vision.setFiducialIDFilter(0, Set.of(id.get()));
             System.out.println("Set ID");
         }
 
@@ -167,12 +169,14 @@ public class DriveOffset extends Command {
     // to the field
     public Pose2d getDesiredPose() {
         // Get values from limelight
-        // TODO: linear filter the target yaw
         Rotation2d rotAngle = vision.getTargetYaw(0);
         double yDis = vision.getTargetDistX(0).in(Units.Meters);
         double xDis = vision.getTargetDistZ(0).in(Units.Meters);
         // Get april tag position from camera
-        tagPose = new Pose2d(xDis, yDis, new Rotation2d(Math.toRadians(rotAngle.getDegrees() + 180.0)));
+        // TODO: this isn't what it was in the main branch because it wasn't working in
+        // sim. What changed?
+        Pose2d tagPose = new Pose2d(xDis, yDis,
+                rotAngle.rotateBy(Rotation2d.k180deg));
         // Calculate desired offset using shuffleboard and at 0 degrees
         Transform2d desiredOffset = new Transform2d(xOffset, yOffset, new Rotation2d());
         // Calculate robot-relative desired pose
@@ -188,6 +192,8 @@ public class DriveOffset extends Command {
         // System.out.println("tagPose = " + tagPose);
         // System.out.println("desiredPoseRobotRelative = " + desiredPoseRobotRelative);
         // System.out.println("desiredPoseField = " + desiredPoseField);
+        //
+        Logger.recordOutput("DriveOffset/DesiredPose", desiredPoseField);
 
         return desiredPoseField;
     }
@@ -195,7 +201,7 @@ public class DriveOffset extends Command {
     @Override
     public void execute() {
         // Update desired pose every so often
-        if (vision.isTargetValid(0) && (counter % 5 == 0)) {
+        if (vision.isTargetValid(0) && (counter == 0)) {
             desiredPose = getDesiredPose();
         }
         counter++;

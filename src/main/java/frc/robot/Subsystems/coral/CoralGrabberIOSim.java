@@ -24,17 +24,13 @@ public class CoralGrabberIOSim implements CoralGrabberIO {
 
     private final AbstractDriveTrainSimulation driveSim;
 
-    public CoralGrabberIOSim(AbstractDriveTrainSimulation driveSim) {
+    public CoralGrabberIOSim(AbstractDriveTrainSimulation driveSim, IntakeSimulation intakeSim) {
+        this.intakeSim = intakeSim;
+
         // TODO: match this to robot
-        intakeSim = new IntakeSimulation("Coral", driveSim,
-                new Triangle(new Vector2(0, 0), new Vector2(0.2, 0), new Vector2(0, 0.2)), 1);
         intakeSim.startIntake();
 
         this.driveSim = driveSim;
-    }
-
-    public IntakeSimulation getIntakeSim() {
-        return intakeSim;
     }
 
     @Override
@@ -45,28 +41,35 @@ public class CoralGrabberIOSim implements CoralGrabberIO {
     @Override
     public void setVoltage(Voltage voltage) {
         motor.setInputVoltage(voltage.in(Units.Volts));
-        if (voltage.in(Units.Volts) > 4.0 && intakeSim.getGamePiecesAmount() > 0) {
-            // we're ejecting with a coral
-            if (intakeSim.obtainGamePieceFromIntake()) {
-                // if it returned true, the coral was removed from the simulated intake
-                // TODO: tune sim
-                SimulatedArena.getInstance()
-                        .addGamePieceProjectile(new ReefscapeCoralOnFly(
-                                // Obtain robot position from drive simulation
-                                driveSim.getSimulatedDriveTrainPose().getTranslation(),
-                                // The scoring mechanism is installed at (0.46, 0) (meters) on the robot
-                                new Translation2d(0.46, 0),
-                                // Obtain robot speed from drive simulation
-                                driveSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
-                                // Obtain robot facing from drive simulation
-                                driveSim.getSimulatedDriveTrainPose().getRotation(),
-                                // The height at which the coral is ejected
-                                Units.Meters.of(2.10),
-                                // The initial speed of the coral
-                                Units.MetersPerSecond.of(2),
-                                // The coral is ejected at a 35-degree slope
-                                Units.Degrees.of(-35)));
-            }
+        if (voltage.in(Units.Volts) > 6.0 && intakeSim.getGamePiecesAmount() > 0) {
+
+        }
+    }
+
+    @Override
+    public void ejectCoral() {
+        System.out.println("EJECTING CORAL SIM");
+        // we're ejecting with a coral
+        if (intakeSim.obtainGamePieceFromIntake()) {
+            // if it returned true, the coral was removed from the simulated intake
+            // TODO: tune sim
+            SimulatedArena.getInstance()
+                    .addGamePieceProjectile(new ReefscapeCoralOnFly(
+                            // Obtain robot position from drive simulation
+                            driveSim.getSimulatedDriveTrainPose().getTranslation(),
+                            // The scoring mechanism is installed at (0.46, 0) (meters) on the robot
+                            new Translation2d(0.45, 0.0),
+                            // Obtain robot speed from drive simulation
+                            driveSim.getDriveTrainSimulatedChassisSpeedsFieldRelative(),
+                            // Obtain robot facing from drive simulation
+                            driveSim.getSimulatedDriveTrainPose().getRotation(),
+                            // The height at which the coral is ejected
+                            Units.Meters.of(2.10),
+                            // The initial speed of the coral
+                            Units.MetersPerSecond.of(2),
+                            // The coral is ejected at a 35-degree slope
+                            Units.Degrees.of(-60)));
+        } else {
         }
     }
 

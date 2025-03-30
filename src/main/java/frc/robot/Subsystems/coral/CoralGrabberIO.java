@@ -18,6 +18,9 @@ public interface CoralGrabberIO {
     public default void setVoltage(Voltage voltage) {
     }
 
+    public default void ejectCoral() {
+    }
+
     public default void setSpeed(double speed) {
     }
 }

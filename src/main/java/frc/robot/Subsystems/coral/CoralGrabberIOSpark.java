@@ -33,4 +33,9 @@ public class CoralGrabberIOSpark implements CoralGrabberIO {
     public void setSpeed(double speed) {
         motor.set(speed);
     }
+
+    @Override
+    public void ejectCoral() {
+        setSpeed(Constants.Coral.kEjectSpeed);
+    }
 }

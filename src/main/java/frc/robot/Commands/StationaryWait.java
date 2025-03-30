@@ -18,10 +18,18 @@ public class StationaryWait extends Command {
         addRequirements(dt);
     }
 
+    @Override
+    public void initialize() {
+        timer.reset();
+        timer.start();
+    }
+
+    @Override
     public void execute() {
         this.dt.driveChassisSpeeds(new ChassisSpeeds());
     }
 
+    @Override
     public boolean isFinished() {
         return (timer.get() >= durationSec);
     }

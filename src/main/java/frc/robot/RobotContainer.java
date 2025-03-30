@@ -14,7 +14,9 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.units.Units;
@@ -43,6 +45,11 @@ import frc.robot.Subsystems.vision.VisionIOPhotonVision;
 import frc.robot.Subsystems.vision.VisionIOPhotonVisionSim;
 import frc.robot.Subsystems.vision.limelight.VisionIOLimelight;
 import frc.robot.Utils.SafeableSubsystem;
+
+import org.dyn4j.geometry.Rotation;
+import org.dyn4j.geometry.Triangle;
+import org.dyn4j.geometry.Vector2;
+import org.ironmaple.simulation.IntakeSimulation;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -155,8 +162,8 @@ public class RobotContainer {
                                         Controller.kManipulatorController
                                                 .getHID(),
                                         .5)),
-                        () -> (m_elevator.isAnyLevelSet()) && IntStream.of(Constants.ID.reefAprilIDs)
-                                .anyMatch(id -> id == m_vision.getFiducialID(0))));
+                        () -> (m_elevator.isAnyLevelSet()) && m_vision.isTargetValid(0) && Constants.ID.reefAprilIDs
+                                .contains(m_vision.getFiducialID(0))));
 
         this.m_scoreRight = new SequentialCommandGroup(
                 new ConditionalCommand(
@@ -168,8 +175,8 @@ public class RobotContainer {
                                                 + 0.1)),
                         new PrintCommand("level has not been set").andThen(new RumbleController(
                                 Controller.kManipulatorController.getHID(), .5)),
-                        () -> (m_elevator.isAnyLevelSet()) && IntStream.of(Constants.ID.reefAprilIDs)
-                                .anyMatch(id -> id == m_vision.getFiducialID(0))));
+                        () -> (m_elevator.isAnyLevelSet()) && m_vision.isTargetValid(0) && Constants.ID.reefAprilIDs
+                                .contains(m_vision.getFiducialID(0))));
 
         this.m_scoreCancel = new SequentialCommandGroup(
                 m_elevator.runOnce(() -> m_scoreLeft.cancel()),
@@ -183,8 +190,6 @@ public class RobotContainer {
         if (Constants.RobotMode.currentMode != Mode.REAL) {
             throw new IllegalStateException("initReal can only be called in REAL mode");
         }
-
-        new VisionIOPhotonVision("", new Transform3d());
 
         m_swerve = new Drivetrain(new GyroIOPigeon2(new Pigeon2(Constants.ID.kGyro)),
                 new SwerveModuleIOSpark(ID.kFrontLeftDrive, ID.kFrontLeftTurn, ID.kFrontLeftCANCoder,
@@ -204,6 +209,7 @@ public class RobotContainer {
                         DrivetrainConstants.sparkFlex, false));
 
         m_vision = new Vision(m_swerve::addVisionMeasurement,
+                Constants.ID.allAprilIDs,
                 new VisionIOLimelight(m_swerve::getGyroYawRotation2d));
 
         m_algae = new AlgaeGrabberSubsystem(new AlgaePneumaticsIOReal(), new AlgaeRetrievalIOSpark());
@@ -226,8 +232,7 @@ public class RobotContainer {
             throw new IllegalStateException("initSim can only be called in SIM mode");
         }
 
-        SimulatedArena.getInstance()
-                .addGamePiece(new ReefscapeCoralOnField(new Pose2d(6, 4, new Rotation2d())));
+        SimulatedArena.getInstance().resetFieldForAuto();
 
         final DriveTrainSimulationConfig simConf = DriveTrainSimulationConfig.Default()
                 .withGyro(COTS.ofPigeon2())
@@ -265,7 +270,11 @@ public class RobotContainer {
         driveSim = Optional.of(dtSim);
 
         m_vision = new Vision(m_swerve::addVisionMeasurement,
-                new VisionIOPhotonVisionSim("cam1", new Transform3d(), dtSim::getSimulatedDriveTrainPose));
+                Constants.ID.allAprilIDs,
+                new VisionIOPhotonVisionSim("cam1",
+                        new Transform3d(-Constants.Offsets.cameraOffsetForwardM, 0.0, 0.2,
+                                Rotation3d.kZero),
+                        dtSim::getSimulatedDriveTrainPose));
 
         // TODO: simulate elevator
         m_elevator = new ElevatorSubsystem(
@@ -280,14 +289,18 @@ public class RobotContainer {
         }, new AlgaeRetrievalIO() {
         });
 
-        CoralGrabberIOSim grabberIo = new CoralGrabberIOSim(dtSim);
+        IntakeSimulation intakeSim = new IntakeSimulation("Coral", dtSim,
+                new Triangle(new Vector2(0, 0), new Vector2(0.2, 0), new Vector2(0, 0.2)), 1);
+
+        CoralGrabberIOSim grabberIo = new CoralGrabberIOSim(dtSim, intakeSim);
         m_coral = new CoralSubsystem(
                 m_elevator,
                 grabberIo,
                 new CoralWristIOSim(),
-                new CoralDetectionIOSim(grabberIo.getIntakeSim()),
+                new CoralDetectionIOSim(intakeSim, dtSim::getSimulatedDriveTrainPose),
                 new CoralConfigIONetworkTables(nt));
 
+        intakeSim.addGamePieceToIntake();
     }
 
     private void initReplay() throws IllegalStateException {
@@ -307,7 +320,7 @@ public class RobotContainer {
                 new SwerveModuleIO() {
                 });
 
-        m_vision = new Vision(m_swerve::addVisionMeasurement, new VisionIO() {
+        m_vision = new Vision(m_swerve::addVisionMeasurement, Constants.ID.allAprilIDs, new VisionIO() {
         });
 
         m_elevator = new ElevatorSubsystem(
@@ -405,8 +418,8 @@ public class RobotContainer {
         Controller.kManipulatorController.rightBumper().and(m_climber::isCoralMode)
                 .onTrue(new ConditionalCommand(buildRemoveAlgaeCommand(),
                         new RumbleController(Controller.kManipulatorController.getHID(), .5),
-                        () -> (m_elevator.isValidAlgaeLevel() && IntStream.of(Constants.ID.reefAprilIDs)
-                                .anyMatch(id -> id == m_vision.getFiducialID(0)))));
+                        () -> (m_elevator.isValidAlgaeLevel() && Constants.ID.reefAprilIDs
+                                .contains(m_vision.getFiducialID(0)))));
 
         // Back Button and Start button for Climber Mode Toggle
         Controller.kManipulatorController.back()
@@ -518,10 +531,10 @@ public class RobotContainer {
                 new ParallelCommandGroup(
                         new SequentialCommandGroup(
                                 new DriveOffset(m_swerve, m_vision, isLeft),
-                                // new StopDrive(m_swerve),
-                                // new StationaryWait(m_swerve, 0.06),
-                                // new DriveDistance(m_swerve, () -> 0.3,
-                                // 0).withTimeout(0.6),
+                                new StopDrive(m_swerve),
+                                new StationaryWait(m_swerve, 0.06),
+                                new DriveDistance(m_swerve, () -> 0.3,
+                                        0).withTimeout(0.6),
                                 new DriveDistance2(m_swerve,
                                         () -> (m_vision.getTargetDistZ(0).in(Units.Meters)
                                                 - .42),
@@ -529,6 +542,7 @@ public class RobotContainer {
                                         .withTimeout(1),
                                 new StopDrive(m_swerve)),
                         new GoToFlagLevel(m_elevator)),
+                new PrintCommand("Running offset score routinex2"),
                 new EjectCoral(m_coral),
                 new StationaryWait(m_swerve, .5),
                 new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
@@ -548,7 +562,9 @@ public class RobotContainer {
                                                 - .42),
                                         0)
                                         .withTimeout(1),
+                                new PrintCommand("after DD?"),
                                 new StopDrive(m_swerve))),
+                new PrintCommand("---- x2"),
                 new EjectCoral(m_coral),
                 new StationaryWait(m_swerve, .4),
                 new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
@@ -561,8 +577,7 @@ public class RobotContainer {
                 new PrintCommand("Running drive left right score"),
                 new ParallelCommandGroup(
                         // Raise the elevator to the selected level while in parallel aligning
-                        // left or
-                        // right
+                        // left or right
                         new GoToFlagLevel(m_elevator).withTimeout(2.5),
                         new SequentialCommandGroup(
                                 new DriveDistance2(m_swerve, () -> 0.15, 0)
@@ -586,8 +601,7 @@ public class RobotContainer {
                 new PrintCommand("Running drive left right score"),
                 new ParallelCommandGroup(
                         // Raise the elevator to the selected level while in parallel aligning
-                        // left or
-                        // right
+                        // left or right
                         new GoToFlagLevel(m_elevator).withTimeout(2.5),
                         new SequentialCommandGroup(
                                 // new DriveDistance(m_swerve, () -> 0.7,
@@ -644,6 +658,7 @@ public class RobotContainer {
                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
                 buildScoreOffsetAutoCommand(true),
                 new StationaryWait(m_swerve, .1),
+                new PrintCommand("finished first coral; going to coral"),
                 getAutonomousCommand(pathToCoralStn, false),
                 new StopDrive(m_swerve),
                 // new StationaryWait(m_swerve, .05),
@@ -732,11 +747,11 @@ public class RobotContainer {
         PathPlannerPath path;
         Waypoint first;
         System.out.println("getAutoCommand building auto for " + pathName);
+        final Optional<Translation2d> newTranslation;
         try {
             path = PathPlannerPath.fromPathFile(pathName);
             if (resetOdometry) {
                 Optional<Pose2d> pose = path.getStartingHolonomicPose();
-                Rotation2d newRot = m_swerve.resetGyro();
                 Optional<Alliance> ally = DriverStation.getAlliance();
                 waypoints = path.getWaypoints();
                 first = waypoints.get(0);
@@ -747,17 +762,31 @@ public class RobotContainer {
                     }
                 }
                 if (pose.isPresent()) {
-                    m_swerve.resetStartingTranslation(first.anchor());
-                    if (driveSim.isPresent()) {
-                        driveSim.get().setSimulationWorldPose(new Pose2d(first.anchor(),
-                                newRot));
-                    }
+                    newTranslation = Optional.of(first.anchor());
+
                     System.out.println(first.toString());
                 } else {
+                    newTranslation = Optional.empty();
+
                     System.out.println("Error getting PathPlanner pose");
                 }
+            } else {
+                newTranslation = Optional.empty();
             }
-            return AutoBuilder.followPath(path);
+
+            return new SequentialCommandGroup(
+                    m_swerve.runOnce(() -> {
+                        if (resetOdometry) {
+                            Rotation2d newRot = m_swerve.resetGyro();
+
+                            newTranslation.ifPresent((trans) -> {
+                                m_swerve.resetStartingTranslation(trans);
+
+                                driveSim.ifPresent((sim) -> sim.setSimulationWorldPose(new Pose2d(trans, newRot)));
+                            });
+                        }
+                    }),
+                    AutoBuilder.followPath(path));
         } catch (FileVersionException | IOException | ParseException e) {
             System.err.println("Error loading PathPlanner path");
             e.printStackTrace();

@@ -4,7 +4,6 @@ import edu.wpi.first.math.Nat;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.units.Units;
 import frc.robot.Constants;
-import frc.robot.Constants.ID;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.Subsystems.vision.Vision;
 import frc.robot.Subsystems.drive.Drivetrain;
