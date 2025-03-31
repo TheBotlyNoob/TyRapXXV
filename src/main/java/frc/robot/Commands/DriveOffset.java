@@ -176,7 +176,7 @@ public class DriveOffset extends Command {
         // TODO: this isn't what it was in the main branch because it wasn't working in
         // sim. What changed?
         Pose2d tagPose = new Pose2d(xDis, yDis,
-                rotAngle.rotateBy(Rotation2d.k180deg));
+                rotAngle.plus(Rotation2d.k180deg));
         // Calculate desired offset using shuffleboard and at 0 degrees
         Transform2d desiredOffset = new Transform2d(xOffset, yOffset, new Rotation2d());
         // Calculate robot-relative desired pose
@@ -186,7 +186,8 @@ public class DriveOffset extends Command {
         // Get desired position from odometry
         Pose2d desiredPoseField = currentPose
                 .plus(new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(),
-                        rotAngle));
+                        desiredPoseRobotRelative.getRotation()));
+
         // Print outs for testing
         // System.out.println("currentPose = " + currentPose);
         // System.out.println("tagPose = " + tagPose);
@@ -201,6 +202,8 @@ public class DriveOffset extends Command {
     @Override
     public void execute() {
         // Update desired pose every so often
+        // // TODO: this works fine if we run it once, but once it runs multiple times,
+        // it messes a lot up
         if (vision.isTargetValid(0) && (counter == 0)) {
             desiredPose = getDesiredPose();
         }

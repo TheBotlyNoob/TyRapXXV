@@ -61,7 +61,7 @@ public class VisionIOPhotonVision implements VisionIO {
                 Logger.recordOutput("VisionIOPhotonVision/Ambiguity", bestTarget.getPoseAmbiguity());
                 inputs.latestTargetObservation = new TargetObservation(true,
                         bestTarget.fiducialId,
-                        Rotation2d.fromDegrees(bestTarget.getYaw()),
+                        Rotation2d.fromDegrees(bestTarget.getYaw() * -1),
                         Rotation2d.fromDegrees(bestTarget.getPitch()),
                         // object/fiducial tag space
                         // Y = left

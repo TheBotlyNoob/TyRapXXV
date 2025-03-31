@@ -117,7 +117,7 @@ public class CenterOnTag extends Command {
         if (vision.isTargetValid(0)) {
             Rotation2d rotAngle = vision.getTargetYaw(0);
             double xDis = vision.getTargetDistX(0).in(Units.Meters);
-            double yDis = vision.getTargetDistY(0).in(Units.Meters);
+            double yDis = vision.getTargetDistZ(0).in(Units.Meters);
 
             xError = xDis - xOffset;
             yError = yDis - yOffset;
@@ -198,6 +198,7 @@ public class CenterOnTag extends Command {
             yOffsetEntry.setDouble(yOffset);
             yawAngleEntry.setDouble(rotAngle.getDegrees());
             dt.drive(xSpeed, ySpeed, Math.toRadians(rotSpeed));
+        } else if (vision.getTargetLastValid(0) < 1) {
         } else {
             llLost = true;
         }

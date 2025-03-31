@@ -130,9 +130,8 @@ public class RobotContainer {
         this.m_driveCommand = new Drive(m_swerve);
         this.m_swerve.setDefaultCommand(this.m_driveCommand);
 
-
         autoChooser = new LoggedDashboardChooser<>("AutoRoutine"); // Default auto will be
-                                                                         // `Commands.none()'
+                                                                   // `Commands.none()'
 
         configurePathPlanner();
         autoChooser.addDefaultOption("DO NOTHING!", "NO AUTO");
@@ -217,7 +216,6 @@ public class RobotContainer {
                 new CoralDetectionIOReal(),
                 new CoralConfigIONetworkTables(nt));
 
-
         SafeableSubsystem[] safeable = { m_elevator, m_algae, m_coral };
         m_climber = new ClimberSubsystem(new ClimberStingerIOSpark(),
                 new ClimberPneumaticsIOReal(),
@@ -269,12 +267,12 @@ public class RobotContainer {
         m_vision = new Vision(m_swerve::addVisionMeasurement,
                 Constants.ID.allAprilIDs,
                 new VisionIOPhotonVisionSim("cam1",
-                        new Transform3d(-Constants.Offsets.cameraOffsetForwardM, 0.0, 0.2,
+                        new Transform3d(-Constants.Offsets.cameraOffsetForwardM, 0.0, 0.3,
                                 Rotation3d.kZero),
                         dtSim::getSimulatedDriveTrainPose));
 
-
-        ElevatorSim elevSim = new ElevatorSim(DCMotor.getNEO(2), 1 / Constants.Elevator.kElevatorGearRatio, 24.0, Elevator.kElevatorDrumRadius, 0.0, Constants.Elevator.kElevatorMaxPos, true, 0, 0.01, 0.0);
+        ElevatorSim elevSim = new ElevatorSim(DCMotor.getNEO(2), 1 / Constants.Elevator.kElevatorGearRatio, 24.0,
+                Elevator.kElevatorDrumRadius, 0.0, Constants.Elevator.kElevatorMaxPos, true, 0, 0.01, 0.0);
         // TODO: simulate elevator
         m_elevator = new ElevatorSubsystem(
                 new ElevatorMotorIOSim(elevSim),
@@ -299,7 +297,8 @@ public class RobotContainer {
 
         intakeSim.addGamePieceToIntake();
 
-        // this doesn't need to be simulated; it has little-to-no importance/ability to tune in sim
+        // this doesn't need to be simulated; it has little-to-no importance/ability to
+        // tune in sim
         SafeableSubsystem[] safeable = { m_elevator, m_algae, m_coral };
         m_climber = new ClimberSubsystem(
                 new ClimberStingerIO() {
@@ -350,8 +349,8 @@ public class RobotContainer {
                 new CoralConfigIO() {
                 });
 
-
-        // this doesn't need to be simulated; it has little-to-no importance/ability to tune in sim
+        // this doesn't need to be simulated; it has little-to-no importance/ability to
+        // tune in sim
         SafeableSubsystem[] safeable = { m_elevator, m_algae, m_coral };
         m_climber = new ClimberSubsystem(
                 new ClimberStingerIO() {
@@ -855,7 +854,6 @@ public class RobotContainer {
 
     public void simulationPeriodic() {
 
-        m_elevator.setLevel(ElevatorLevel.LEVEL4);
         if (Constants.RobotMode.currentMode == Constants.RobotMode.Mode.SIM) {
             SimulatedArena.getInstance().simulationPeriodic();
             Logger.recordOutput(

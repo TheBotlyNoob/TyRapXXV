@@ -25,7 +25,9 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Subsystems.vision.VisionIO.TargetObservation;
 
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -38,38 +40,64 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static frc.robot.Constants.Vision.aprilTagLayout;
 
 public class Vision extends SubsystemBase {
-    private final VisionConsumer consumer;
-    private final VisionIO[] io;
-    private final VisionIOInputsAutoLogged[] inputs;
-    private final Alert[] disconnectedAlerts;
+    private static class VisionIOHandler {
+        public Set<Integer> fiducialIDFilters;
+        public final VisionIO io;
+        public TargetObservation lastValidObservation = null;
+        public Timer timeSinceValid = new Timer();
+        public final VisionIOInputsAutoLogged inputs = new VisionIOInputsAutoLogged();
+        public final int id;
 
-    private final List<Set<Integer>> fiducialIDFilters;
-    private final List<LinearFilter> yawLinearFilters;
+        public final LinearFilter yawFilter = LinearFilter.movingAverage(10);
+        public final LinearFilter pitchFilter = LinearFilter.movingAverage(10);
+
+        public VisionIOHandler(int id, VisionIO io, Set<Integer> defaultFiducialIDFilter) {
+            this.id = id;
+            this.io = io;
+            this.fiducialIDFilters = defaultFiducialIDFilter;
+
+            timeSinceValid.reset();
+        }
+
+        public void updateInputs() {
+            io.updateInputs(inputs);
+            Logger.processInputs("Vision/Camera" + Integer.toString(id), inputs);
+
+            if (inputs.latestTargetObservation.isValid()
+                    && fiducialIDFilters.contains(inputs.latestTargetObservation.fiducialID())) {
+                lastValidObservation = inputs.latestTargetObservation;
+                timeSinceValid.stop();
+                timeSinceValid.reset();
+            } else {
+                timeSinceValid.start();
+            }
+        }
+    }
+
+    private final VisionConsumer consumer;
+    private final VisionIOHandler[] io;
+    // private final Alert[] disconnectedAlerts;
 
     public Vision(VisionConsumer consumer, Set<Integer> defaultFiducialIDFilter, VisionIO... io) {
         this.consumer = consumer;
-        this.io = io;
+        this.io = IntStream.range(0, io.length)
+                .mapToObj((id) -> new VisionIOHandler(id, io[id], defaultFiducialIDFilter))
+                .toArray(VisionIOHandler[]::new);
 
         // Initialize inputs and ID filters
-        this.inputs = new VisionIOInputsAutoLogged[io.length];
-        this.fiducialIDFilters = new ArrayList<>(io.length);
-        this.yawLinearFilters = new ArrayList<>(io.length);
-        for (int i = 0; i < inputs.length; i++) {
-            inputs[i] = new VisionIOInputsAutoLogged();
-            fiducialIDFilters.add(defaultFiducialIDFilter);
-            yawLinearFilters.add(LinearFilter.movingAverage(10));
-        }
 
         // Initialize disconnected alerts
-        this.disconnectedAlerts = new Alert[io.length];
-        for (int i = 0; i < inputs.length; i++) {
-            disconnectedAlerts[i] = new Alert(
-                    "Vision camera " + Integer.toString(i) + " is disconnected.", AlertType.kWarning);
-        }
+        // this.disconnectedAlerts = new Alert[io.length];
+        // for (int i = 0; i < inputs.length; i++) {
+        // disconnectedAlerts[i] = new Alert(
+        // "Vision camera " + Integer.toString(i) + " is disconnected.",
+        // AlertType.kWarning);
+        // }
     }
 
     /**
@@ -81,7 +109,7 @@ public class Vision extends SubsystemBase {
      * @param cameraIndex The index of the camera to use.
      */
     public Distance getTargetDistX(int cameraIndex) {
-        return Units.Meters.of(inputs[cameraIndex].latestTargetObservation.dxMeters());
+        return Units.Meters.of(io[cameraIndex].lastValidObservation.dxMeters());
     }
 
     /**
@@ -93,7 +121,7 @@ public class Vision extends SubsystemBase {
      * @param cameraIndex The index of the camera to use.
      */
     public Distance getTargetDistY(int cameraIndex) {
-        return Units.Meters.of(inputs[cameraIndex].latestTargetObservation.dyMeters());
+        return Units.Meters.of(io[cameraIndex].lastValidObservation.dyMeters());
     }
 
     /**
@@ -105,7 +133,7 @@ public class Vision extends SubsystemBase {
      * @param cameraIndex The index of the camera to use.
      */
     public Distance getTargetDistZ(int cameraIndex) {
-        return Units.Meters.of(inputs[cameraIndex].latestTargetObservation.dzMeters());
+        return Units.Meters.of(io[cameraIndex].lastValidObservation.dzMeters());
     }
 
     /**
@@ -117,7 +145,7 @@ public class Vision extends SubsystemBase {
      * @param cameraIndex The index of the camera to use.
      */
     public Rotation2d getTargetYaw(int cameraIndex) {
-        return Rotation2d.fromRadians(yawLinearFilters.get(cameraIndex).lastValue());
+        return Rotation2d.fromDegrees(io[cameraIndex].yawFilter.lastValue());
     }
 
     /**
@@ -128,22 +156,27 @@ public class Vision extends SubsystemBase {
      * @param cameraIndex The index of the camera to use.
      */
     public Rotation2d getTargetPitch(int cameraIndex) {
-        return inputs[cameraIndex].latestTargetObservation.pitch();
+        return Rotation2d.fromDegrees(io[cameraIndex].pitchFilter.lastValue());
     }
 
     /**
-     * Returns whether the camera's best target is valid.
+     * Returns the time since the last valid target was observed, in seconds.
+     * 
+     * A return value of 0 means the target is currently valid.
+     *
+     * @returns - whether the best target is valid.
+     */
+    public double getTargetLastValid(int cameraIndex) {
+        return io[cameraIndex].timeSinceValid.get();
+    }
+
+    /**
+     * Returns whether the best target is valid.
      *
      * @returns - whether the best target is valid.
      */
     public boolean isTargetValid(int cameraIndex) {
-        // we check the fiducial filter to not only prevent the filter from affecting
-        // the pose estimation, but also to allow us to see the IO in advantagescope
-        // with and without the filter
-        return inputs[cameraIndex].latestTargetObservation.isValid()
-                && fiducialIDFilters.get(cameraIndex)
-                        .contains(Integer.valueOf(getFiducialID(cameraIndex)));
-
+        return getTargetLastValid(cameraIndex) == 0;
     }
 
     /**
@@ -156,7 +189,7 @@ public class Vision extends SubsystemBase {
      * @param tagIds      The IDs of the tags to track.
      */
     public void setFiducialIDFilter(int cameraIndex, Set<Integer> tagIds) {
-        fiducialIDFilters.set(cameraIndex, tagIds);
+        io[cameraIndex].fiducialIDFilters = tagIds;
     }
 
     /**
@@ -167,15 +200,18 @@ public class Vision extends SubsystemBase {
      * @param cameraIndex The index of the camera to use.
      */
     public int getFiducialID(int cameraIndex) {
-        return inputs[cameraIndex].latestTargetObservation.fiducialID();
+        return io[cameraIndex].lastValidObservation.fiducialID();
     }
 
     @Override
     public void periodic() {
-        for (int i = 0; i < io.length; i++) {
-            io[i].updateInputs(inputs[i]);
-            Logger.processInputs("Vision/Camera" + Integer.toString(i), inputs[i]);
+        for (var io : io) {
+            io.updateInputs();
         }
+
+        // we check the fiducial filter to not only prevent the filter from affecting
+        // the pose estimation, but also to allow us to see the IO in advantagescope
+        // with and without the filter
 
         // Initialize logging values
         List<Pose3d> allTagPoses = new LinkedList<>();
@@ -185,10 +221,13 @@ public class Vision extends SubsystemBase {
 
         // Loop over cameras
         for (int cameraIndex = 0; cameraIndex < io.length; cameraIndex++) {
-            if (inputs[cameraIndex].latestTargetObservation.isValid()) {
-                yawLinearFilters.get(cameraIndex)
-                        .calculate(inputs[cameraIndex].latestTargetObservation.yaw().getRadians());
+            if (isTargetValid(cameraIndex)) {
+                io[cameraIndex].yawFilter
+                        .calculate(io[cameraIndex].inputs.latestTargetObservation.yaw().getDegrees());
+                io[cameraIndex].pitchFilter
+                        .calculate(io[cameraIndex].inputs.latestTargetObservation.pitch().getDegrees());
             }
+
             // Update disconnected alert
 
             // Initialize logging values
@@ -198,11 +237,10 @@ public class Vision extends SubsystemBase {
             List<Pose2d> robotPosesRejected = new LinkedList<>();
 
             // Add tag poses
-            for (int tagId : inputs[cameraIndex].tagIds) {
+            for (int tagId : io[cameraIndex].inputs.tagIds) {
                 var tagPose = aprilTagLayout.getTagPose(tagId);
-                if (tagPose.isPresent()) {
-                    tagPoses.add(tagPose.get());
-                }
+
+                tagPose.ifPresent(tagPoses::add);
             }
 
             Optional<Pose3d> targetTagPose;
@@ -213,7 +251,7 @@ public class Vision extends SubsystemBase {
             }
 
             // Loop over pose observations
-            for (var observation : inputs[cameraIndex].poseObservations) {
+            for (var observation : io[cameraIndex].inputs.poseObservations) {
                 // Check whether to reject pose
                 boolean rejectPose = observation.tagCount() == 0 // Must have at least one tag
                         || (observation.tagCount() == 1
@@ -278,7 +316,7 @@ public class Vision extends SubsystemBase {
             Logger.recordOutput("Vision/Camera" + Integer.toString(cameraIndex) + "/TargetTagPose",
                     targetTagPose.map(pose -> new Pose3d[] { pose }).orElse(new Pose3d[0]));
             Logger.recordOutput("Vision/Camera" + Integer.toString(cameraIndex) + "/FiducialIDFilter",
-                    fiducialIDFilters.get(cameraIndex).stream().mapToInt(Integer::intValue).toArray());
+                    io[cameraIndex].fiducialIDFilters.stream().mapToInt(Integer::intValue).sorted().toArray());
 
             allTagPoses.addAll(tagPoses);
             allRobotPoses.addAll(robotPoses);

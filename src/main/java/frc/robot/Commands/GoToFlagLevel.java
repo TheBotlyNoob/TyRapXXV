@@ -1,33 +1,16 @@
 package frc.robot.Commands;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
+import frc.robot.Subsystems.elevator.ElevatorLevel;
 import frc.robot.Subsystems.elevator.ElevatorSubsystem;
 
-public class GoToFlagLevel extends Command {
-    ElevatorSubsystem el;
-
+public class GoToFlagLevel extends GoToLevel {
     public GoToFlagLevel(ElevatorSubsystem el) {
-        this.el = el;
+        super(el, ElevatorLevel.GROUND); // this level doesn't matter, it will be overwritten in initialize()
     }
 
     @Override
     public void initialize() {
-        el.setLevelUsingFlag();
-    }
-
-    @Override
-    public boolean isFinished() {
-        // TODO: actually simulate elevator
-        if (Constants.RobotMode.currentMode == Constants.RobotMode.Mode.SIM)
-            return true;
-
-        if (Math.abs(el.getCurrentPositionRot() - el.getDesiredPositionRot()) < 0.3) {
-            if (Math.abs(el.getCurrentVelocityRotPerSec()) < 0.2) {
-                System.out.println("Elevator has reached desired level");
-                return true;
-            }
-        }
-        return false;
+        super.level = el.getLevelFlag();
+        super.initialize();
     }
 }
