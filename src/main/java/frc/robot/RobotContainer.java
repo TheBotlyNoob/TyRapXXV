@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
@@ -86,7 +87,7 @@ public class RobotContainer {
         private SafeableSubsystem[] m_safeable;
         private final AlgaeGrabberSubsystem m_algae;
         private final ClimberSubsystem m_climber;
-        private final SendableChooser<String> autoChooser;
+        private final SendableChooser<Command> autoChooser;
         protected final ElevatorSubsystem m_elevator;
         protected final CoralSubsystem m_coral;
         protected final LightSubsystem m_leds;
@@ -171,7 +172,7 @@ public class RobotContainer {
                 autoChooser = new SendableChooser<>(); // Default auto will be `Commands.none()'
 
                 configurePathPlanner();
-                autoChooser.setDefaultOption("DO NOTHING!", "NO AUTO");
+                autoChooser.setDefaultOption("DO NOTHING!", Commands.none());
                 m_competitionTab.add("Auto Chooser", autoChooser).withSize(2, 1).withPosition(7, 0);
 
                 m_competitionTab.add("Drivetrain", this.m_swerve);
@@ -498,10 +499,44 @@ public class RobotContainer {
         }
 
         private void configurePathPlanner() {
-                //autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
-                autoChooser.addOption("OnePieceAuto", "OnePieceAuto"); // Permanent choice
-                autoChooser.addOption("Left2Piece", "Left2Piece"); // Permanent choice
-                autoChooser.addOption("Right2Piece", "Right2Piece"); // Permanent choice
+                int tag1;
+                int tag2;
+                Optional<Alliance> ally = DriverStation.getAlliance();
+                Command OnePieceAuto = new SequentialCommandGroup(
+                                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
+                                getAutonomousCommand("OnePieceAuto", true),
+                                new StationaryWait(m_swerve, .2),
+                                buildScoreOffsetCommand(false),
+                                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL3)),
+                                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                                new StopDrive(m_swerve));
+                // autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
+                autoChooser.addOption("OnePieceAuto", OnePieceAuto); // Permanent choice
+                tag1 = 20;
+                tag2 = 19;
+                if (ally.isPresent()) {
+                        if (ally.get() == Alliance.Red) {
+                                tag1 = 11;
+                                tag2 = 6;
+                        }
+                }
+                Command left2Piece = buildTwoPieceAuto("Starting2Reef2",
+                                tag1, "Reef2Player1",
+                                "Player1Reef1", tag2, 0.16);
+                autoChooser.addOption("Left2Piece", left2Piece); // Permanent choice
+                tag1 = 22;
+                tag2 = 17;
+                if (ally.isPresent()) {
+                        if (ally.get() == Alliance.Red) {
+                                tag1 = 9;
+                                tag2 = 8;
+                        }
+                }
+                Command Right2Piece = buildTwoPieceAuto("Starting6Reef4",
+                                tag1, "Reef4Player2",
+                                "Player2Reef5", tag2, 0.16);
+                autoChooser.addOption("Right2Piece", Right2Piece); // Permanent choice
                 // For multi-step, create name to be name of multi-step, then have object be the
                 // name of the first step
                 // MultiStep example below
@@ -553,54 +588,8 @@ public class RobotContainer {
         }
 
         public void startAutonomous() {
-                String auto = autoChooser.getSelected();
-                SequentialCommandGroup start;
-                Optional<Alliance> ally = DriverStation.getAlliance();
-                if (auto.equals("Left2Piece")) { // For testing
-                        int tag1 = 20;
-                        int tag2 = 19;
-                        if (ally.isPresent()) {
-                                if (ally.get() == Alliance.Red) {
-                                        tag1 = 11;
-                                        tag2 = 6;
-                                }
-                        }
-                        start = buildTwoPieceAuto("Starting2Reef2",
-                                        tag1, "Reef2Player1",
-                                        "Player1Reef1", tag2, 0.16);
-                        start.schedule();
-                } else if (auto.equals("Right2Piece")) {
-                        int tag1 = 22;
-                        int tag2 = 17;
-                        if (ally.isPresent()) {
-                                if (ally.get() == Alliance.Red) {
-                                        tag1 = 9;
-                                        tag2 = 8;
-                                }
-                        }
-                        start = buildTwoPieceAuto("Starting6Reef4",
-                                        tag1, "Reef4Player2",
-                                        "Player2Reef5", tag2, 0.16);
-                        start.schedule();
-                } else if (auto.equals("OnePieceAuto")) {
-                        start = new SequentialCommandGroup(
-                                        m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
-                                        m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
-                                        getAutonomousCommand("OnePieceAuto", true),
-                                        new StationaryWait(m_swerve, .2),
-                                        // buildScoreBumperedUpAutoCommand(false, 1.5),
-                                        buildScoreOffsetCommand(false),
-                                        m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
-                                        new DriveDistance2(m_swerve, ()-> 0.5, 180),
-                                        m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
-                                        buildRemoveAlgaeCommand(),
-                                        new DriveFixedVelocity(m_swerve, 180, () -> 2.25).withTimeout(0.4),
-                                        new StopDrive(m_swerve));
-
-                        start.schedule();
-                } else {
-                        System.err.println("Invalid auto routine specified");
-                }
+                Command auto = autoChooser.getSelected();
+                auto.schedule();
         }
 
         public Command getAutonomousCommand(String pathName, boolean resetOdometry) {
