@@ -58,8 +58,8 @@ public class Constants {
         public static final double kWristMotorVoltageReverse = 10.0;
         // down -4.4
         // up +6
-        public static final double kCoralEjectVoltage = .5;
-        public static final double kCoralEjectVoltageLevel4 = .5;
+        public static final double kCoralEjectVoltage = .65;
+        public static final double kCoralEjectVoltageLevel4 = .7;
         public static final double kMaxEncoderPos = .255;
         public static final double kMinEncoderPos = .062;
         //public static final double kLimitEncoderPos = .037; //HARD STOP

@@ -11,12 +11,14 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.Constants;
+import frc.robot.Commands.MoveCoralManipulator;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.SafeableSubsystem;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.networktables.DoubleEntry;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 /*
  * 
@@ -108,6 +110,8 @@ public class CoralSubsystem extends SafeableSubsystem {
         kWristMotorVoltageReverse.set(Constants.Coral.kWristMotorVoltageReverse);
         kWristPropExtendingEntry.set(Constants.Coral.kWristPropExtending);
         kWristPropRetractingEntry.set(Constants.Coral.kWristPropRetracting);
+        kCoralEjectSpeedEntry.set(Constants.Coral.kCoralEjectVoltage);
+        kCoralEjectSpeedLevel4Entry.set(Constants.Coral.kCoralEjectVoltageLevel4);
         // kWristMotorSpeedForward.set(0.0);
         // kWristMotorSpeedReverse.set(0.0);
 
@@ -130,7 +134,10 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     public void ejectCoral() {
         ejectActive = true;
-        m_coralGrabberMotor.set(0.65);
+        if (el.getLevel() == ElevatorLevel.LEVEL4){
+            m_coralGrabberMotor.set(kCoralEjectSpeedLevel4Entry.get());
+        }
+        else {m_coralGrabberMotor.set(kCoralEjectSpeedEntry.get());}
     }
 
     // public void setVoltageTest(double voltage) {
@@ -189,9 +196,11 @@ public class CoralSubsystem extends SafeableSubsystem {
     }
 
     public Command wristRetractCommand() {
-        //return new MoveCoralManipulator(this, false).withTimeout(0.8);
-        System.out.println("Retract wrist set desired to 0.0");
-        return new InstantCommand(() -> this.setWristDesiredPosition(0.0));
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> this.setWristDesiredPosition(0.0)),
+            new MoveCoralManipulator(this, false).withTimeout(0.8));
+        //System.out.println("Retract wrist set desired to 0.0");
+        //return new InstantCommand(() -> this.setWristDesiredPosition(0.0));
     }
 
     public void setWristDesiredPosition(double desiredPosition) {
@@ -214,6 +223,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         wristExtendedPosition = Constants.Coral.kWristRelativeExtension;
         minEncoderPositionEntry.set(minEncoderPosition);
         wristExtendedPositionEntry.set(wristExtendedPosition);
+
         wristDesiredPosition = 0.0;
         lastWristEncoderVal = minEncoderPosition;
     }
@@ -316,7 +326,11 @@ public class CoralSubsystem extends SafeableSubsystem {
                 el.setLevel(ElevatorLevel.GROUND);
             }
         } else if (state == CoralState.EJECTING) {
-            m_coralGrabberMotor.set(0.65);
+            if (el.getLevel() == ElevatorLevel.LEVEL4){
+                m_coralGrabberMotor.set(kCoralEjectSpeedLevel4Entry.get());
+            }
+            else {m_coralGrabberMotor.set(kCoralEjectSpeedEntry.get());}
+
             if (timer.get() > 2 && !irDetected) {
                 state = CoralState.WAITING;
                 ejectActive = false;
