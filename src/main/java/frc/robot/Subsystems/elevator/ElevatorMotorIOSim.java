@@ -21,7 +21,7 @@ public class ElevatorMotorIOSim implements ElevatorMotorIO {
         timer.reset();
 
         // TODO: what's the math here?
-        inputs.leaderRelativeEncoderPosition = Units.Rotations.of(elevatorSim.getPositionMeters());
+        inputs.leaderRelativeEncoderPosition = Units.Rotations.of(elevatorSim.getPositionMeters() * 100);
         inputs.leaderRelativeEncoderVelocity = Units.RotationsPerSecond.of(elevatorSim.getVelocityMetersPerSecond());
     }
 

@@ -243,7 +243,7 @@ public class RobotContainer {
                                                                                      // radius
                         Units.KilogramSquareMeters.of(0.03), // steer rotational inertia
                         1.2 // wheel coefficient of friction
-                ))
+                )).withRobotMass(Units.Pounds.of(135))
                 .withBumperSize(Units.Meters.of(Constants.Modules.kBumperLengthMeters),
                         Units.Meters.of(Constants.Modules.kBumperWidthMeters))
                 .withTrackLengthTrackWidth(Units.Meters.of(Constants.Modules.kTrackLengthMeters),

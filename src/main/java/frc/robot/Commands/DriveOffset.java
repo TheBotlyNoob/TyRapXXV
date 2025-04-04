@@ -186,7 +186,7 @@ public class DriveOffset extends Command {
         // Get desired position from odometry
         Pose2d desiredPoseField = currentPose
                 .plus(new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(),
-                        desiredPoseRobotRelative.getRotation()));
+                        desiredPoseRobotRelative.getRotation().plus(Rotation2d.k180deg)));
 
         // Print outs for testing
         // System.out.println("currentPose = " + currentPose);
