@@ -82,7 +82,7 @@ public class RobotContainer {
     private CoralSubsystem m_coral;
     private LightSubsystem m_leds;
 
-    private final LoggedDashboardChooser<String> autoChooser;
+    private final LoggedDashboardChooser<Command> autoChooser;
 
     protected UsbCamera climbCamera;
 
@@ -134,7 +134,7 @@ public class RobotContainer {
                                                                    // `Commands.none()'
 
         configurePathPlanner();
-        autoChooser.addDefaultOption("DO NOTHING!", "NO AUTO");
+        autoChooser.addDefaultOption("DO NOTHING!", Commands.none());
 
         // configureBindings();
         NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
@@ -652,10 +652,38 @@ public class RobotContainer {
     }
 
     private void configurePathPlanner() {
+        int tag1, tag2;
+
+        tag1 = pickTag(20, 11);
+        tag2 = pickTag(19, 6);
+
+        Command left2Piece = buildTwoPieceAuto("Starting2Reef2",
+                tag1, "Reef2Player1",
+                "Player1Reef1", tag2, 0.16);
+
+        tag1 = pickTag(22, 9);
+        tag2 = pickTag(17, 8);
+        Command right2Piece = buildTwoPieceAuto("Starting6Reef4",
+                tag1, "Reef4Player2",
+                "Player2Reef5", tag2, 0.16);
+
+        Command onePiece = new SequentialCommandGroup(
+                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
+                getAutonomousCommand("OnePieceAuto", true),
+                new StationaryWait(m_swerve, .2),
+                // buildScoreBumperedUpAutoCommand(false, 1.5),
+                buildScoreOffsetCommand(false),
+                m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                new DriveDistance2(m_swerve, () -> 0.5, 180),
+                m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
+                buildRemoveAlgaeCommand(),
+                new DriveFixedVelocity(m_swerve, 180, () -> 2.25).withTimeout(0.4),
+                new StopDrive(m_swerve));
         // autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
-        autoChooser.addOption("OnePieceAuto", "OnePieceAuto"); // Permanent choice
-        autoChooser.addOption("Left2Piece", "Left2Piece"); // Permanent choice
-        autoChooser.addOption("Right2Piece", "Right2Piece"); // Permanent choice
+        autoChooser.addOption("OnePieceAuto", onePiece); // Permanent choice
+        autoChooser.addOption("Left2Piece", left2Piece); // Permanent choice
+        autoChooser.addOption("Right2Piece", right2Piece); // Permanent choice
         // For multi-step, create name to be name of multi-step, then have object be the
         // name of the first step
         // MultiStep example below
@@ -707,104 +735,66 @@ public class RobotContainer {
                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
     }
 
-    public void startAutonomous() {
-        String auto = autoChooser.get();
-        SequentialCommandGroup start;
-        Optional<Alliance> ally = DriverStation.getAlliance();
-        if (auto.equals("Left2Piece")) { // For testing
-            int tag1 = 20;
-            int tag2 = 19;
-            if (ally.isPresent()) {
-                if (ally.get() == Alliance.Red) {
-                    tag1 = 11;
-                    tag2 = 6;
-                }
-            }
-            start = buildTwoPieceAuto("Starting2Reef2",
-                    tag1, "Reef2Player1",
-                    "Player1Reef1", tag2, 0.16);
-            start.schedule();
-        } else if (auto.equals("Right2Piece")) {
-            int tag1 = 22;
-            int tag2 = 17;
-            if (ally.isPresent()) {
-                if (ally.get() == Alliance.Red) {
-                    tag1 = 9;
-                    tag2 = 8;
-                }
-            }
-            start = buildTwoPieceAuto("Starting6Reef4",
-                    tag1, "Reef4Player2",
-                    "Player2Reef5", tag2, 0.16);
-            start.schedule();
-        } else if (auto.equals("OnePieceAuto")) {
-            start = new SequentialCommandGroup(
-                    m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
-                    m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
-                    getAutonomousCommand("OnePieceAuto", true),
-                    new StationaryWait(m_swerve, .2),
-                    // buildScoreBumperedUpAutoCommand(false, 1.5),
-                    buildScoreOffsetCommand(false),
-                    m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
-                    new DriveDistance2(m_swerve, () -> 0.5, 180),
-                    m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL1)),
-                    buildRemoveAlgaeCommand(),
-                    new DriveFixedVelocity(m_swerve, 180, () -> 2.25).withTimeout(0.4),
-                    new StopDrive(m_swerve));
-            start.schedule();
+    /**
+     * Picks a tag based on the current alliance.
+     *
+     * If the current alliance is {@code null}, then it defaults to the blue tag.
+     *
+     * @param onBlue The tag to use if the current alliance is blue.
+     * @param onRed  The tag to use if the current alliance is red.
+     * 
+     * @returns The tag to use based on the current alliance.
+     */
+    public int pickTag(int onBlue, int onRed) {
+        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+            return onRed;
         } else {
-            System.err.println("Invalid auto routine specified");
+            return onBlue;
         }
     }
 
+    public void startAutonomous() {
+        autoChooser.get().schedule();
+    }
+
     public Command getAutonomousCommand(String pathName, boolean resetOdometry) {
-        List<Waypoint> waypoints;
-        PathPlannerPath path;
-        Waypoint first;
         System.out.println("getAutoCommand building auto for " + pathName);
-        final Optional<Translation2d> newTranslation;
+
         try {
-            path = PathPlannerPath.fromPathFile(pathName);
-            if (resetOdometry) {
-                Optional<Pose2d> pose = path.getStartingHolonomicPose();
-                Optional<Alliance> ally = DriverStation.getAlliance();
-                waypoints = path.getWaypoints();
-                first = waypoints.get(0);
-                if (ally.orElse(Alliance.Blue) == Alliance.Red) {
-                    System.out.println("Flipping start location for red");
-                    first = first.flip();
-                }
-                if (pose.isPresent()) {
-                    newTranslation = Optional.of(first.anchor());
-
-                    System.out.println(first);
-                } else {
-                    newTranslation = Optional.empty();
-
-                    System.out.println("Error getting PathPlanner pose");
-                }
-            } else {
-                newTranslation = Optional.empty();
-            }
+            PathPlannerPath path = PathPlannerPath.fromPathFile(pathName);
 
             return new SequentialCommandGroup(
-                    m_swerve.runOnce(() -> {
-                        if (resetOdometry) {
+                    resetOdometry ? m_swerve.runOnce(() -> {
+                        Waypoint first = path.getWaypoints().get(0);
+
+                        if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+                            System.out.println("Flipping start location for red");
+                            first = first.flip();
+                        }
+
+                        Optional<Pose2d> pose = path.getStartingHolonomicPose();
+                        if (pose.isPresent()) {
                             Rotation2d newRot = m_swerve.resetGyro();
 
-                            newTranslation.ifPresent((trans) -> {
-                                m_swerve.resetStartingTranslation(trans);
+                            Translation2d newTrans = first.anchor();
 
-                                driveSim.ifPresent((sim) -> sim.setSimulationWorldPose(new Pose2d(trans, newRot)));
-                            });
+                            m_swerve.resetStartingTranslation(newTrans);
+
+                            driveSim.ifPresent((sim) -> sim.setSimulationWorldPose(new Pose2d(newTrans, newRot)));
+
+                            System.out.println(first);
+                        } else {
+
+                            System.out.println("Error getting PathPlanner pose");
                         }
-                    }),
+                    }) : Commands.none(),
                     AutoBuilder.followPath(path));
         } catch (FileVersionException | IOException | ParseException e) {
             System.err.println("Error loading PathPlanner path");
             e.printStackTrace();
+
+            return new StopDrive(m_swerve);
         }
-        return new StopDrive(m_swerve);
     }
 
     public void setTeleDefaultCommand() {
