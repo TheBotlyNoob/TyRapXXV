@@ -139,9 +139,9 @@ public class RobotContainer {
          * The container for the robot. Contains subsystems, OI devices, and commands.
          */
         public RobotContainer() {
-                this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(0));
-                this.m_gyro.resetSignalFrequencies();
-                
+                this.m_gyro.getConfigurator().apply(new MountPoseConfigs().withMountPoseYaw(0)); //originally -90
+                this.m_gyro.resetSignalFrequencies(); //this line was not shown
+
                 this.m_swerve = new Drivetrain(m_gyro);
 
                 SwerveModuleSB[] swerveModuleTelem = {
@@ -186,7 +186,6 @@ public class RobotContainer {
 
                 m_competitionTab.add("Drivetrain", this.m_swerve);
 
-                // configureBindings();
                 NamedCommands.registerCommand("StopDrive", new StopDrive(m_swerve));
 
                 
@@ -419,14 +418,9 @@ public class RobotContainer {
 
         protected SequentialCommandGroup buildScoreOffsetCommand(boolean isLeft) {
                 return new SequentialCommandGroup(
-                                new PrintCommand("Running offset score routine"),
                                 new ParallelCommandGroup(
                                                 new SequentialCommandGroup(
                                                                 new DriveOffset(m_swerve, m_Limelight, isLeft),
-                                                                // new StopDrive(m_swerve),
-                                                                // new StationaryWait(m_swerve, 0.06),
-                                                                // new DriveDistance(m_swerve, () -> 0.3,
-                                                                // 0).withTimeout(0.6),
                                                                 new DriveDistance2(m_swerve,
                                                                                 () -> (m_Limelight.getzDistanceMeters()
                                                                                                 - .42),
@@ -466,7 +460,6 @@ public class RobotContainer {
 
         protected SequentialCommandGroup buildScoreBumperedUpCommand(boolean isLeft, double forwardTimeout) {
                 return new SequentialCommandGroup(
-                                new PrintCommand("Running drive left right score"),
                                 new ParallelCommandGroup(
                                                 // Raise the elevator to the selected level while in parallel aligning
                                                 // left or
@@ -475,13 +468,10 @@ public class RobotContainer {
                                                 new SequentialCommandGroup(
                                                                 new DriveDistance2(m_swerve, () -> 0.15, 0)
                                                                                 .withTimeout(forwardTimeout),
-                                                                // new DriveFixedVelocity(m_swerve, 0, () ->
-                                                                // 0.5).withTimeout(0.2),
                                                                 new DriveFixedVelocity(m_swerve, 180, () -> 0.25)
                                                                                 .withTimeout(.1),
-                                                                new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
-                                                                new StopDrive(m_swerve))),
-                                new StopDrive(m_swerve),
+                                                                        new DriveLeftOrRight(m_swerve, m_Limelight, isLeft))),
+
                                 new EjectCoral(m_coral),
                                 new StationaryWait(m_swerve, .5),
                                 new ConditionalCommand(
@@ -559,10 +549,9 @@ public class RobotContainer {
                                 new StopDrive(m_swerve),
                                 getAutonomousCommand(pathToReef, true),
                                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
-                                buildScoreOffsetAutoCommand(true),
+                                buildScoreOffsetAutoCommand(true), //we can change this to false if it aligns faster with the right
                                 new StationaryWait(m_swerve, .1),
                                 getAutonomousCommand(pathToCoralStn, false),
-                                new StopDrive(m_swerve),
                                 //new StationaryWait(m_swerve, .05),
                                 new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
                                 new StopDrive(m_swerve),
@@ -655,7 +644,7 @@ public class RobotContainer {
                                 waypoints = path.getWaypoints();
                                 first = waypoints.get(0);
                                 if (ally.isPresent()) {
-                                        if (ally.get() == Alliance.Red) {
+                                        if (ally.get() == Alliance.Red) { //maybe change this to out sendablechooser get alliancefunction
                                                 System.out.println("Flipping start location for red");
                                                 first = first.flip();
                                         }

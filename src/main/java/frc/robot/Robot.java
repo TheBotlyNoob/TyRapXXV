@@ -4,10 +4,12 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.configs.GyroTrimConfigs;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -15,10 +17,16 @@ import frc.robot.Commands.StopDrive;
 
 public class Robot extends TimedRobot {
     private RobotContainer m_container;
+    protected boolean gyroCorrect;
+    protected Alliance currentAlliance;
 
     @Override
     public void robotInit() {
+        gyroCorrect = false;
         m_container = new RobotContainer();
+        currentAlliance = m_container.getDrivetrain().getAlliance();
+        m_container.getDrivetrain().resetGyro();
+
         FollowPathCommand.warmupCommand().schedule();
         DataLogManager.start();
         DriverStation.startDataLog(DataLogManager.getLog());
@@ -43,6 +51,8 @@ public class Robot extends TimedRobot {
         m_container.clearDefaultCommand();
         m_container.setTeleDefaultCommand();
         m_container.reinitialize();
+        m_container.getElevator().holdCurrentPosition(); //see what this does
+        //m_container.getElevator().setLevel(ElevatorLevel.GROUND);
         m_container.configureBindings();
         m_container.turnRumbleOff();
     }
@@ -64,15 +74,40 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
         m_container.reportTelemetry();
+          /*if (!gryoReset) {
+            var alliance = DriverStation.getAlliance();
+            if (alliance.isPresent()) {
+                m_container.getDrivetrain().resetGyro();
+                gryoReset = true;
+                System.out.println("Reset gyro from robot periodic");
+            }
+        }*/
     }
 
     @Override
     public void disabledPeriodic() {
-        // Uncomment these lines in order to output the swerve turn encoder values (to obtain offsets)
-        SmartDashboard.putNumber("BackLeft", m_container.getDrivetrain().getBackLeftSwerveModule().getRawTurningPositionRadians());
-        SmartDashboard.putNumber("BackRight", m_container.getDrivetrain().getBackRightSwerveModule().getRawTurningPositionRadians());
-        SmartDashboard.putNumber("FrontLeft", m_container.getDrivetrain().getFrontLeftSwerveModule().getRawTurningPositionRadians());
-        SmartDashboard.putNumber("FrontRight", m_container.getDrivetrain().getFrontRightSwerveModule().getRawTurningPositionRadians());
+     // if (currentAlliance != m_container.getDrivetrain().getDriverStationAlliance()) {
+        //     currentAlliance = m_container.getDrivetrain().getAlliance();
+        //     System.out.println("Alliance changed to " + currentAlliance);
+        //     gyroCorrect = false;
+        // }
+        // if (!gyroCorrect) {
+        //     double expectedGyro = m_container.getDrivetrain().getExpectedStartGyro();
+        //     double currentGyro = m_container.getDrivetrain().getGyroYawRotation2d().getDegrees();
+        //     System.out.println("Expected Gyro: " + expectedGyro + " current: " + currentGyro);
+        //     if (Math.abs(expectedGyro - currentGyro) > 1.0) {
+        //         System.out.println("Gyro delta too large");
+        //         m_container.getDrivetrain().resetGyro();
+        //         System.out.println("Reset gyro from robot periodic");
+        //     } else {
+        //         gyroCorrect = true;
+        //     }
+        // }
+       // Uncomment these lines in order to output the swerve turn encoder values (to obtain offsets)
+        //SmartDashboard.putNumber("BackLeft", m_container.getDrivetrain().getBackLeftSwerveModule().getRawTurningPositionRadians());
+        //SmartDashboard.putNumber("BackRight", m_container.getDrivetrain().getBackRightSwerveModule().getRawTurningPositionRadians());
+        //SmartDashboard.putNumber("FrontLeft", m_container.getDrivetrain().getFrontLeftSwerveModule().getRawTurningPositionRadians());
+        //SmartDashboard.putNumber("FrontRight", m_container.getDrivetrain().getFrontRightSwerveModule().getRawTurningPositionRadians());
     }
 
     @Override
