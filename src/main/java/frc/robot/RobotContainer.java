@@ -438,31 +438,11 @@ public class RobotContainer {
                                 new StationaryWait(m_swerve, .5),
                                 new ConditionalCommand(
                                         buildSelectRemoveAlgaeCommand(), 
-                                        new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4), 
+                                        new DriveDistance2(m_swerve, () -> 0.30, 180).withTimeout(1.0), 
                                         () -> (shouldRemoveAlgae())),
                                 new StopDrive(m_swerve),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
-
-        protected SequentialCommandGroup buildScoreOffsetAutoCommand(boolean isLeft) {
-            return new SequentialCommandGroup(
-                            new PrintCommand("Running offset score routine"),
-                            new DriveOffset(m_swerve, m_Limelight, isLeft),
-                            new ParallelCommandGroup(
-                                        new GoToFlagLevel(m_elevator),
-                                        new SequentialCommandGroup(
-                                                new DriveDistance2(m_swerve,
-                                                    () -> (m_Limelight.getzDistanceMeters()
-                                                                        - .42),
-                                                                0)
-                                                                .withTimeout(1),
-                                                new StopDrive(m_swerve))),
-                            new EjectCoral(m_coral),
-                            new StationaryWait(m_swerve, .4),
-                            new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4),
-                            new StopDrive(m_swerve),
-                            m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
-    }
 
         protected SequentialCommandGroup buildScoreBumperedUpCommand(boolean isLeft, double forwardTimeout) {
                 return new SequentialCommandGroup(
@@ -486,8 +466,28 @@ public class RobotContainer {
                                 new StationaryWait(m_swerve, .5),
                                 new ConditionalCommand(
                                         buildSelectRemoveAlgaeCommand(), 
-                                        new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(.4), 
+                                        new DriveDistance2(m_swerve, () -> 0.30, 180).withTimeout(1.0), 
                                         () -> (shouldRemoveAlgae())),
+                                new StopDrive(m_swerve),
+                                m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
+        }
+
+        protected SequentialCommandGroup buildScoreOffsetAutoCommand(boolean isLeft) {
+                return new SequentialCommandGroup(
+                                new PrintCommand("Running offset score routine"),
+                                new DriveOffset(m_swerve, m_Limelight, isLeft),
+                                new ParallelCommandGroup(
+                                            new GoToFlagLevel(m_elevator),
+                                            new SequentialCommandGroup(
+                                                    new DriveDistance2(m_swerve,
+                                                        () -> (m_Limelight.getzDistanceMeters()
+                                                                            - .42),
+                                                                    0)
+                                                                    .withTimeout(1),
+                                                    new StopDrive(m_swerve))),
+                                new EjectCoral(m_coral),
+                                new StationaryWait(m_swerve, .4),
+                                new DriveDistance2(m_swerve, () -> 0.1, 180).withTimeout(0.4),
                                 new StopDrive(m_swerve),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
@@ -697,11 +697,6 @@ public class RobotContainer {
                 this.m_elevator.resetEncoder();
                 this.m_coral.reinit();
                 this.setPIDConstants();
-        }
-
-        public void turnRumbleOff() {
-                Controller.kManipulatorController.setRumble(RumbleType.kLeftRumble, 0.0);
-                Controller.kManipulatorController.setRumble(RumbleType.kRightRumble, 0.0);
         }
 
         public ElevatorSubsystem getElevator() {
