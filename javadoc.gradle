@@ -1,0 +1,10 @@
+// to build javadoc open a terminal window & run
+// gradlew javadoc
+//
+// the index.html will be found here
+// build/docs/javadoc/index.html
+//
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}

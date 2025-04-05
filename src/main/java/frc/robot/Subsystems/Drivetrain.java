@@ -350,8 +350,7 @@ public class Drivetrain extends SubsystemBase {
      * @param xSpeed        Speed of the robot in the x direction (forward).
      * @param ySpeed        Speed of the robot in the y direction (sideways).
      * @param rotSpeed      Angular rate of the robot.
-     * @param fieldRelative Whether the provided x and y speeds are relative to the
-     *                      field.
+     * 
      */
     public void drive(double xSpeed, double ySpeed, double rotSpeed) {
         xSpeed = xSpeed * driveMultiplier;
