@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Subsystems.Drivetrain;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Utils.CoordinateUtilities;
+import edu.wpi.first.math.Nat;
+import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -84,66 +86,65 @@ public class DriveOffset extends Command {
 
     // Constructors
     public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft) {
-            this.dt = dt;
-            this.ll = ll;
-            this.isLeft = isLeft;
-            this.useDashboardEntries = true;
-            this.id = 999999999;
-            addRequirements(dt);
-            // 2D transform between robot and camera frames
-            // Currently get offset from SparkJrConstants, but can change later
-            cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
-    }
-    
-    public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft, int id) {
-            this.dt = dt;
-            this.ll = ll;
-            this.isLeft = isLeft;
-            this.id = id;
-            this.useDashboardEntries = true;
-            addRequirements(dt);
-            // 2D transform between robot and camera frames
-            // Currently get offset from SparkJrConstants, but can change later
-            cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
+        this.dt = dt;
+        this.ll = ll;
+        this.isLeft = isLeft;
+        this.useDashboardEntries = true;
+        this.id = 999999999;
+        addRequirements(dt);
+        // 2D transform between robot and camera frames
+        // Currently get offset from SparkJrConstants, but can change later
+        cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
     }
 
-        public DriveOffset(Drivetrain dt, Limelight ll, double xOffsetM, double yOffsetM) {
-                this.dt = dt;
-                this.ll = ll;
-                this.isLeft = false;
-                this.useDashboardEntries = false;
-                this.constructedXOffsetM = xOffsetM;
-                this.constructedYOffsetM = yOffsetM;
-                addRequirements(dt);
-                // 2D transform between robot and camera frames
-                // Currently get offset from SparkJrConstants, but can change later
-                cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
-                System.out.println("Running drive offset with set x and y offsets");
-        }
+    public DriveOffset(Drivetrain dt, Limelight ll, boolean isLeft, int id) {
+        this.dt = dt;
+        this.ll = ll;
+        this.isLeft = isLeft;
+        this.id = id;
+        this.useDashboardEntries = true;
+        addRequirements(dt);
+        // 2D transform between robot and camera frames
+        // Currently get offset from SparkJrConstants, but can change later
+        cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
+    }
+
+    public DriveOffset(Drivetrain dt, Limelight ll, double xOffsetM, double yOffsetM) {
+        this.dt = dt;
+        this.ll = ll;
+        this.isLeft = false;
+        this.useDashboardEntries = false;
+        this.constructedXOffsetM = xOffsetM;
+        this.constructedYOffsetM = yOffsetM;
+        addRequirements(dt);
+        // 2D transform between robot and camera frames
+        // Currently get offset from SparkJrConstants, but can change later
+        cameraToRobot = new Transform2d(-1 * Offsets.cameraOffsetForwardM, 0, new Rotation2d());
+        System.out.println("Running drive offset with set x and y offsets");
+    }
 
     @Override
     public void initialize() {
         // Set id
         if (id == 999999999) {
-                LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, new int[] {});
-        }
-        else {
-                LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, new int[] { id });
-                System.out.println("Set ID");
+            LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, new int[] {});
+        } else {
+            LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, new int[] { id });
+            System.out.println("Set ID");
         }
 
         // Create a new Trapezoid profile
         if (useDashboardEntries) {
-                xOffset = xOffsetEntry.getDouble(0.3);
-                yOffset = yOffsetEntry.getDouble(0.0);
-                // Change offset based on direction, so we can go to left or right reef goal
-                if (isLeft) {
-                        // Left is negative Y
-                        yOffset *= -1;
-                }
+            xOffset = xOffsetEntry.getDouble(0.3);
+            yOffset = yOffsetEntry.getDouble(0.0);
+            // Change offset based on direction, so we can go to left or right reef goal
+            if (isLeft) {
+                // Left is negative Y
+                yOffset *= -1;
+            }
         } else {
-                xOffset = constructedXOffsetM;
-                yOffset = constructedYOffsetM;
+            xOffset = constructedXOffsetM;
+            yOffset = constructedYOffsetM;
         }
         // Get minimun velocity from Constants and shuffleboard
         minVel = minVelEntry.getDouble(LimelightConstants.driveOffsetMinVel);
@@ -152,16 +153,28 @@ public class DriveOffset extends Command {
         // Reset counter
         counter = 0;
 
-        trapezoidController = new TrapezoidController(0.0, threshold,minVel,
-            maxVelEntry.getDouble(LimelightConstants.driveOffsetMinVel),
-            maxAccEntry.getDouble(LimelightConstants.driveOffsetMaxAccMSS),
-            maxDccEntry.getDouble(LimelightConstants.driveOffsetMaxDccMSS),
-            decelKpEntry.getDouble(1.0));
+        Transform2d relativeDesiredPose = getRobotRelativeDesiredPose();
+
+        // Calculate proportion of current velocity in line with the desired velocity
+        chassisSpeed = dt.getChassisSpeeds();
+        var currentSpeedVec = new Vector<>(Nat.N2());
+        currentSpeedVec.set(0, 0, chassisSpeed.vxMetersPerSecond);
+        currentSpeedVec.set(1, 0, chassisSpeed.vyMetersPerSecond);
+
+        var offsetVector = new Vector<>(Nat.N2());
+        offsetVector.set(0, 0, relativeDesiredPose.getX());
+        offsetVector.set(1, 0, relativeDesiredPose.getY());
+        var offsetUnitVector = offsetVector.div(offsetVector.norm());
+        double speedInDesiredDirection = currentSpeedVec.dot(offsetUnitVector);
+
+        trapezoidController = new TrapezoidController(speedInDesiredDirection, threshold, minVel,
+                maxVelEntry.getDouble(LimelightConstants.driveOffsetMinVel),
+                maxAccEntry.getDouble(LimelightConstants.driveOffsetMaxAccMSS),
+                maxDccEntry.getDouble(LimelightConstants.driveOffsetMaxDccMSS),
+                decelKpEntry.getDouble(1.0));
     }
 
-    // This function uses limelight and odometry to report the desired pose relative to the field
-    public Pose2d getDesiredPose() {
-        // Get values from limelight
+    public Transform2d getRobotRelativeDesiredPose() {
         double rotAngleDegrees = -1 * ll.getFilteredYawDegrees();
         double yDis = -1 * ll.getxDistanceMeters();
         double xDis = ll.getzDistanceMeters();
@@ -171,6 +184,15 @@ public class DriveOffset extends Command {
         Transform2d desiredOffset = new Transform2d(xOffset, yOffset, new Rotation2d());
         // Calculate robot-relative desired pose
         Pose2d desiredPoseRobotRelative = tagPose.plus(desiredOffset).plus(cameraToRobot);
+
+        return new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(), new Rotation2d(Math.toRadians(rotAngleDegrees));
+    }
+
+    // This function uses limelight and odometry to report the desired pose relative
+    // to the field
+    public Pose2d getDesiredPose() {
+        Transform2d desiredPoseRobotRelative = getRobotRelativeDesiredPose();
+        // Get values from limelight
         // Get current robot pose from odometry
         currentPose = dt.getRoboPose2d();
         // Get desired position from odometry
@@ -178,10 +200,10 @@ public class DriveOffset extends Command {
                 .plus(new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(),
                         new Rotation2d(Math.toRadians(rotAngleDegrees))));
         // Print outs for testing
-        //System.out.println("currentPose = " + currentPose);
-        //System.out.println("tagPose = " + tagPose);
-        //System.out.println("desiredPoseRobotRelative = " + desiredPoseRobotRelative);
-        //System.out.println("desiredPoseField = " + desiredPoseField);
+        // System.out.println("currentPose = " + currentPose);
+        // System.out.println("tagPose = " + tagPose);
+        // System.out.println("desiredPoseRobotRelative = " + desiredPoseRobotRelative);
+        // System.out.println("desiredPoseField = " + desiredPoseField);
 
         return desiredPoseField;
     }
@@ -203,31 +225,34 @@ public class DriveOffset extends Command {
         chassisSpeed = dt.getChassisSpeeds();
         // Get chassis magnitude
         chassisMagnitude = CoordinateUtilities.getChassisMagnitude(chassisSpeed);
-     
+
         double commandedVel = trapezoidController.calculate(rangeM, chassisMagnitude);
 
         // Calculate x and y components of desired velocity
         calcVel = CoordinateUtilities.courseSpeedToLinearVelocity(bearingDeg, commandedVel);
-        
+
         // Calculate total time left
-        //var currentVel = Math.max(commandedSpeed, minVel);
+        // var currentVel = Math.max(commandedSpeed, minVel);
         double remainingTime = 1.0; // Placeholder. Calculate based on remaining distance
-        
+
         // Calculate angle error
         angleError = desiredPose.getRotation().getRadians() - currentPose.getRotation().getRadians();
         if (angleError > Math.PI) {
-                angleError -= 2*Math.PI;
+            angleError -= 2 * Math.PI;
         }
         if (Math.abs(angleError) > LimelightConstants.driveOffsetAngleError) {
-                if (remainingTime > 0) {
-                        // Calculate angular speed
-                        calcVel.omegaRadiansPerSecond = angleError / remainingTime;
-                        calcVel.omegaRadiansPerSecond = Math.copySign(Math.max(Math.abs(calcVel.omegaRadiansPerSecond), Math.toRadians(10.0)), calcVel.omegaRadiansPerSecond);
-                } else {
-                        // Give robot a chance to turn to desired angle even after we've reached the correct distance
-                        calcVel.omegaRadiansPerSecond = Math.toRadians(
-                                Math.copySign(Math.toRadians(8.0), angleError));
-                }
+            if (remainingTime > 0) {
+                // Calculate angular speed
+                calcVel.omegaRadiansPerSecond = angleError / remainingTime;
+                calcVel.omegaRadiansPerSecond = Math.copySign(
+                        Math.max(Math.abs(calcVel.omegaRadiansPerSecond), Math.toRadians(10.0)),
+                        calcVel.omegaRadiansPerSecond);
+            } else {
+                // Give robot a chance to turn to desired angle even after we've reached the
+                // correct distance
+                calcVel.omegaRadiansPerSecond = Math.toRadians(
+                        Math.copySign(Math.toRadians(8.0), angleError));
+            }
         }
         omegaDps.setDouble(Math.toDegrees(calcVel.omegaRadiansPerSecond));
         // Drive
@@ -244,8 +269,8 @@ public class DriveOffset extends Command {
     @Override
     public boolean isFinished() {
         if (rangeM <= threshold && Math.abs(angleError) <= LimelightConstants.driveOffsetAngleError) {
-                LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.allAprilIDs);
-                System.out.println("Reset IDs");
+            LimelightHelpers.SetFiducialIDFiltersOverride(ID.kFrontLimelightName, Constants.ID.allAprilIDs);
+            System.out.println("Reset IDs");
             return true;
         }
         return false;
