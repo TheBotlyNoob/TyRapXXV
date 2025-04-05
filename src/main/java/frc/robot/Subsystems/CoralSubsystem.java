@@ -133,7 +133,12 @@ public class CoralSubsystem extends SafeableSubsystem {
     }
 
     public void ejectCoral() {
-        ejectActive = true;
+        if (state == CoralState.HOLDING) {
+            ejectActive = true;
+        }
+        else {
+            ejectActive = false;
+        }
         if (el.getLevel() == ElevatorLevel.LEVEL4){
             m_coralGrabberMotor.set(kCoralEjectSpeedLevel4Entry.get());
         }
