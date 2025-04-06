@@ -450,8 +450,8 @@ public class RobotContainer {
                                                                                 .withTimeout(forwardTimeout),
                                                                 new DriveFixedVelocity(m_swerve, 180, () -> 0.25)
                                                                                 .withTimeout(.1),
-                                                                new DriveLeftOrRight(m_swerve, m_Limelight, isLeft))),
-                                new StopDrive(m_swerve),
+                                                                new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
+                                                                new StopDrive(m_swerve))),
                                 new EjectCoral(m_coral),
                                 new StationaryWait(m_swerve, .5),
                                 new ConditionalCommand(
@@ -549,7 +549,7 @@ public class RobotContainer {
                                 new StopDrive(m_swerve),
                                 getAutonomousCommand(pathToReef, true),
                                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
-                                buildScoreOffsetAutoCommand(scoreLeft), //we can change this to false if it aligns faster with the right
+                                buildScoreOffsetAutoCommand(scoreLeft),
                                 new StationaryWait(m_swerve, .1),
                                 getAutonomousCommand(pathToCoralStn, false),
                                 //new StationaryWait(m_swerve, .05),
@@ -644,7 +644,7 @@ public class RobotContainer {
                                 waypoints = path.getWaypoints();
                                 first = waypoints.get(0);
                                 if (ally.isPresent()) {
-                                        if (ally.get() == Alliance.Red) { //maybe change this to out sendablechooser get alliancefunction
+                                        if (ally.get() == Alliance.Red) {
                                                 System.out.println("Flipping start location for red");
                                                 first = first.flip();
                                         }

@@ -48,8 +48,6 @@ public class Robot extends TimedRobot {
         m_container.clearDefaultCommand();
         m_container.setTeleDefaultCommand();
         m_container.reinitialize();
-        m_container.getElevator().holdCurrentPosition(); //see what this does
-        //m_container.getElevator().setLevel(ElevatorLevel.GROUND);
         m_container.configureBindings();
     }
 
