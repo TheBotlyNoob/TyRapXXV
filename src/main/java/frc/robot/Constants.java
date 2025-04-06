@@ -203,11 +203,11 @@ public class Constants {
         public static class Heights {
             public static final double kGround = 0.0;
             public static final double kLevel1 = 5.3; // 3.5
-            public static final double kLevel2 = 6.1;
-            public static final double kLevel5 = 8.0; //Level5 is between level2 & level3
-            public static final double kLevel3 = 12.85;
-            public static final double kLevel6 = 16.0; //Level6 is between level3 & level4
-            public static final double kLevel4 = 24.5; //24.6
+            public static final double kLevel2 = 7.7;
+            public static final double kLevel5 = 8.0; //Level5 is between level2 & level3 (ALGAE ONLY)
+            public static final double kLevel3 = 14.8;
+            public static final double kLevel6 = 16.0; //Level6 is between level3 & level4 (ALGAE ONLY)
+            public static final double kLevel4 = 25.5; 
         }
 
         public static class PID {

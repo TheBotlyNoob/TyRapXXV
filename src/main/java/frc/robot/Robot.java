@@ -51,7 +51,6 @@ public class Robot extends TimedRobot {
         m_container.getElevator().holdCurrentPosition(); //see what this does
         //m_container.getElevator().setLevel(ElevatorLevel.GROUND);
         m_container.configureBindings();
-        m_container.turnRumbleOff();
     }
 
     @Override
@@ -64,7 +63,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        m_container.turnRumbleOff();
     }
 
     @Override
