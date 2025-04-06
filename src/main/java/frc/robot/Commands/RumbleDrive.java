@@ -6,11 +6,11 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.*;
 
-public class RumbleManip extends Command {
-    private final XboxController m_controller = new XboxController(Controller.kManipControllerID);
+public class RumbleDrive extends Command {
+    private final XboxController m_controller = new XboxController(Controller.kDriveControllerID);
     protected double durationSec;
     protected double endTimeSec;
-    public RumbleManip(double durationSec) {
+    public RumbleDrive(double durationSec) {
         this.durationSec = durationSec;
     }
 

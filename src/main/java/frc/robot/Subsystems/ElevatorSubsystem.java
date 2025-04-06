@@ -2,6 +2,9 @@ package frc.robot.Subsystems;
 
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.util.logging.Level;
+
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -41,7 +44,9 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         LEVEL1,
         LEVEL2,
         LEVEL3,
-        LEVEL4;
+        LEVEL4,
+        LEVEL5,
+        LEVEL6;
 
         /**
          * Converts an integer to an ElevatorLevel
@@ -62,6 +67,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                     return LEVEL3;
                 case 4:
                     return LEVEL4;
+                case 5:
+                    return LEVEL5;
+                case 6:
+                    return LEVEL6;
                 default:
                     return GROUND;
             }
@@ -85,6 +94,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                     return 3;
                 case LEVEL4:
                     return 4;
+                case LEVEL5:
+                    return 5;
+                case LEVEL6:
+                    return 6;
                 default:
                     return 0;
             }
@@ -109,6 +122,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                     return level3;
                 case LEVEL4:
                     return level4;
+                case LEVEL5:
+                    return level5;
+                case LEVEL6:
+                    return level6;
                 default:
                     return ground;
             }
@@ -131,6 +148,12 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                 case LEVEL4:
                     level4 = height;
                     break;
+                case LEVEL5:
+                    level5 = height;
+                    break;
+                case LEVEL6:
+                    level6 = height;
+                    break;
                 default:
                     ground = Constants.Elevator.Heights.kGround;
                     break;
@@ -152,6 +175,10 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                     return String.format("LEVEL3 (%.2f rotations)", level3);
                 case LEVEL4:
                     return String.format("LEVEL4 (%.2f rotations)", level4);
+                case LEVEL5:
+                    return String.format("LEVEL5 (%.2f rotations)", level5);
+                case LEVEL6:
+                    return String.format("LEVEL6 (%.2f rotations)", level6);
                 default:
                     return String.format("GROUND (%.2f rotations)", ground);
             }
@@ -162,6 +189,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         double level2 = Constants.Elevator.Heights.kLevel2;
         double level3 = Constants.Elevator.Heights.kLevel3;
         double level4 = Constants.Elevator.Heights.kLevel4;
+        double level5 = Constants.Elevator.Heights.kLevel5;
+        double level6 = Constants.Elevator.Heights.kLevel6;
     }
 
     private ElevatorLevel m_level = ElevatorLevel.GROUND;
@@ -205,6 +234,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
     protected DoubleEntry LEVEL_2;
     protected DoubleEntry LEVEL_3;
     protected DoubleEntry LEVEL_4;
+    protected DoubleEntry LEVEL_5;
+    protected DoubleEntry LEVEL_6;
 
     protected double outputVoltage = 0;
     protected double desiredPosition = 0;
@@ -243,6 +274,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         LEVEL_2 = m_table.getDoubleTopic("Level 2").getEntry(ElevatorLevel.LEVEL2.toHeight());
         LEVEL_3 = m_table.getDoubleTopic("Level 3").getEntry(ElevatorLevel.LEVEL3.toHeight());
         LEVEL_4 = m_table.getDoubleTopic("Level 4").getEntry(ElevatorLevel.LEVEL4.toHeight());
+        LEVEL_5 = m_table.getDoubleTopic("Level 5").getEntry(ElevatorLevel.LEVEL5.toHeight());
+        LEVEL_6 = m_table.getDoubleTopic("Level 6").getEntry(ElevatorLevel.LEVEL6.toHeight());
 
         m_elevatorKs.set(Constants.Elevator.FF.kS);
         m_elevatorKg.set(Constants.Elevator.FF.kG);
@@ -258,6 +291,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         LEVEL_2.set(ElevatorLevel.LEVEL2.toHeight());
         LEVEL_3.set(ElevatorLevel.LEVEL3.toHeight());
         LEVEL_4.set(ElevatorLevel.LEVEL4.toHeight());
+        LEVEL_5.set(ElevatorLevel.LEVEL5.toHeight());
+        LEVEL_6.set(ElevatorLevel.LEVEL6.toHeight());
 
         m_motorLeader = new SparkFlex(Constants.MechID.kElevatorFrontCanId, MotorType.kBrushless);
         m_motorFollower = new SparkFlex(Constants.MechID.kElevatorBackCanId, MotorType.kBrushless);
@@ -343,7 +378,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
 
     public void levelUp() {
         int currentLevel = ElevatorLevel.toInt(m_level);
-        if (currentLevel < ElevatorLevel.toInt(ElevatorLevel.LEVEL4)) {
+        if (currentLevel < ElevatorLevel.toInt(ElevatorLevel.LEVEL4)) { //It was LEVEL4 before
             setLevel(ElevatorLevel.fromInt(currentLevel + 1));
         }
     }
@@ -407,6 +442,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
         ElevatorLevel.LEVEL2.setDashboard(LEVEL_2.get());
         ElevatorLevel.LEVEL3.setDashboard(LEVEL_3.get());
         ElevatorLevel.LEVEL4.setDashboard(LEVEL_4.get());
+        ElevatorLevel.LEVEL5.setDashboard(LEVEL_5.get());
+        ElevatorLevel.LEVEL6.setDashboard(LEVEL_6.get());
     }
 
     public void setVoltageTest(double voltage) {
@@ -490,8 +527,12 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             if (m_manualMode) {
                 if (currentPosition >= ElevatorLevel.LEVEL4.toHeight()) {
                     m_level = ElevatorLevel.LEVEL4;
+                } else if (currentPosition >= ElevatorLevel.LEVEL6.toHeight()) {
+                        m_level = ElevatorLevel.LEVEL6; //Level6 is between level3 & level4
                 } else if (currentPosition >= ElevatorLevel.LEVEL3.toHeight()) {
                     m_level = ElevatorLevel.LEVEL3;
+                } else if (currentPosition >= ElevatorLevel.LEVEL5.toHeight()) {
+                    m_level = ElevatorLevel.LEVEL5; //Level5 is between level2 & level3
                 } else if (currentPosition >= ElevatorLevel.LEVEL2.toHeight()) {
                     m_level = ElevatorLevel.LEVEL2;
                 } else if (currentPosition >= ElevatorLevel.LEVEL1.toHeight()) {

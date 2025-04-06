@@ -115,8 +115,6 @@ public class Drivetrain extends SubsystemBase {
     protected final GenericEntry m_driveCommandedRotationSpeed = m_driveTab.add("drive commanded rotation", 0)
             .getEntry();
 
-    private final SendableChooser<Alliance> allianceChooser;
-
     /**
      * The order that you initialize these is important! Later uses of functions
      * like toSwerveModuleStates will return the same order that these are provided.
@@ -147,11 +145,6 @@ public class Drivetrain extends SubsystemBase {
         m_swerveModules.add(m_frontRight);
         m_swerveModules.add(m_backLeft);
         m_swerveModules.add(m_backRight);
-
-        allianceChooser = new SendableChooser<>();
-        allianceChooser.setDefaultOption("Blue", Alliance.Blue);
-        allianceChooser.addOption("Red", Alliance.Red);
-        m_driveTab.add("Alliance Chooser", allianceChooser);
 
         m_odometry = new SwerveDrivePoseEstimator(
                 m_kinematics,
@@ -211,10 +204,6 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Alliance getAlliance() {
-        return allianceChooser.getSelected();
-    }
-
-    public Alliance getDriverStationAlliance(){
         return DriverStation.getAlliance().get();
     }
 
@@ -267,11 +256,11 @@ public class Drivetrain extends SubsystemBase {
         if (DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue1)
                 || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue2)
                 || DriverStation.getRawAllianceStation().equals(AllianceStationID.Blue3)) {
-            m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
+            m_odometry.resetPosition(new Rotation2d(Math.PI), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
-                            new Rotation2d()));  
+                            new Rotation2d(Math.PI)));
         } else {
-            m_odometry.resetPosition(getGyroYawRotation2d(), getModulePositions(),
+            m_odometry.resetPosition(new Rotation2d(), getModulePositions(),
                     new Pose2d(new Translation2d(getRoboPose2d().getX(), getRoboPose2d().getY()),
                             new Rotation2d()));
         }
