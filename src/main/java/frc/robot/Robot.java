@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.configs.GyroTrimConfigs;
 import com.pathplanner.lib.commands.FollowPathCommand;
 
 import edu.wpi.first.wpilibj.DataLogManager;
