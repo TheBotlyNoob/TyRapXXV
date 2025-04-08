@@ -59,7 +59,7 @@ public class Constants {
         // down -4.4
         // up +6
         public static final double kCoralEjectVoltage = .65;
-        public static final double kCoralEjectVoltageLevel4 = .7;
+        public static final double kCoralEjectVoltageLevel4 = .4;
         public static final double kMaxEncoderPos = .255;
         public static final double kMinEncoderPos = .062;
         //public static final double kLimitEncoderPos = .037; //HARD STOP
@@ -67,9 +67,9 @@ public class Constants {
         public static final int kWristMaxRolloverCount = 1;
         public static final double kWristPropRetracting = 60.0;
         public static final double kWristPropExtending = 50.0;
-        public static final double kWristMinPosition = -.2;
+        public static final double kWristMinPosition = -.375;
         public static final double kWristMaxPosition = 0.0;
-        public static final double kWristRelativeExtension = -0.19;
+        public static final double kWristRelativeExtension = -0.37;
         public static final double kWristPositionTolerance = 0.01; // Rotations
         //public static final double kWristManualSpeedRotationsPerSec = 0.25;
     }
@@ -203,11 +203,11 @@ public class Constants {
         public static class Heights {
             public static final double kGround = 0.0;
             public static final double kLevel1 = 5.3; // 3.5
-            public static final double kLevel2 = 6.1;
-            public static final double kLevel5 = 8.0; //Level5 is between level2 & level3
-            public static final double kLevel3 = 12.85;
-            public static final double kLevel6 = 16.0; //Level6 is between level3 & level4
-            public static final double kLevel4 = 24.5; //24.6
+            public static final double kLevel2 = 7.0;
+            public static final double kLevel5 = 8.0; //Level5 is between level2 & level3 (ALGAE ONLY)
+            public static final double kLevel3 = 14.2;
+            public static final double kLevel6 = 16.0; //Level6 is between level3 & level4 (ALGAE ONLY)
+            public static final double kLevel4 = 25.15; 
         }
 
         public static class PID {
@@ -240,7 +240,7 @@ public class Constants {
     public static class AlgaeGrabber {
         public static final double kMotorCurrentThreshold = 1.0;
         public static final double kIntakeSpeed = 0.60;
-        public static final double kEjectSpeed = 0.75;
+        public static final double kEjectSpeed = 0.55;
 
         public static final int kSolenoidCANID1 = 0;
         public static final int kSolenoidCANID2 = 1;

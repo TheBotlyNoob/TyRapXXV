@@ -99,7 +99,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         minEncoderPositionEntry = m_table.getDoubleTopic("MinEncoderPosition")
                 .getEntry(0.0);
         wristExtendedPositionEntry = m_table.getDoubleTopic("WristExtendedPosition")
-                .getEntry(0.0);
+                .getEntry(Constants.Coral.kWristRelativeExtension);
 
         // kWristMotorSpeedForward = m_table.getDoubleTopic("wrist motor speed
         // forward").getEntry(0.0);
@@ -133,7 +133,12 @@ public class CoralSubsystem extends SafeableSubsystem {
     }
 
     public void ejectCoral() {
-        ejectActive = true;
+        if (state == CoralState.HOLDING) {
+            ejectActive = true;
+        }
+        else {
+            ejectActive = false;
+        }
         if (el.getLevel() == ElevatorLevel.LEVEL4){
             m_coralGrabberMotor.set(kCoralEjectSpeedLevel4Entry.get());
         }
@@ -220,7 +225,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         enabled = true;
         wristRolloverCount = 0;
         minEncoderPosition = m_wristEncoder.getPosition();
-        wristExtendedPosition = Constants.Coral.kWristRelativeExtension;
+        wristExtendedPosition = wristExtendedPositionEntry.get();
         minEncoderPositionEntry.set(minEncoderPosition);
         wristExtendedPositionEntry.set(wristExtendedPosition);
 
