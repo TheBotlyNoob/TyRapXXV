@@ -185,7 +185,8 @@ public class DriveOffset extends Command {
         // Calculate robot-relative desired pose
         Pose2d desiredPoseRobotRelative = tagPose.plus(desiredOffset).plus(cameraToRobot);
 
-        return new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(), new Rotation2d(Math.toRadians(rotAngleDegrees));
+        return new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(),
+                new Rotation2d(Math.toRadians(rotAngleDegrees)));
     }
 
     // This function uses limelight and odometry to report the desired pose relative
@@ -198,7 +199,7 @@ public class DriveOffset extends Command {
         // Get desired position from odometry
         Pose2d desiredPoseField = currentPose
                 .plus(new Transform2d(desiredPoseRobotRelative.getX(), desiredPoseRobotRelative.getY(),
-                        new Rotation2d(Math.toRadians(rotAngleDegrees))));
+                        desiredPoseRobotRelative.getRotation()));
         // Print outs for testing
         // System.out.println("currentPose = " + currentPose);
         // System.out.println("tagPose = " + tagPose);
