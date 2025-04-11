@@ -549,7 +549,7 @@ public class RobotContainer {
                                 // new StationaryWait(m_swerve, .05),
                                 new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
                                 new StopDrive(m_swerve),
-                                new WaitUntilCommand(() -> m_coral.getState() == CoralState.HOLDING),
+                                new WaitUntilCommand(() -> m_coral.getState() == CoralState.HOLDING).withTimeout(.4),
                                 // new StationaryWait(m_swerve, .4),
                                 getAutonomousCommand(pathCoralToReef, false),
                                 // new StopDrive(m_swerve),
