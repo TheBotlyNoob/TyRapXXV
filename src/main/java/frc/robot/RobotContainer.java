@@ -619,8 +619,7 @@ public class RobotContainer {
                                         m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
                                         getAutonomousCommand("OnePieceAuto", true),
                                         new StationaryWait(m_swerve, .2),
-                                        buildScoreOffsetCommand(false),
-                                        m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.LEVEL3)),
+                                        buildScoreOffsetAutoCommand(false),
                                         buildSelectRemoveAlgaeCommand(),
                                         m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                                         new StopDrive(m_swerve));
