@@ -25,6 +25,8 @@ public class LightSubsystem extends SubsystemBase {
     private static LEDPattern purple = LEDPattern.solid(Color.kPurple);
     private static LEDPattern gray = LEDPattern.solid(Color.kGray);
     private static final double[] validID = {6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22};
+    private static final double[] lowAlgaeID = {6, 8, 10, 21, 19, 17};
+    private static final double[] highAlgaeID = {7, 9, 11, 18, 20, 22};
 
     public LightSubsystem(AddressableLED leds, AddressableLEDBuffer ledBuf, Limelight ll,
             CoralSubsystem coral,
@@ -40,6 +42,23 @@ public class LightSubsystem extends SubsystemBase {
         this.ll = ll;
         this.coral = coral;
         this.elevator = elevator;
+    }
+
+    public enum AlgaeState {
+        HIGH, LOW, NULL;
+    };
+
+    public AlgaeState determineAlgaeHeight() {
+        double id = LimelightHelpers.getFiducialID(Constants.ID.kFrontLimelightName);
+        for (int i = 0; i < lowAlgaeID.length; i++){
+            if (lowAlgaeID[i] == id){
+                return AlgaeState.LOW;
+            }
+            if (highAlgaeID[i] == id){
+                return AlgaeState.HIGH;
+            }
+        }
+        return AlgaeState.NULL;
     }
 
     public boolean canSeeValidTag() {
@@ -74,7 +93,7 @@ public class LightSubsystem extends SubsystemBase {
             case LEVEL4:
                 blue.applyTo(ledBuf);
                 break;
-            case GROUND:
+            default:
                 black.applyTo(ledBuf);
                 break;
         }

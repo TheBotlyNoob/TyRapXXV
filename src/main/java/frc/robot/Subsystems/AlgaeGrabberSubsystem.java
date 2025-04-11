@@ -1,7 +1,11 @@
 package frc.robot.Subsystems;
 
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.networktables.BooleanEntry;
 import edu.wpi.first.networktables.BooleanPublisher;
@@ -13,6 +17,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.Modules;
 import frc.robot.Utils.MotorPublisher;
 import frc.robot.Utils.SafeableSubsystem;
 
@@ -40,6 +45,9 @@ public class AlgaeGrabberSubsystem extends SafeableSubsystem {
     /** Creates a new AlgaeGrabber. */
     public AlgaeGrabberSubsystem(NetworkTableInstance nt) {
         retrieval_motor = new SparkMax(Constants.MechID.kAlgaeMotorCanId, MotorType.kBrushless);
+        SparkMaxConfig motorConfig = new SparkMaxConfig();
+        motorConfig.inverted(false);
+        retrieval_motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         raise_pneumatics_solenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM,
                 Constants.AlgaeGrabber.kSolenoidCANID1,
