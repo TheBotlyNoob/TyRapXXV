@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SelectCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.*;
@@ -49,6 +50,7 @@ import frc.robot.Subsystems.ElevatorSubsystem;
 import frc.robot.Subsystems.ElevatorSubsystem.ElevatorLevel;
 import frc.robot.Subsystems.LightSubsystem.AlgaeState;
 import frc.robot.Subsystems.Limelight;
+import frc.robot.Subsystems.CoralSubsystem.CoralState;
 import frc.robot.Utils.SafeableSubsystem;
 import frc.robot.Subsystems.CoralSubsystem;
 import frc.robot.Commands.AlgaeIntake;
@@ -543,13 +545,14 @@ public class RobotContainer {
                                 buildScoreOffsetAutoCommand(true),
                                 new StationaryWait(m_swerve, .1),
                                 getAutonomousCommand(pathToCoralStn, false),
-                                new StopDrive(m_swerve),
+                                // new StopDrive(m_swerve),
                                 // new StationaryWait(m_swerve, .05),
                                 new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
                                 new StopDrive(m_swerve),
-                                new StationaryWait(m_swerve, .4),
+                                new WaitUntilCommand(() -> m_coral.getState() == CoralState.HOLDING),
+                                // new StationaryWait(m_swerve, .4),
                                 getAutonomousCommand(pathCoralToReef, false),
-                                new StopDrive(m_swerve),
+                                // new StopDrive(m_swerve),
                                 // new StationaryWait(m_swerve, .05),
                                 buildScoreOffsetAutoCommand(false),
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
