@@ -8,56 +8,40 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.31940340909091,
-        "y": 1.9910006996997214
+        "x": 3.360251258373402,
+        "y": 2.462883737590714
       },
       "isLocked": false,
       "linkedName": "Reef5"
     },
     {
       "anchor": {
-        "x": 3.1392720170454544,
-        "y": 1.8106239963081077
+        "x": 2.9609631147540982,
+        "y": 2.1848872950819667
       },
       "prevControl": {
-        "x": 3.3035011104563843,
-        "y": 1.9991148578304214
+        "x": 3.298839566606563,
+        "y": 2.3961759435725156
       },
       "nextControl": {
-        "x": 2.9750429236345246,
-        "y": 1.622133134785794
+        "x": 2.6602135144382513,
+        "y": 1.9968156605054463
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.8319318181818183,
-        "y": 1.4473437499999988
+        "x": 2.3136270491803277,
+        "y": 1.8372438524590167
       },
       "prevControl": {
-        "x": 3.036173783998008,
-        "y": 1.5915145493996632
+        "x": 2.5190293727885993,
+        "y": 1.979756607875235
       },
       "nextControl": {
-        "x": 2.6276898523656285,
-        "y": 1.3031729506003342
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.2934659090909095,
-        "y": 1.3177130681818177
-      },
-      "prevControl": {
-        "x": 2.5406666874690482,
-        "y": 1.2804065651395544
-      },
-      "nextControl": {
-        "x": 2.046265130712771,
-        "y": 1.355019571224081
+        "x": 1.9227252375267212,
+        "y": 1.5660273769229835
       },
       "isLocked": false,
       "linkedName": null
@@ -68,8 +52,8 @@
         "y": 1.0883664772727264
       },
       "prevControl": {
-        "x": 1.755167967262655,
-        "y": 1.7436881127039197
+        "x": 1.886145930361595,
+        "y": 1.509439174316287
       },
       "nextControl": null,
       "isLocked": false,
@@ -81,8 +65,8 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 4.0,
+    "maxAcceleration": 6.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -98,5 +82,5 @@
     "velocity": 0,
     "rotation": 59.99999999999999
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }

@@ -429,12 +429,11 @@ public class RobotContainer {
                                                                 new StopDrive(m_swerve)),
                                                 new GoToFlagLevel(m_elevator)),
                                 new EjectCoral(m_coral),
-                                new StationaryWait(m_swerve, .5),
+                                new StationaryWait(m_swerve, .4),
                                 new ConditionalCommand(
                                         buildSelectRemoveAlgaeCommand(), 
-                                        new DriveDistance2(m_swerve, () -> 0.30, 180).withTimeout(1.0), 
+                                        new DriveFixedVelocity(m_swerve, 180, () -> 3.0).withTimeout(0.20),
                                         () -> (shouldRemoveAlgae())),
-                                new StopDrive(m_swerve),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
 
@@ -453,12 +452,11 @@ public class RobotContainer {
                                                                 new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
                                                                 new StopDrive(m_swerve))),
                                 new EjectCoral(m_coral),
-                                new StationaryWait(m_swerve, .5),
+                                new StationaryWait(m_swerve, .4),
                                 new ConditionalCommand(
-                                        buildSelectRemoveAlgaeCommand(), 
-                                        new DriveDistance2(m_swerve, () -> 0.30, 180).withTimeout(1.0), 
+                                        buildSelectRemoveAlgaeCommand(),  
+                                        new DriveFixedVelocity(m_swerve, 180, () -> 3.0).withTimeout(0.20),
                                         () -> (shouldRemoveAlgae())),
-                                new StopDrive(m_swerve),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
 
@@ -543,7 +541,8 @@ public class RobotContainer {
         }
 
         public SequentialCommandGroup buildTwoPieceAuto(String pathToReef, int tag1,
-                        String pathToCoralStn, String pathCoralToReef, int tag2, double forwardDistM, boolean scoreLeft) {
+                        String pathToCoralStn, String pathCoralToReef, int tag2, String pathToCoralStn2,
+                        double forwardDistM, boolean scoreLeft) {
                 return new SequentialCommandGroup(
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                                 new StopDrive(m_swerve),
@@ -552,14 +551,15 @@ public class RobotContainer {
                                 buildScoreOffsetAutoCommand(scoreLeft),
                                 new StationaryWait(m_swerve, .1),
                                 getAutonomousCommand(pathToCoralStn, false),
-                                //new StationaryWait(m_swerve, .05),
-                                new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
+                                new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(.9),
                                 new StopDrive(m_swerve),
                                 new StationaryWait(m_swerve, .4),
                                 getAutonomousCommand(pathCoralToReef, false),
                                 new StopDrive(m_swerve),
-                                //new StationaryWait(m_swerve, .05),
                                 buildScoreOffsetCommand(scoreLeft),
+                                getAutonomousCommand(pathToCoralStn2, false),
+                                new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
+                                new StopDrive(m_swerve),
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
         }
 
@@ -598,7 +598,7 @@ public class RobotContainer {
                         }
                         start = buildTwoPieceAuto("Starting2Reef2",
                                         tag1, "Reef2Player1",
-                                        "Player1Reef1", tag2, 0.16, false);
+                                        "Player1Reef1", tag2, "Reef1Player1", 0.16, false);
                         start.schedule();
                 } else if (auto.equals("Right2Piece")) {
                         int tag1 = 22;
@@ -611,7 +611,7 @@ public class RobotContainer {
                         }
                         start = buildTwoPieceAuto("Starting6Reef4",
                                         tag1, "Reef4Player2",
-                                        "Player2Reef5", tag2, 0.16, true);
+                                        "Player2Reef5", tag2, "Reef5Player2", 0.16, true);
                         start.schedule();
                 } else if (auto.equals("OnePieceAuto")) {
                         start = new SequentialCommandGroup(

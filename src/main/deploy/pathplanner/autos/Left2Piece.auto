@@ -21,6 +21,12 @@
           "data": {
             "pathName": "Player1Reef1"
           }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Reef1Player1"
+          }
         }
       ]
     }
