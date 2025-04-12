@@ -540,17 +540,23 @@ public class RobotContainer {
                 return new SequentialCommandGroup(
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
                                 new StopDrive(m_swerve),
+
+                                // start -> reef
                                 getAutonomousCommand(pathToReef, true),
                                 m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
                                 buildScoreOffsetAutoCommand(true),
                                 new StationaryWait(m_swerve, .1),
+
+                                // reef -> HPS
                                 getAutonomousCommand(pathToCoralStn, false),
                                 // new StopDrive(m_swerve),
                                 // new StationaryWait(m_swerve, .05),
                                 new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
                                 new StopDrive(m_swerve),
-                                new WaitUntilCommand(() -> m_coral.getState() == CoralState.HOLDING).withTimeout(.4),
+                                new WaitUntilCommand(m_coral::hasCoral).withTimeout(.4),
                                 // new StationaryWait(m_swerve, .4),
+
+                                // HPS -> reef
                                 getAutonomousCommand(pathCoralToReef, false),
                                 // new StopDrive(m_swerve),
                                 // new StationaryWait(m_swerve, .05),

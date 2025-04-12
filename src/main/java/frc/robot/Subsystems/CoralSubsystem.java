@@ -213,8 +213,12 @@ public class CoralSubsystem extends SafeableSubsystem {
             Constants.Coral.kWristMinPosition, Constants.Coral.kWristMaxPosition);
     }
 
+    public boolean hasCoral() {
+        return !m_irSensor.get();
+    }
+
     public void reinit()  {
-        boolean irDetected = !m_irSensor.get();
+        boolean irDetected = hasCoral();
         if (irDetected) {
             state = CoralState.HOLDING;
             el.setLevel(ElevatorLevel.LEVEL1);
@@ -261,7 +265,7 @@ public class CoralSubsystem extends SafeableSubsystem {
         double currentWristEncoderPosition = m_wristEncoder.getPosition();
         m_wristEncoderPub.set(currentWristEncoderPosition);
 
-        boolean irDetected = !m_irSensor.get();
+        boolean irDetected = hasCoral();
         m_irSensorPub.set(irDetected ? 1.0 : 0.0);
                         
         if (!enabled) {
