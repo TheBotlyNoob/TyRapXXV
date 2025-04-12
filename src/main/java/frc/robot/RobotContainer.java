@@ -432,7 +432,7 @@ public class RobotContainer {
                                 new StationaryWait(m_swerve, .4),
                                 new ConditionalCommand(
                                         buildSelectRemoveAlgaeCommand(), 
-                                        new DriveFixedVelocity(m_swerve, 180, () -> 3.0).withTimeout(0.20),
+                                        new DriveFixedVelocity(m_swerve, 180, () -> m_elevator.getLevelFlag() == ElevatorLevel.LEVEL4 ? 1.5 : 3.0).withTimeout(0.25),
                                         () -> (shouldRemoveAlgae())),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
@@ -455,7 +455,7 @@ public class RobotContainer {
                                 new StationaryWait(m_swerve, .4),
                                 new ConditionalCommand(
                                         buildSelectRemoveAlgaeCommand(),  
-                                        new DriveFixedVelocity(m_swerve, 180, () -> 3.0).withTimeout(0.20),
+                                        new DriveFixedVelocity(m_swerve, 180, () -> m_elevator.getLevelFlag() == ElevatorLevel.LEVEL4 ? 1.5 : 3.0).withTimeout(0.25),
                                         () -> (shouldRemoveAlgae())),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
         }
