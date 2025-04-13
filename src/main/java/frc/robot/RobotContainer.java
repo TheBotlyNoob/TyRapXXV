@@ -530,10 +530,11 @@ public class RobotContainer {
         private void configurePathPlanner() {
                 //autoChooser.addOption("DriveForward", "DriveForward"); // Permanent choice
                 autoChooser.addOption("OnePieceAuto", "OnePieceAuto"); // Permanent choice
+                autoChooser.addOption("OnePieceAutoNoAlgae", "OnePieceAutoNoAlgae"); // Permanent choice //added line
                 autoChooser.addOption("Left2Piece", "Left2Piece"); // Permanent choice
                 autoChooser.addOption("Right2Piece", "Right2Piece"); // Permanent choice
                 // For multi-step, create name to be name of multi-step, then have object be the
-                // name of the first step
+                // name of the first stepAlgae
                 // MultiStep example below
                 // autoChooser.addOption("MultiStepRight", "Starting2Reef2"); // Permanent
                 // choice
@@ -625,9 +626,22 @@ public class RobotContainer {
                                         new StopDrive(m_swerve));
 
                         start.schedule();
+                
+                } else if (auto.equals("OnePieceAutoNoAlgae")) {
+                        start = new SequentialCommandGroup(
+                                        m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                                        m_elevator.runOnce(() -> m_elevator.setLevelFlag(ElevatorLevel.LEVEL4)),
+                                        getAutonomousCommand("OnePieceAuto", true),
+                                        new StationaryWait(m_swerve, .2),
+                                        buildScoreOffsetAutoCommand(false),
+                                        m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)),
+                                        new StopDrive(m_swerve));
+                        start.schedule();
+
                 } else {
                         System.err.println("Invalid auto routine specified");
                 }
+
         }
 
         public Command getAutonomousCommand(String pathName, boolean resetOdometry) {
