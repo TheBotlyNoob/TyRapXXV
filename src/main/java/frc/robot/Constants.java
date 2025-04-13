@@ -218,14 +218,14 @@ public class Constants {
 
         public static class FF { // not tuned
             public static final double kS = 0.1; // static friction (V)
-            public static final double kG = 0.55; // gravity (V)
+            public static final double kG = 0.65; // gravity (V)
             public static final double kV = 1.6; // volts per velocity (V/(m/s))
             public static final double kA = 0.0; // volts per acceleration (V/(m/s^2))
         }
 
         public static final double kMaxVelocity = 3.5;
         public static final double kMaxAcceleration = 3.0;
-        public static final double kDecelProp = 0.4;
+        public static final double kDecelProp = 0.5;
 
         public static final double kElevatorGearRatio = 0;
         public static final double kElevatorDrumRadius = 0;

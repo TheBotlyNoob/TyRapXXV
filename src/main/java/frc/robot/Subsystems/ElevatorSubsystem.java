@@ -334,8 +334,8 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                 Constants.Elevator.PID.kI,
                 Constants.Elevator.PID.kD);
 
-        m_trapController = new TrapezoidController(0.0, 0.05, .1, Constants.Elevator.kMaxVelocity,
-                Constants.Elevator.kMaxAcceleration, 7.5,
+        m_trapController = new TrapezoidController(0.0, 0.05, .2, Constants.Elevator.kMaxVelocity,
+                Constants.Elevator.kMaxAcceleration, 50.0,
                 Constants.Elevator.kDecelProp);
 
         setLevel(ElevatorLevel.GROUND);
@@ -545,7 +545,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
                 targetVelocity = m_manualSpeed;
             }
             // Enforce a velocity limit for safety until tuning complete
-            targetVelocity = MathUtil.clamp(targetVelocity, -2.5, 1.8);
+            targetVelocity = MathUtil.clamp(targetVelocity, -2.5, 12);
 
             double targetAcceleration = (targetVelocity - this.m_lastSpeed);
 
@@ -565,7 +565,7 @@ public class ElevatorSubsystem extends SafeableSubsystem {
             } else if (currentPosition > Constants.Elevator.kElevatorMaxPos - 1.5) {
                 outputVoltage = MathUtil.clamp(outputVoltage, -2.0, 1.0);
             } else {
-                outputVoltage = MathUtil.clamp(outputVoltage, -4.0, 6.0);
+                outputVoltage = MathUtil.clamp(outputVoltage, -4.0, 9.0);
             }
             outputVoltagePostClampPub.set(outputVoltage);
             desiredVelocityPub.set(targetVelocity);
