@@ -177,7 +177,7 @@ public class Constants {
         // For ProportionalController & DriveDistance as well
         public static final double maxAccMSS = 3;
         public static final double maxDccMSS = 8;
-        public static final double minVelocity = 0.05;
+        public static final double minVelocity = 0.1;
         public static final double maxVelocity = 5.0;
         public static final double offset = 0.0;
         public static final double proportion = 2;
@@ -239,7 +239,7 @@ public class Constants {
 
     public static class AlgaeGrabber {
         public static final double kMotorCurrentThreshold = 1.0;
-        public static final double kIntakeSpeed = 0.60;
+        public static final double kIntakeSpeed = 0.90;
         public static final double kEjectSpeed = 0.55;
 
         public static final int kSolenoidCANID1 = 0;
