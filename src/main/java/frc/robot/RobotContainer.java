@@ -56,6 +56,7 @@ import frc.robot.Commands.Drive;
 import frc.robot.Commands.DriveDistance;
 import frc.robot.Commands.DriveDistance2;
 import frc.robot.Commands.DriveLeftOrRight;
+import frc.robot.Commands.DriveLeftOrRight2;
 import frc.robot.Commands.DriveFixedVelocity;
 import frc.robot.Commands.DriveOffset;
 import frc.robot.Commands.EjectAlgae;
@@ -447,9 +448,9 @@ public class RobotContainer {
                                                 new SequentialCommandGroup(
                                                                 new DriveDistance2(m_swerve, () -> 0.15, 0)
                                                                                 .withTimeout(forwardTimeout),
-                                                                new DriveFixedVelocity(m_swerve, 180, () -> 0.25)
-                                                                                .withTimeout(.1),
-                                                                new DriveLeftOrRight(m_swerve, m_Limelight, isLeft),
+                                                                /*new DriveFixedVelocity(m_swerve, 180, () -> 0.25)
+                                                                                .withTimeout(.1),*/
+                                                                new DriveLeftOrRight2(m_swerve, m_Limelight, isLeft),
                                                                 new StopDrive(m_swerve))),
                                 new EjectCoral(m_coral),
                                 new StationaryWait(m_swerve, .4),

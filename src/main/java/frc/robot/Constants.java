@@ -177,7 +177,7 @@ public class Constants {
         // For ProportionalController & DriveDistance as well
         public static final double maxAccMSS = 3;
         public static final double maxDccMSS = 8;
-        public static final double minVelocity = 0.05;
+        public static final double minVelocity = 0.1;
         public static final double maxVelocity = 5.0;
         public static final double offset = 0.0;
         public static final double proportion = 2;
@@ -203,7 +203,7 @@ public class Constants {
         public static class Heights {
             public static final double kGround = 0.0;
             public static final double kLevel1 = 5.3; // 3.5
-            public static final double kLevel2 = 7.0;
+            public static final double kLevel2 = 7.4;
             public static final double kLevel5 = 8.0; //Level5 is between level2 & level3 (ALGAE ONLY)
             public static final double kLevel3 = 14.2;
             public static final double kLevel6 = 16.0; //Level6 is between level3 & level4 (ALGAE ONLY)
@@ -239,7 +239,7 @@ public class Constants {
 
     public static class AlgaeGrabber {
         public static final double kMotorCurrentThreshold = 1.0;
-        public static final double kIntakeSpeed = 0.60;
+        public static final double kIntakeSpeed = 0.90;
         public static final double kEjectSpeed = 0.55;
 
         public static final int kSolenoidCANID1 = 0;
