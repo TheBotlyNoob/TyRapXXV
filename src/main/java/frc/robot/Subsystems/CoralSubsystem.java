@@ -90,10 +90,10 @@ public class CoralSubsystem extends SafeableSubsystem {
         m_coralGrabberMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
         m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushed);
 
-        SparkBaseConfig motorConf = new SparkMaxConfig().idleMode(IdleMode.kBrake).inverted(false)
-                .smartCurrentLimit(60);
-        m_wristMotor.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        m_wristMotor.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        //SparkBaseConfig motorConf = new SparkMaxConfig().idleMode(IdleMode.kBrake).inverted(false);
+                //.smartCurrentLimit(60);
+        //m_wristMotor.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        //m_coralGrabberMotor.configure(motorConf, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         kWristMotorVoltageForward = m_table.getDoubleTopic("wrist motor voltage forward")
                 .getEntry(Constants.Coral.kWristMotorVoltage);
