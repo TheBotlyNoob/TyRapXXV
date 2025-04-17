@@ -412,7 +412,7 @@ public class RobotContainer {
         return new SelectCommand<>(
                 Map.ofEntries(
                 Map.entry(CommandSelector.LOW, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL3, ElevatorLevel.LEVEL5)),
-                Map.entry(CommandSelector.HIGH, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL4, ElevatorLevel.LEVEL6)),
+                Map.entry(CommandSelector.HIGH, buildRemoveAlgaeCommand(ElevatorLevel.LEVEL7, ElevatorLevel.LEVEL6)),
                 Map.entry(CommandSelector.NULL, new RumbleDrive(0.5))),
         this::select);
         }
@@ -432,7 +432,9 @@ public class RobotContainer {
                                 new EjectCoral(m_coral),
                                 new StationaryWait(m_swerve, .4),
                                 new ConditionalCommand(
-                                        buildSelectRemoveAlgaeCommand(), 
+                                        new SequentialCommandGroup(
+                                        new DriveFixedVelocity(m_swerve, 180, () -> 3.0).withTimeout(0.25),
+                                        buildSelectRemoveAlgaeCommand()),
                                         new DriveFixedVelocity(m_swerve, 180, () -> m_elevator.getLevelFlag() == ElevatorLevel.LEVEL4 ? 1.5 : 3.0).withTimeout(0.25),
                                         () -> (shouldRemoveAlgae())),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));
@@ -455,7 +457,9 @@ public class RobotContainer {
                                 new EjectCoral(m_coral),
                                 new StationaryWait(m_swerve, .4),
                                 new ConditionalCommand(
-                                        buildSelectRemoveAlgaeCommand(),  
+                                        new SequentialCommandGroup(
+                                        new DriveFixedVelocity(m_swerve, 180, () -> 3.0).withTimeout(0.25),
+                                        buildSelectRemoveAlgaeCommand()),  
                                         new DriveFixedVelocity(m_swerve, 180, () -> m_elevator.getLevelFlag() == ElevatorLevel.LEVEL4 ? 1.5 : 3.0).withTimeout(0.25),
                                         () -> (shouldRemoveAlgae())),
                                 m_elevator.runOnce(() -> m_elevator.setLevel(ElevatorLevel.GROUND)));

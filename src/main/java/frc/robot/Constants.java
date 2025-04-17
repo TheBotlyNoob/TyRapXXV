@@ -207,6 +207,7 @@ public class Constants {
             public static final double kLevel5 = 8.0; //Level5 is between level2 & level3 (ALGAE ONLY)
             public static final double kLevel3 = 14.6;
             public static final double kLevel6 = 16.0; //Level6 is between level3 & level4 (ALGAE ONLY)
+            public static final double kLevel7 = 21.9;
             public static final double kLevel4 = 25.15; 
         }
 
