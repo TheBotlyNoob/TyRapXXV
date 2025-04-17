@@ -82,10 +82,12 @@ public class CoralSubsystem extends SafeableSubsystem {
 
     protected CoralState state = CoralState.WAITING;
     protected boolean enabled = false;
+    
 
     public CoralSubsystem(NetworkTableInstance nt, ElevatorSubsystem el) {
         this.el = el;
         m_table = nt.getTable(getName());
+        
 
         m_coralGrabberMotor = new SparkMax(Constants.MechID.kCoralWheelCanId, MotorType.kBrushless);
         m_wristMotor = new SparkMax(Constants.MechID.kCoralWristCanId, MotorType.kBrushed);
@@ -251,7 +253,9 @@ public class CoralSubsystem extends SafeableSubsystem {
     public CoralState getState() {
         return state;
     }
-
+    public boolean isCoralIn() {
+        return !m_irSensor.get();
+    }
     public void applyWristControl() {
         double wristError = wristDesiredPosition - wristPosition;
         if (wristError > 0) {

@@ -200,7 +200,7 @@ public class RobotContainer {
                                                                                 .getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber
                                                                                                 + 0.1)),
                                                 new PrintCommand("level has not been set").andThen(new RumbleDrive(.5)),
-                                                () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag()));
+                                                () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag() && m_coral.isCoralIn()));
 
                 this.m_scoreRight = new SequentialCommandGroup(
                                 new ConditionalCommand(
@@ -211,7 +211,7 @@ public class RobotContainer {
                                                                                 .getzDistanceMeters() > (Offsets.cameraOffsetFromFrontBumber
                                                                                                 + 0.1)),
                                                 new PrintCommand("level has not been set").andThen(new RumbleDrive(.5)),
-                                                () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag()));
+                                                () -> (m_elevator.isAnyLevelSet()) && m_leds.canSeeValidTag() && m_coral.isCoralIn()));
 
                 this.m_scoreCancel = new SequentialCommandGroup(
                                 m_elevator.runOnce(() -> m_scoreLeft.cancel()),
@@ -553,14 +553,14 @@ public class RobotContainer {
                                 buildScoreOffsetAutoCommand(scoreLeft),
                                 new StationaryWait(m_swerve, .1),
                                 getAutonomousCommand(pathToCoralStn, false),
-                                new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(.9),
+                                new DriveDistance2(m_swerve, () -> 1.2, 180).withTimeout(1.5),
                                 new StopDrive(m_swerve),
                                 new StationaryWait(m_swerve, .4),
                                 getAutonomousCommand(pathCoralToReef, false),
                                 new StopDrive(m_swerve),
-                                buildScoreOffsetCommand(scoreLeft),
+                                buildScoreOffsetAutoCommand(scoreLeft),
                                 getAutonomousCommand(pathToCoralStn2, false),
-                                new DriveDistance2(m_swerve, () -> .55, 180).withTimeout(0.7),
+                                new DriveDistance2(m_swerve, () -> 1.2, 180).withTimeout(1.5),
                                 new StopDrive(m_swerve),
                                 m_swerve.runOnce(() -> m_swerve.setEnableVisionPoseInputs(false)));
         }
