@@ -1,7 +1,7 @@
 package frc.robot.Commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Subsystems.AlgaeGrabberSubsystem;
+import frc.robot.Subsystems.algae.AlgaeGrabberSubsystem;
 
 public class AlgaeIntake extends Command {
   AlgaeGrabberSubsystem ag;
