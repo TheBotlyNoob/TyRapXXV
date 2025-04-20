@@ -12,16 +12,17 @@ import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.LimelightHelpers;
 import frc.robot.Constants.*;
+import frc.robot.LimelightHelpers;
 
 /**
- * The Limelight subsystem is a light that is lime green. If you look at it at a
- * certain angle, you will go blind, so read this code with caution.
+ * The Limelight subsystem is a light that is lime green. If you look at it at a certain angle, you
+ * will go blind, so read this code with caution.
  */
 public class Limelight extends SubsystemBase {
 
-  private final NetworkTable limeTable = NetworkTableInstance.getDefault().getTable(ID.kFrontLimelightName);
+  private final NetworkTable limeTable =
+      NetworkTableInstance.getDefault().getTable(ID.kFrontLimelightName);
   private final NetworkTableEntry targetInViewEntry = limeTable.getEntry("TargetInView");
   private final NetworkTableEntry tplEntry = limeTable.getEntry("pipeline");
   public boolean targetInView;
@@ -60,7 +61,8 @@ public class Limelight extends SubsystemBase {
   @Override
   public void periodic() {
     targetInView = targetInViewEntry.getDouble(0) >= 1.0;
-    SmartDashboard.putString("plType", LimelightHelpers.getCurrentPipelineType(ID.kFrontLimelightName));
+    SmartDashboard.putString(
+        "plType", LimelightHelpers.getCurrentPipelineType(ID.kFrontLimelightName));
     double[] cameraTargetPose = getTargetPoseCameraSpace();
     if (cameraTargetPose.length > 0) {
       if (isAllZeros(cameraTargetPose)) {
@@ -89,7 +91,6 @@ public class Limelight extends SubsystemBase {
     if (count == 150000) {
       count = 0;
     }
-
   }
 
   public void setLimelightPipeline(int pipeline) {
@@ -124,5 +125,4 @@ public class Limelight extends SubsystemBase {
   public int getTimeSinceValid() {
     return timeSinceValid;
   }
-
 }

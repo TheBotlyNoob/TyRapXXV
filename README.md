@@ -3,7 +3,7 @@
 ## Overview
 This repository contains the source code for our 2025 robot, including all subsystems, vision processing, and motion planning components.
 
-##Controller Bindings 
+##Controller Bindings
 https://docs.google.com/spreadsheets/d/10Bk8kJeCZEpjuQmLOMcRfuR12O42bP0hZRbtEoB95dA/edit?usp=sharing
 
 ##Branching Strategy

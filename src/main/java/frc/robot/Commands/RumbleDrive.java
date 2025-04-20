@@ -7,27 +7,29 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.*;
 
 public class RumbleDrive extends Command {
-    private final XboxController m_controller = new XboxController(Controller.kDriveControllerID);
-    protected double durationSec;
-    protected double endTimeSec;
-    public RumbleDrive(double durationSec) {
-        this.durationSec = durationSec;
-    }
+  private final XboxController m_controller = new XboxController(Controller.kDriveControllerID);
+  protected double durationSec;
+  protected double endTimeSec;
 
-    @Override
-    public void initialize() {
-        this.endTimeSec = Timer.getFPGATimestamp() + durationSec;
-        m_controller.setRumble(RumbleType.kLeftRumble, 0.3);
-        m_controller.setRumble(RumbleType.kRightRumble, 0.3);
-    }
+  public RumbleDrive(double durationSec) {
+    this.durationSec = durationSec;
+  }
 
-    @Override
-    public boolean isFinished() {
-        if (Timer.getFPGATimestamp() >= endTimeSec){
-            m_controller.setRumble(RumbleType.kLeftRumble, 0.0);
-            m_controller.setRumble(RumbleType.kRightRumble, 0.0);
-            return true;
-        };
-        return false;
+  @Override
+  public void initialize() {
+    this.endTimeSec = Timer.getFPGATimestamp() + durationSec;
+    m_controller.setRumble(RumbleType.kLeftRumble, 0.3);
+    m_controller.setRumble(RumbleType.kRightRumble, 0.3);
+  }
+
+  @Override
+  public boolean isFinished() {
+    if (Timer.getFPGATimestamp() >= endTimeSec) {
+      m_controller.setRumble(RumbleType.kLeftRumble, 0.0);
+      m_controller.setRumble(RumbleType.kRightRumble, 0.0);
+      return true;
     }
+    ;
+    return false;
+  }
 }

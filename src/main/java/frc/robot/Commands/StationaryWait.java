@@ -7,25 +7,24 @@ import frc.robot.Subsystems.Drivetrain;
 
 public class StationaryWait extends Command {
 
-    protected Drivetrain dt;
-    protected double durationSec;
-    protected double endTimeSec;
+  protected Drivetrain dt;
+  protected double durationSec;
+  protected double endTimeSec;
 
-    public StationaryWait(Drivetrain dt, double durationSec) {
-        this.dt = dt;
-        this.durationSec = durationSec;
-    }
+  public StationaryWait(Drivetrain dt, double durationSec) {
+    this.dt = dt;
+    this.durationSec = durationSec;
+  }
 
-    public void initialize() {
-        this.endTimeSec = Timer.getFPGATimestamp() + durationSec;
-    }
+  public void initialize() {
+    this.endTimeSec = Timer.getFPGATimestamp() + durationSec;
+  }
 
-    public void execute() {
-        this.dt.driveChassisSpeeds(new ChassisSpeeds());
-    }
+  public void execute() {
+    this.dt.driveChassisSpeeds(new ChassisSpeeds());
+  }
 
-    public boolean isFinished() {
-        return (Timer.getFPGATimestamp() >= endTimeSec);
-    }
-    
+  public boolean isFinished() {
+    return (Timer.getFPGATimestamp() >= endTimeSec);
+  }
 }
