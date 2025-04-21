@@ -1,6 +1,6 @@
 {
   "recommendations": [
-    "richardwillis.vscode-spotless-gradle",
+    "josevseb.google-java-format-for-vs-code",
     "vscjava.vscode-java-pack",
     "fwcd.kotlin"
   ]

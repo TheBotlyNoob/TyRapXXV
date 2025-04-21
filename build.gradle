@@ -11,6 +11,35 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+configurations {
+    // dependencies to document
+    doc {
+        transitive false
+        canBeResolved = false
+        canBeConsumed = false
+        canBeDeclared = true
+    }
+    docSources {
+        extendsFrom doc
+        transitive false
+        canBeResolved = true
+        canBeConsumed = false
+        canBeDeclared = false
+    }
+    // dependencies for documentation generation
+    compileDoc {
+        canBeResolved = false
+        canBeConsumed = false
+        canBeDeclared = true
+    }
+    compileDocClasspath {
+        extendsFrom compileDoc
+        canBeResolved = true
+        canBeConsumed = false
+        canBeDeclared = false
+    }
+}
+
 def ROBOT_MAIN_CLASS = "frc.robot.Main"
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -55,10 +84,6 @@ deploy {
     }
 }
 
-repositories {
-    mavenCentral()
-}
-
 def deployArtifact = deploy.targets.roborio.artifacts.frcJava
 
 // Set to true to use debug for JNI.
@@ -73,6 +98,8 @@ dependencies {
     annotationProcessor wpi.java.deps.wpilibAnnotations()
     implementation wpi.java.deps.wpilib()
     implementation wpi.java.vendor.java()
+    doc wpi.java.deps.wpilibSources()
+    doc wpi.java.vendor.java().collect { it.get() + ":sources" }
 
     roborioDebug wpi.java.deps.wpilibJniDebug(wpi.platforms.roborio)
     roborioDebug wpi.java.vendor.jniDebug(wpi.platforms.roborio)
@@ -91,8 +118,14 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // dependencies for documentation
+    compileDoc 'javax.annotation:javax.annotation-api:1.3.2'
+    compileDoc 'org.jetbrains:annotations:23.0.0'
+    compileDoc 'ch.randelshofer:fastdoubleparser:2.0.1'
+
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
+    doc "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
 
     errorprone("com.google.errorprone:error_prone_core:2.38.0")
 }
@@ -126,6 +159,17 @@ jar {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
+javadoc {
+    destinationDir = file("${buildDir}/docs/javadoc")
+    source {
+        files(configurations.docSources.collect { zipTree(it) }, "src/main/java")
+    }
+    include "**/*.java"
+    classpath += sourceSets.main.compileClasspath
+    classpath += configurations.compileDocClasspath
+    options.addStringOption('Xdoclint:none', '-quiet')
+}
+
 // Configure jar and deploy tasks
 deployArtifact.jarTask = jar
 wpi.java.configureExecutableTasks(jar)
@@ -137,7 +181,7 @@ tasks.withType(JavaCompile) {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.errorprone.disable 'MissingSummary'
+    options.errorprone.enabled = false
 }
 
 project.compileJava.dependsOn(createVersionFile)
