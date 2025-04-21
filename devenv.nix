@@ -1,4 +1,10 @@
-{ pkgs, lib, config, inputs, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  inputs,
+  ...
+}:
 
 {
   # https://devenv.sh/basics/
@@ -15,6 +21,11 @@
 
   # https://devenv.sh/services/
   # services.postgres.enable = true;
+  #
+  packages = with pkgs; [
+    google-java-format
+    nixfmt-rfc-style
+  ];
 
   languages.java = {
     enable = true;

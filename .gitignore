@@ -189,3 +189,6 @@ compile_commands.json
 .devenv/
 .direnv/
 .apt_generated/
+.devenv.flake.nix
+
+src/main/java/frc/robot/BuildConstants.java

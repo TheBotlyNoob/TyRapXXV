@@ -33,6 +33,7 @@ public class SwerveModule {
   private static final double kModuleMaxAngularVelocity = 32 * Math.PI;
   private static final double kModuleMaxAngularAcceleration =
       40 * Math.PI; // radians per second squared this was
+
   // 2PI
 
   /**

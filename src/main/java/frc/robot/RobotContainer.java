@@ -67,6 +67,7 @@ import frc.robot.Subsystems.LightSubsystem.AlgaeState;
 import frc.robot.Subsystems.Limelight;
 import frc.robot.Subsystems.algae.AlgaeGrabberSubsystem;
 import frc.robot.Subsystems.algae.AlgaePneumaticsIOReal;
+import frc.robot.Subsystems.algae.AlgaeRetrievalIOSpark;
 import frc.robot.Utils.SafeableSubsystem;
 import java.io.IOException;
 import java.util.*;
@@ -155,7 +156,8 @@ public class RobotContainer {
     climbCamera = CameraServer.startAutomaticCapture(); // Start USB webcam capture for climb
     climbCamera.setFPS(18);
     climbCamera.setPixelFormat(PixelFormat.kMJPEG);
-    this.m_algae = new AlgaeGrabberSubsystem(new AlgaePneumaticsIOReal());
+    this.m_algae =
+        new AlgaeGrabberSubsystem(new AlgaePneumaticsIOReal(), new AlgaeRetrievalIOSpark());
 
     // this.m_range = new RangeSensor(0);
     this.m_elevator = new ElevatorSubsystem(NetworkTableInstance.getDefault());

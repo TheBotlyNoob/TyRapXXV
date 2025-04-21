@@ -1,49 +1,41 @@
 package frc.robot.Subsystems.algae;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.Constants;
 import frc.robot.Subsystems.algae.AlgaePneumaticsIO.AlgaeGrabberState;
 import frc.robot.Utils.SafeableSubsystem;
 import org.littletonrobotics.junction.Logger;
 
 public class AlgaeGrabberSubsystem extends SafeableSubsystem {
-  private final SparkMax retrieval_motor;
+  private final AlgaeRetrievalIO retrievalIo;
+  private final AlgaeRetrievalIOInputsAutoLogged retrievalInputs =
+      new AlgaeRetrievalIOInputsAutoLogged();
 
   private final AlgaePneumaticsIO pneumaticsIo;
   private final AlgaePneumaticsIOInputsAutoLogged pneumaticsInputs =
       new AlgaePneumaticsIOInputsAutoLogged();
 
   /** Creates a new AlgaeGrabber. */
-  public AlgaeGrabberSubsystem(AlgaePneumaticsIO pneumaticsIO) {
-    this.pneumaticsIo = pneumaticsIO;
-
-    retrieval_motor = new SparkMax(Constants.MechID.kAlgaeMotorCanId, MotorType.kBrushless);
-    SparkMaxConfig motorConfig = new SparkMaxConfig();
-    motorConfig.inverted(false);
-    retrieval_motor.configure(
-        motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  public AlgaeGrabberSubsystem(AlgaePneumaticsIO pneumaticsIo, AlgaeRetrievalIO retrievalIo) {
+    this.pneumaticsIo = pneumaticsIo;
+    this.retrievalIo = retrievalIo;
   }
 
   public void extendGrabber() {
     pneumaticsIo.setState(AlgaeGrabberState.EXTENDED);
-    retrieval_motor.set(-Constants.AlgaeGrabber.kIntakeSpeed);
+    retrievalIo.setSpeed(-Constants.AlgaeGrabber.kIntakeSpeed);
   }
 
   public void retractGrabber() {
     pneumaticsIo.setState(AlgaeGrabberState.RETRACTED);
-    retrieval_motor.set(0.0);
+    stopMotor();
   }
 
   public void stopMotor() {
-    retrieval_motor.set(0);
+    retrievalIo.setSpeed(0);
   }
 
   public void ejectAlgae() {
-    retrieval_motor.set(Constants.AlgaeGrabber.kEjectSpeed);
+    retrievalIo.setSpeed(Constants.AlgaeGrabber.kEjectSpeed);
   }
 
   public void makeSafe() {
@@ -55,5 +47,8 @@ public class AlgaeGrabberSubsystem extends SafeableSubsystem {
   public void periodic() {
     pneumaticsIo.updateInputs(pneumaticsInputs);
     Logger.processInputs("AlgaeGrabberSubsystem/Pneumatics", pneumaticsInputs);
+
+    retrievalIo.updateInputs(retrievalInputs);
+    Logger.processInputs("AlgaeGrabberSubsystem/Retrieval", retrievalInputs);
   }
 }
