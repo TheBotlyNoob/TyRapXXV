@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "josevseb.google-java-format-for-vs-code",
+    "vscjava.vscode-java-pack",
+    "SonarSource.sonarlint-vscode",
+    "fwcd.kotlin"
+  ]
+}
