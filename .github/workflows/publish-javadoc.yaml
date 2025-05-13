@@ -1,20 +1,45 @@
 name: Deploy Javadoc
 
 on:
-  push:
+    push:
+    workflow_dispatch:
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # if you have a protection rule on your repository, you'll need to give write permission to the workflow.
-    steps:
-      - name: Deploy JavaDoc 🚀
-        uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          javadoc-branch: javadoc
-          java-version: 17
-          target-folder: # url will be https://<username>.github.io/<repo>/javadoc, This can be left as nothing to generate javadocs in the root folder.
-          project: gradle # or gradle
-          # subdirectories: moduleA moduleB #for subdirectories support, needs to be run with custom command
+    generate:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write # if you have a protection rule on your repository, you'll need to give write permission to the workflow.
+        steps:
+            - uses: burrunan/gradle-cache-action@v3
+              name: build javadocs
+              with:
+                  # Specifies arguments for Gradle execution
+                  # If arguments is missing or empty, then Gradle is not executed
+                  arguments: javadoc
+                  # arguments can be multi-line for better readability
+                  # arguments: |
+                  #  --no-paralell
+                  #  build
+                  #  -x test
+                  # Gradle version to use for execution:
+                  #   wrapper (default), current, rc, nightly, release-nightly, or
+                  #   versions like 6.6 (see https://services.gradle.org/versions/all)
+                  gradle-version: wrapper
+
+            - name: Upload static files as artifact
+              id: deployment
+              uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
+              with:
+                path: build/docs/javadoc # Path to the directory containing the static files to be uploaded
+
+    # Deployment job
+    deploy:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        needs: generate
+        steps:
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4

@@ -22,11 +22,18 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Execute Gradle checks
-        # gradle build runs all tests and checks;
-        # excluding spotlessApply makes the formatter warn about formatting errors
-        # instead of automatically fixing them, which is bad for CI
-        run: ./gradlew build -x spotlessApply
+      - uses: burrunan/gradle-cache-action@v3
+        name: Build
+        with:
+          # Specifies arguments for Gradle execution
+          # If arguments is missing or empty, then Gradle is not executed
+          arguments: build -x spotlessApply
+          # arguments can be multi-line for better readability
+          # arguments: |
+          #  --no-paralell
+          #  build
+          #  -x test
+          # Gradle version to use for execution:
+          #   wrapper (default), current, rc, nightly, release-nightly, or
+          #   versions like 6.6 (see https://services.gradle.org/versions/all)
+          gradle-version: wrapper
